@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pages:build": "npx @cloudflare/next-on-pages@1",
+    "pages:dev": "npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.2",
