@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📈 StockPilot 
 
-## Getting Started
+**Mathematical Rule-Based Free Stock Signal Engine**
 
-First, run the development server:
+StockPilot is an intensive, completely algorithmic educational platform explicitly stripping out "guesswork", "AI generation", and abstract predictions, replacing them exclusively with hard-coded classical momentum/volatility mathematical arrays. Every aspect of the UI is optimized globally leveraging high-performance `Next.js 14`, local client boundaries leveraging `Zustand` persistent logic, and fully rendered explicit TradingView graphics.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+> **⚠️ DISCLAIMER:** This isolated MVP maps mocked Yahoo proxy data and bounds signals entirely based on `technicalindicators`. It does NOT offer legal or professional financial advice. Past patterns implicitly do not map future alignment. Trade explicitly at your own local risk.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔥 Features
+* **Spoon-Fed Signals Structure:** Instantly calculates Entry Boundaries, Stop-Loss triggers via True Range variants, and explicit 1:3 RR conditional Targets.
+* **100% Free / ZERO AI Engine:** All evaluations (RSI bounds checks, MACD crosses, Sub-Pivot support breaks, Standard Deviations bounding) run locally directly through formulas.
+* **Native Lightweight Charts:** Built entirely around the TradingView Lightweight-Charts framework visualizing Candlesticks alongside injected EMA layers dynamically.
+* **Screener & Watchlists:** Efficiently traverse and sort the universe filtering conditionally mapping specifically directly into localized `Zustand` hooks locally caching immediately.
+* **Mock Portfolio Trackers:** Mock theoretical investments observing explicit variations mapping securely instantly.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Tech Stack Structure
+* **Core:** Next.js 14 (App router) / React 18 / TypeScript
+* **State Operations:** Zustand + Persist Middleware (LocalStorage)
+* **Styling Matrix:** Tailwind CSS v3 / Framer Motion / Lucide-React
+* **Calculations:** `technicalindicators` / `yahoo-finance2`
+* **Charting Native Tools:** `lightweight-charts`
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Running Locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Install Configuration Matrices:**
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Boot the Edge Sandbox Server:**
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+3. **Explore Dashboard:**
+   Visit `http://localhost:3000` locally.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌐 Deploying to Vercel
+Because tracking endpoints operate inside Next.js wrappers via Serverless proxies passing exact arrays natively, it requires absolutely zero environmental `.env` configs for MVP fallback functionality mapping dynamically.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Simply click on your GitHub repository utilizing the native **Vercel** Import:
+1. Hit **Add New Project**.
+2. Select repository bounds.
+3. Deploy instantly (The builder utilizes standard `npm build`).

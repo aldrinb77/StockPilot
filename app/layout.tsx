@@ -1,16 +1,45 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import '../styles/globals.css'
-import { ThemeProvider } from '@/components/ThemeProvider'
-import Sidebar from '@/components/layout/Sidebar'
-import TopBar from '@/components/layout/TopBar'
-import MobileNav from '@/components/layout/MobileNav'
+import type { Metadata, Viewport } from "next"
+import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google"
+import "./globals.css"
+import Sidebar from "@/components/layout/Sidebar"
+import TopBar from "@/components/layout/TopBar"
+import MobileNav from "@/components/layout/MobileNav"
+import { ThemeProvider } from "@/components/ThemeProvider"
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow"
+import { CommandPalette } from "@/components/ui/CommandPalette"
 
-const inter = Inter({ subsets: ['latin'] })
+const jakarta = Plus_Jakarta_Sans({ 
+  subsets: ['latin'], 
+  variable: '--font-heading',
+  display: 'swap',
+})
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
+const mono = JetBrains_Mono({ 
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+})
+
+export const viewport: Viewport = {
+  themeColor: '#0a0e17',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
 
 export const metadata: Metadata = {
-  title: 'StockPilot - Free Rule-Based Stock Trading Guidance',
-  description: 'A beginner-friendly stock market guidance platform that acts as a spoon-feeder, telling you EXACTLY when to buy, sell, or hold. No AI, just math.',
+  title: "StockPilot - Premium Stock Trading Signals",
+  description: "Rule-based technical analysis stock guidance. 100% Free, NO AI.",
+  manifest: '/manifest.json',
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>",
+  },
 }
 
 export default function RootLayout({
@@ -19,26 +48,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-background text-foreground antialiased selection:bg-tvGreen selection:text-white`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans bg-background text-foreground min-h-screen antialiased selection:bg-tvGreen/30 selection:text-tvGreen`}>
         <ThemeProvider>
+          <CommandPalette />
+          <OnboardingFlow />
           <div className="flex h-screen overflow-hidden">
-            <div className="hidden md:block">
-              <Sidebar />
-            </div>
-            
-            <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
+            <Sidebar />
+            <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
               <TopBar />
-              
-              <main className="flex-1 overflow-y-auto w-full p-4 md:p-6 lg:p-8 relative">
-                <div className="max-w-[1600px] mx-auto w-full">
-                  {children}
-                </div>
+              <main className="flex-1 overflow-y-auto w-full relative">
+                {children}
               </main>
-
-              <div className="md:hidden">
-                <MobileNav />
-              </div>
+              <MobileNav />
             </div>
           </div>
         </ThemeProvider>

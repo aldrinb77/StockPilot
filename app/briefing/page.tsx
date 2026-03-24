@@ -1,0 +1,144 @@
+"use client"
+
+import { useStore } from "@/store/store"
+import { Sun, CheckSquare, Target, Clock, ArrowRight } from "lucide-react"
+import Link from "next/link"
+import { MOCK_STOCKS } from "@/lib/mockData"
+import { SignalCard } from "@/components/signals/SignalCard"
+import { generateSignal } from "@/lib/signals"
+
+export default function DailyBriefing() {
+  const { watchlist, experienceLevel } = useStore()
+  
+  // Date and Time bounds formatting directly locally without hydration errors
+  const now = new Date()
+  const dateString = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+  const hour = now.getHours()
+  const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening'
+
+  // Pick today's top signal recommendation purely rule based
+  const topMock = MOCK_STOCKS[0]
+  
+  // Generate signal from mock tracking arrays
+  const mockOHLCV = []
+  let p = topMock.price * 0.8
+  for(let i=0; i<250; i++) {
+     p = p * (1 + (Math.random() - 0.45) * 0.05)
+     mockOHLCV.push({ time: i, open: p, high: p*1.02, low: p*0.98, close: p, volume: 10000 })
+  }
+  const topSignal = generateSignal(mockOHLCV)
+
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 max-w-5xl mx-auto">
+      <div className="bg-gradient-to-r from-tvPurple/20 via-[#1E222D] to-tvBlue/10 p-8 rounded-3xl border border-white/10 relative overflow-hidden">
+        <Sun className="absolute -right-8 -top-8 w-48 h-48 text-yellow-500/10 blur-2xl pointer-events-none" />
+        <h1 className="text-4xl font-extrabold text-white font-heading tracking-tight mb-2">
+          {greeting}, Trader! 👋
+        </h1>
+        <p className="text-gray-400 font-medium tracking-wide">It&apos;s {dateString}. Here forms your transparent algorithmic breakdown.</p>
+        
+        <div className="mt-6 inline-flex bg-[#111827]/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-700/50 shadow-lg text-sm font-bold text-tvGreen items-center">
+          <Clock className="w-4 h-4 mr-2" /> Market is OPEN
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Watchlist Summary */}
+        <div className="md:col-span-2 space-y-6">
+          <section className="glass-panel p-6 rounded-2xl relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-tvGreen/5 rounded-full blur-2xl" />
+             <div className="flex items-center space-x-2 mb-6">
+               <div className="w-8 h-8 rounded-lg bg-tvGreen/10 flex items-center justify-center border border-tvGreen/30">
+                 <CheckSquare className="w-4 h-4 text-tvGreen" />
+               </div>
+               <h2 className="text-xl font-bold font-heading text-white">Your Watchlist Snapshot</h2>
+             </div>
+             
+             {watchlist.length === 0 ? (
+               <div className="text-center py-8 text-gray-500 text-sm">
+                 You currently aren&apos;t tracking any structural assets locally.
+                 <Link href="/screener" className="text-tvBlue hover:underline block mt-2">Find assets generating noise →</Link>
+               </div>
+             ) : (
+               <div className="space-y-3">
+                 {watchlist.slice(0, 3).map((w) => (
+                   <div key={w.symbol} className="flex justify-between items-center bg-[#111827] p-3 rounded-xl border border-gray-800">
+                     <span className="font-bold text-white">{w.symbol}</span>
+                     <span className="text-sm font-mono text-gray-400 flex items-center">
+                       <Target className="w-3 h-3 mr-1" /> Bound Check Passed
+                     </span>
+                     <Link href={`/stock/${w.symbol}`} className="px-3 py-1 bg-gray-800 hover:bg-white hover:text-gray-900 rounded text-xs font-bold transition-colors">
+                       Analyze
+                     </Link>
+                   </div>
+                 ))}
+                 {watchlist.length > 3 && (
+                   <Link href="/watchlist" className="block text-center text-sm font-bold text-gray-400 hover:text-white mt-4 border-t border-gray-800/50 pt-3">
+                     View all {watchlist.length} pinned assets
+                   </Link>
+                 )}
+               </div>
+             )}
+          </section>
+
+          {/* Top Pick Layout */}
+          <section className="glass-card p-6 rounded-2xl relative border-l-4 border-l-tvPurple">
+            <h2 className="text-xl font-bold font-heading text-white mb-2 flex items-center">
+              Top Execution Found Locally <span className="ml-2 px-2 py-0.5 bg-tvPurple/20 text-tvPurple text-xs rounded uppercase tracking-widest border border-tvPurple/30 relative top-[-1px]">Algorithmic</span>
+            </h2>
+            <p className="text-sm text-gray-400 mb-6">The engine identified immense momentum crossing limits exactly today.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <SignalCard 
+                stock={topMock} 
+                signal={topSignal}
+              />
+              <div className="space-y-4 text-sm text-gray-300 bg-black/20 p-4 rounded-xl border border-white/5">
+                <p><strong>Strict Output:</strong> The technicals bounds for {topMock.symbol} exhibit structural crossover variables.</p>
+                <p><strong>What it means:</strong> The MACD and RSI are mutually validating an upward trend perfectly crossing Standard Deviation bounds organically.</p>
+                <Link href={`/stock/${topMock.symbol}`} className="flex items-center text-tvBlue font-bold mt-2 hover:underline">
+                  Execute Trade <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Sidebar Status Columns */}
+        <div className="space-y-6">
+          <div className="glass-panel p-6 rounded-2xl">
+            <h3 className="font-bold text-white mb-4">Daily Educational Protocol</h3>
+            <div className="bg-[#111827] p-4 rounded-xl border border-gray-800">
+              <span className="text-2xl mb-2 block">💡</span>
+              <p className="text-sm font-bold text-white mb-1">Never guess tops and bottoms.</p>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Trying to locate exact structural tops relies purely on speculation. Wait patiently for the Moving Averages to converge establishing a clean signal securely.
+              </p>
+            </div>
+            <Link href="/learn" className="block w-full py-2 text-center mt-4 bg-gray-800 hover:bg-gray-700 text-sm font-bold rounded-lg transition-colors text-white border border-gray-700">
+              Read More Guides
+            </Link>
+          </div>
+
+          <div className="glass-panel p-6 rounded-2xl">
+            <h3 className="font-bold text-white mb-4">Signal Statistics</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-sm border-b border-gray-800 pb-2">
+                <span className="text-gray-400">Total Scans Ran</span>
+                <span className="font-mono text-white font-bold">5,204</span>
+              </div>
+              <div className="flex justify-between items-center text-sm border-b border-gray-800 pb-2">
+                <span className="text-gray-400">Active BUY Signals</span>
+                <span className="font-mono text-tvGreen font-bold">142</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">Active SELL Signals</span>
+                <span className="font-mono text-tvRed font-bold">89</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

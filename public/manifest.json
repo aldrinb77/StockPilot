@@ -1,0 +1,16 @@
+{
+  "name": "StockPilot",
+  "short_name": "StockPilot",
+  "description": "Mathematical rule-based free stock signals engine.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#131722",
+  "theme_color": "#26A69A",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
