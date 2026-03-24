@@ -37,7 +37,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
 }
 
-import { Providers } from './providers'
 import { ToastProvider } from "@/components/ui/Toast"
 import { BottomStatusBar } from "@/components/layout/BottomStatusBar"
 
@@ -58,31 +57,29 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans antialiased`}>
-        <Providers>
-          <ToastProvider>
-            <ThemeProvider>
-              <DisclaimerModal />
-              <CookieConsent />
-              <CommandPalette />
-              <OnboardingFlow />
-              <div className="flex h-screen overflow-hidden relative">
-                <Sidebar />
-                <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
-                  <DisclaimerBanner />
-                  <TopBar />
-                  <main className="flex-1 overflow-y-auto w-full relative flex flex-col custom-scrollbar pb-7 md:pb-12">
-                    <div className="flex-1">
-                      {children}
-                    </div>
-                    <Footer />
-                  </main>
-                  <MobileNav />
-                  <BottomStatusBar />
-                </div>
+        <ToastProvider>
+          <ThemeProvider>
+            <DisclaimerModal />
+            <CookieConsent />
+            <CommandPalette />
+            <OnboardingFlow />
+            <div className="flex h-screen overflow-hidden relative">
+              <Sidebar />
+              <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+                <DisclaimerBanner />
+                <TopBar />
+                <main className="flex-1 overflow-y-auto w-full relative flex flex-col custom-scrollbar pb-7 md:pb-12">
+                  <div className="flex-1">
+                    {children}
+                  </div>
+                  <Footer />
+                </main>
+                <MobileNav />
+                <BottomStatusBar />
               </div>
-            </ThemeProvider>
-          </ToastProvider>
-        </Providers>
+            </div>
+          </ThemeProvider>
+        </ToastProvider>
       </body>
     </html>
   )

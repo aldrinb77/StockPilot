@@ -1,21 +1,22 @@
 "use client";
-import { useSession } from "next-auth/react";
-
-const GOD_MODE_EMAIL = "aldrinbino275@gmail.com";
+import { useState, useEffect } from 'react';
+import { isGodMode } from '@/lib/simpleAuth';
 
 export function useAppMode() {
-  const { data: session, status } = useSession();
-  
-  const isLoggedIn = status === "authenticated";
-  const userEmail = session?.user?.email ?? "";
-  const isGodMode = isLoggedIn && userEmail === GOD_MODE_EMAIL;
-  
+  const [godMode, setGodMode] = useState(false);
+
+  useEffect(() => {
+    setGodMode(isGodMode());
+
+    const handleStorage = () => {
+      setGodMode(isGodMode());
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   return {
-    isLoggedIn,
-    isGodMode,
-    userEmail,
-    userName: session?.user?.name ?? "",
-    userImage: session?.user?.image ?? "",
-    status,
+    isGodMode: godMode,
+    refreshMode: () => setGodMode(isGodMode()),
   };
 }
