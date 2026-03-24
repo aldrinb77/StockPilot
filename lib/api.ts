@@ -1,21 +1,30 @@
-/* LEGAL DATA SOURCING AGREEMENT SECURED */
 import { StockData, OHLCV } from './types';
 import { POPULAR_STOCKS } from './constants';
 import { MOCK_STOCKS, getMockHistoricalData } from './mockData';
+import { MarketRegion, MARKETS } from './markets';
 
-export async function fetchStockQuote(symbol: string): Promise<StockData> {
-  const popular = POPULAR_STOCKS.find(s => s.symbol === symbol);
+function getSymbolWithSuffix(symbol: string, market: MarketRegion): string {
+  const config = MARKETS[market];
+  if (!config.symbolSuffix) return symbol;
+  if (symbol.endsWith(config.symbolSuffix)) return symbol;
+  return `${symbol}${config.symbolSuffix}`;
+}
+
+export async function fetchStockQuote(symbol: string, market: MarketRegion = 'US'): Promise<StockData> {
+  const config = MARKETS[market];
+  const fullSymbol = getSymbolWithSuffix(symbol, market);
+  const popular = config.popularStocks.find(s => s.symbol === fullSymbol || s.symbol === symbol);
   
   // 1. Try Twelve Data
   try {
     const tdKey = process.env.NEXT_PUBLIC_TWELVE_DATA_KEY;
     if (tdKey) {
-      const res = await fetch(`https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${tdKey}`);
+      const res = await fetch(`https://api.twelvedata.com/quote?symbol=${fullSymbol}&apikey=${tdKey}`);
       const data = await res.json();
       if (!data.code && data.close) {
         return {
-          symbol,
-          name: popular?.name || data.name || symbol,
+          symbol: fullSymbol,
+          name: popular?.name || data.name || fullSymbol,
           sector: popular?.sector || 'Unknown',
           price: parseFloat(data.close),
           change: parseFloat(data.change),
@@ -30,21 +39,21 @@ export async function fetchStockQuote(symbol: string): Promise<StockData> {
     }
   } catch (e) { console.warn('Twelve Data limit reached'); }
 
-  // 2. Try Finnhub
+  // 2. Try Finnhub (Suffix logic might differ but we follow the request)
   try {
     const fhKey = process.env.NEXT_PUBLIC_FINNHUB_KEY;
     if (fhKey) {
-      const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${fhKey}`);
+      const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${fullSymbol}&token=${fhKey}`);
       const data = await res.json();
       if (data && data.c) {
         return {
-          symbol,
-          name: popular?.name || symbol,
+          symbol: fullSymbol,
+          name: popular?.name || fullSymbol,
           sector: popular?.sector || 'Unknown',
           price: data.c,
           change: data.d,
           changePercent: data.dp,
-          volume: 0, // Finnhub quote doesn't provide volume
+          volume: 0,
           high: data.h,
           low: data.l,
           open: data.o,
@@ -58,13 +67,13 @@ export async function fetchStockQuote(symbol: string): Promise<StockData> {
   try {
     const avKey = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY;
     if (avKey) {
-      const res = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${avKey}`);
+      const res = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${fullSymbol}&apikey=${avKey}`);
       const data = await res.json();
       const quote = data['Global Quote'];
       if (quote && quote['05. price']) {
         return {
-          symbol,
-          name: popular?.name || symbol,
+          symbol: fullSymbol,
+          name: popular?.name || fullSymbol,
           sector: popular?.sector || 'Unknown',
           price: parseFloat(quote['05. price']),
           change: parseFloat(quote['09. change']),
@@ -80,19 +89,18 @@ export async function fetchStockQuote(symbol: string): Promise<StockData> {
   } catch (e) { console.warn('Alpha Vantage limit reached'); }
 
   // 4. Fallback to Mock Data (Safe Educational Fallback)
-  console.log(`[API Fallback] Using secure educational mock data for ${symbol}`);
-  return getMockQuote(symbol);
+  console.log(`[API Fallback] Using secure educational mock data for ${fullSymbol}`);
+  return getMockQuote(fullSymbol, market);
 }
 
-export async function fetchHistoricalData(symbol: string, range: string, interval: string): Promise<OHLCV[]> {
-  // To protect the API quotas of free tiers, we will safely defer to mock data for heavy historical queries
-  // while we secure the necessary funding for educational data licensing.
+export async function fetchHistoricalData(symbol: string, market: MarketRegion = 'US', range: string = 'ytd', interval: string = '1d'): Promise<OHLCV[]> {
+  const fullSymbol = getSymbolWithSuffix(symbol, market);
   
   // 1. Try Twelve Data Time Series
   try {
     const tdKey = process.env.NEXT_PUBLIC_TWELVE_DATA_KEY;
     if (tdKey) {
-      const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${symbol}&interval=1day&outputsize=200&apikey=${tdKey}`);
+      const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${fullSymbol}&interval=${interval}&outputsize=200&apikey=${tdKey}`);
       const data = await res.json();
       if (data.values && data.values.length > 0) {
         return data.values.reverse().map((v: any) => ({
@@ -108,13 +116,13 @@ export async function fetchHistoricalData(symbol: string, range: string, interva
   } catch (e) { console.warn('Twelve Data history limit reached'); }
 
   // Fallback to secure educational mock data
-  console.log(`[API Fallback] Using secure educational historical mock data for ${symbol}`);
-  const stock = MOCK_STOCKS.find(s => s.symbol === symbol) || MOCK_STOCKS[0];
+  console.log(`[API Fallback] Using secure educational historical mock data for ${fullSymbol}`);
+  const stock = MOCK_STOCKS.find(s => s.symbol === fullSymbol) || MOCK_STOCKS[0];
   return getMockHistoricalData(stock.price);
 }
 
-export async function fetchMultipleQuotes(symbols: string[]): Promise<StockData[]> {
-  const promises = symbols.map(sym => fetchStockQuote(sym));
+export async function fetchMultipleQuotes(symbols: string[], market: MarketRegion = 'US'): Promise<StockData[]> {
+  const promises = symbols.map(sym => fetchStockQuote(sym, market));
   const results = await Promise.allSettled(promises);
   
   return results
@@ -122,22 +130,25 @@ export async function fetchMultipleQuotes(symbols: string[]): Promise<StockData[
     .map(res => res.value);
 }
 
-export async function searchStocks(query: string): Promise<{symbol: string, name: string}[]> {
+export async function searchStocks(query: string, market: MarketRegion = 'US'): Promise<{symbol: string, name: string}[]> {
   if (!query) return [];
   const qLower = query.toLowerCase();
-  return POPULAR_STOCKS.filter(stock => 
+  const config = MARKETS[market];
+  
+  return config.popularStocks.filter(stock => 
     stock.symbol.toLowerCase().includes(qLower) || 
     stock.name.toLowerCase().includes(qLower)
   ).slice(0, 5);
 }
 
-function getMockQuote(symbol: string): StockData {
+function getMockQuote(symbol: string, market: MarketRegion = 'US'): StockData {
+  const config = MARKETS[market];
   const mockStock = MOCK_STOCKS.find(s => s.symbol === symbol);
   if (mockStock) return mockStock;
   
   const mockPrice = 150 + Math.random() * 50;
   const mockChange = (Math.random() * 10) - 5;
-  const popular = POPULAR_STOCKS.find(s => s.symbol === symbol);
+  const popular = config.popularStocks.find(s => s.symbol === symbol);
   
   return {
     symbol,

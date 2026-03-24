@@ -7,14 +7,18 @@ import { useState } from "react"
 import { MOCK_STOCKS } from "@/lib/mockData"
 
 export function PortfolioTable() {
-  const { portfolio, removeFromPortfolio } = useStore()
+  const { portfolio, removeFromPortfolio, selectedMarket } = useStore()
   
   if (portfolio.length === 0) return null
   
   // Hydrate LIVE prices (Mocked for MVP)
   const rows = portfolio.map(p => {
-    const liveStock = MOCK_STOCKS.find(s => s.symbol === p.symbol) || { ...MOCK_STOCKS[0] }
-    const currentPrice = liveStock.price
+    const liveStock = MOCK_STOCKS.find(s => s.symbol === p.symbol) || { 
+      symbol: p.symbol,
+      price: p.buyPrice * (1 + (Math.random() * 0.1 - 0.05)), // Mock slight change
+      name: p.name
+    }
+    const currentPrice = liveStock.price || p.buyPrice
     const totalValue = currentPrice * p.quantity
     const investment = p.buyPrice * p.quantity
     const pnl = totalValue - investment
@@ -48,12 +52,12 @@ export function PortfolioTable() {
                     <div className="text-xs text-gray-500 font-normal truncate max-w-[120px]">{row.name}</div>
                   </td>
                   <td className="px-5 py-4 text-right font-medium text-white">{row.quantity}</td>
-                  <td className="px-5 py-4 text-right font-medium text-gray-400">{formatCurrency(row.buyPrice)}</td>
-                  <td className="px-5 py-4 text-right font-medium text-white">{formatCurrency(row.currentPrice)}</td>
-                  <td className="px-5 py-4 text-right font-medium text-white">{formatCurrency(row.totalValue)}</td>
+                  <td className="px-5 py-4 text-right font-medium text-gray-400">{formatCurrency(row.buyPrice, selectedMarket)}</td>
+                  <td className="px-5 py-4 text-right font-medium text-white">{formatCurrency(row.currentPrice, selectedMarket)}</td>
+                  <td className="px-5 py-4 text-right font-medium text-white">{formatCurrency(row.totalValue, selectedMarket)}</td>
                   <td className={`px-5 py-4 text-right font-bold ${profit ? 'text-tvGreen' : 'text-tvRed'}`}>
                     <div className="flex flex-col items-end">
-                      <span>{profit ? '+' : ''}{formatCurrency(row.pnl)}</span>
+                      <span>{profit ? '+' : ''}{formatCurrency(row.pnl, selectedMarket)}</span>
                       <span className="text-xs px-1.5 py-0.5 rounded-sm bg-white/5 mt-1 border border-white/5">
                         {profit ? '+' : ''}{row.pnlPercent.toFixed(2)}%
                       </span>

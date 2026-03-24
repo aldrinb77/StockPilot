@@ -7,19 +7,39 @@ import { SignalCard } from '@/components/signals/SignalCard'
 import { FilterPanel } from '@/components/screener/FilterPanel'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { useStore } from '@/store/store'
+import { MARKETS } from '@/lib/markets'
+
 export default function ScreenerPage() {
+  const { selectedMarket } = useStore()
+  const marketConfig = MARKETS[selectedMarket]
   const [data, setData] = useState<(StockData & { signal: Signal })[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({ signal: 'ALL', sector: 'ALL', price: 'ALL' })
 
   useEffect(() => {
-    // Simulate purely client side fetch for MVP utilizing mocked arrays mapped cleanly
     const loadData = async () => {
+      setLoading(true)
       try {
-        const mapped = MOCK_STOCKS.map(s => ({
-          ...s,
-          signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META']
-        }))
+        const mapped = marketConfig.popularStocks.map(s => {
+          const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
+            symbol: s.symbol,
+            name: s.name,
+            sector: s.sector,
+            price: 150 + Math.random() * 300,
+            change: 0,
+            changePercent: 0,
+            volume: 0,
+            high: 0,
+            low: 0,
+            open: 0,
+            prevClose: 0
+          }
+          return {
+            ...mockStock as StockData,
+            signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META']
+          }
+        })
         await new Promise(r => setTimeout(r, 600))
         setData(mapped)
       } finally {
@@ -27,7 +47,7 @@ export default function ScreenerPage() {
       }
     }
     loadData()
-  }, [])
+  }, [selectedMarket, marketConfig])
 
   const filteredData = useMemo(() => {
     return data.filter(item => {
@@ -50,8 +70,8 @@ export default function ScreenerPage() {
     <div className="space-y-6 animate-in fade-in pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-2">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Stock Screener</h1>
-          <p className="text-gray-400 mt-2 text-sm max-w-lg">Filter the entire market exclusively using algorithmic, AI-free technical indicators to expose precise structural advantages.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">{marketConfig.name} Stock Screener</h1>
+          <p className="text-gray-400 mt-2 text-sm max-w-lg">Filter {marketConfig.exchangeName} exclusively using algorithmic, AI-free technical indicators to expose precise structural advantages.</p>
         </div>
       </div>
 

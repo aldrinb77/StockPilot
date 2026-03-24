@@ -7,29 +7,37 @@ import { MOCK_STOCKS } from "@/lib/mockData"
 import { generateSignal } from "@/lib/signals"
 import { Pin } from "lucide-react"
 
+import { useStore } from "@/store/store"
+import { MARKETS } from "@/lib/markets"
+
 export function RecommendedForYou() {
+  const { selectedMarket } = useStore()
+  const marketConfig = MARKETS[selectedMarket]
   const [recommended, setRecommended] = useState<{ stocks: StockWithSignal[], reason: string } | null>(null)
 
   useEffect(() => {
-    // Mapping the MOCK local array to represent the full market mapping arrays
-    // In Production this traverses absolute backend cached boundaries
-    const mapped = MOCK_STOCKS.map(s => {
-      // Create mock historical data array just to generate a signal object locally
+    const mapped = marketConfig.popularStocks.map(s => {
+      const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
+        ...MOCK_STOCKS[0],
+        symbol: s.symbol,
+        name: s.name,
+        price: 150 + Math.random() * 500
+      }
+      
       const mockOHLCV = []
-      let p = s.price * 0.8
+      let p = mockStock.price * 0.8
       for(let i=0; i<30; i++) {
         p = p * (1 + (Math.random() - 0.45) * 0.05)
         mockOHLCV.push({ time: i, open: p, high: p*1.02, low: p*0.98, close: p, volume: 10000 })
       }
-      return { ...s, signal: generateSignal(mockOHLCV) }
+      return { ...mockStock, signal: generateSignal(mockOHLCV) }
     })
     
-    // Simulate slight loading to let localStorage mount
     setTimeout(() => {
       const recs = generateRecommendations(mapped)
       setRecommended(recs)
     }, 500)
-  }, [])
+  }, [marketConfig, selectedMarket])
 
   if (!recommended || recommended.stocks.length === 0) return null
 

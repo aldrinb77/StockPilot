@@ -1,156 +1,261 @@
+"use client"
+
 import Link from "next/link"
-import { ArrowRight, BarChart2, ShieldCheck, Zap, Star, PieChart, BookOpen, ChevronRight, Search } from "lucide-react"
+import { 
+  ArrowRight, 
+  BarChart2, 
+  ShieldCheck, 
+  Zap, 
+  Star, 
+  PieChart, 
+  BookOpen, 
+  ChevronRight, 
+  Search, 
+  Layers,
+  Sparkles,
+  MousePointer2,
+  TrendingUp,
+  Globe
+} from "lucide-react"
+import { motion } from "framer-motion"
+import { FADE_IN, STAGGER_CONTAINER } from "@/lib/animations"
 
 export default function Home() {
   return (
-    <div className="bg-[#131722] text-foreground min-h-screen flex flex-col relative overflow-hidden selection:bg-tvGreen selection:text-white">
-      {/* Dynamic Background Noise */}
-      <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-tvGreen/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[40vw] h-[40vh] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+    <div className="bg-[#0a0e17] text-foreground min-h-screen flex flex-col relative overflow-hidden selection:bg-tvGreen/30 selection:text-tvGreen">
+      {/* Background Animated Gradients */}
+      <div className="absolute top-0 right-0 w-[60vw] h-[60vh] bg-tvGreen/10 rounded-full blur-[140px] pointer-events-none animate-pulse opacity-50" />
+      <div className="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-tvBlue/10 rounded-full blur-[120px] pointer-events-none opacity-40" />
       
-      {/* Simple Header */}
-      <header className="flex justify-between items-center px-6 py-6 max-w-7xl mx-auto w-full relative z-10">
-        <div className="text-xl font-bold flex items-center space-x-2 text-white">
-          <span>📈</span>
-          <span className="tracking-tight text-xl">StoxPilot</span>
+      {/* Premium Header */}
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="flex justify-between items-center px-8 py-8 max-w-7xl mx-auto w-full relative z-50"
+      >
+        <div className="flex items-center space-x-3 text-white group cursor-pointer">
+          <div className="p-2 bg-tvGreen/10 rounded-xl border border-tvGreen/20 group-hover:scale-110 transition-transform">
+            <TrendingUp className="w-6 h-6 text-tvGreen" />
+          </div>
+          <span className="text-2xl font-black tracking-tighter">StoxPilot</span>
         </div>
-        <Link href="/dashboard" className="text-sm font-semibold text-gray-300 hover:text-white transition-colors">
-          Dashboard
-        </Link>
-      </header>
+        <div className="flex items-center space-x-8">
+           <Link href="/dashboard" className="hidden md:block text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+            Intelligence
+          </Link>
+          <Link href="/learn" className="hidden md:block text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+            Academy
+          </Link>
+          <Link href="/dashboard" className="premium-button text-xs tracking-[0.2em] py-2.5 ripple">
+            LAUNCH SYSTEM
+          </Link>
+        </div>
+      </motion.header>
 
       {/* Hero Section */}
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 md:py-24 w-full relative z-10">
-        <div className="max-w-4xl max-md:text-center">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-tvBlue/10 text-tvBlue text-xs font-bold tracking-wider uppercase mb-6 border border-tvBlue/20">
-            <span className="w-2 h-2 rounded-full bg-tvBlue animate-pulse mr-2" />
-            Educational Technical Analysis
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tighter leading-[1.1] mb-6 shadow-sm">
-            Free Stock Market <span className="text-transparent bg-clip-text bg-gradient-to-r from-tvGreen to-emerald-400">Education Platform.</span>
-          </h1>
-          
-          <p className="text-lg md:text-2xl text-gray-400 max-w-2xl mb-10 leading-relaxed font-medium">
-            Learn technical analysis with interactive indicator readings, educational charts, and beginner-friendly guides. 
-            <br className="hidden md:block" />
-            <strong className="text-white mt-2 block italic text-sm md:text-lg">No AI. Rule-based technical indicators. 100% Free.</strong>
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Link 
-              href="/dashboard"
-              className="w-full sm:w-auto px-8 py-4 bg-tvGreen hover:bg-tvGreen/90 text-white font-bold rounded-lg transition-all shadow-lg shadow-tvGreen/20 flex items-center justify-center group text-lg"
-            >
-              Access Dashboard
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link 
-              href="/about"
-              className="w-full sm:w-auto px-8 py-4 bg-[#1E222D] hover:bg-gray-800 border border-gray-700 text-white font-bold rounded-lg transition-all flex items-center justify-center text-lg"
-            >
-              How it works
-            </Link>
-          </div>
-        </div>
+      <main className="flex-1 max-w-7xl mx-auto px-8 py-20 md:py-32 w-full relative z-10 flex flex-col items-center text-center">
+        <motion.div
+           initial={{ opacity: 0, scale: 0.9 }}
+           animate={{ opacity: 1, scale: 1 }}
+           className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-[10px] font-black tracking-[0.2em] uppercase mb-8 border border-white/10 backdrop-blur-md"
+        >
+          <Sparkles className="w-3 h-3 text-tvAmber mr-2 animate-bounce" />
+          Free Institutional-Grade Education
+        </motion.div>
+        
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8"
+        >
+          Master the Market <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-tvGreen via-emerald-400 to-tvBlue pr-2">With Precision.</span>
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-xl md:text-2xl text-gray-400 max-w-2xl mb-12 leading-relaxed font-medium"
+        >
+          Algorithmic technical education tracking market behavior via strict mathematical bounds. 
+          <span className="text-white block font-black uppercase tracking-widest text-sm mt-4 opacity-80">No AI. No Predictions. No Bias. 100% Free.</span>
+        </motion.p>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center gap-6"
+        >
+          <Link 
+            href="/dashboard"
+            className="w-full sm:w-auto px-10 py-5 bg-tvGreen hover:bg-tvGreen/90 text-white font-black rounded-2xl transition-all shadow-2xl shadow-tvGreen/30 flex items-center justify-center group text-lg ripple active:scale-95"
+          >
+            Start Analyzing
+            <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1.5 transition-transform" />
+          </Link>
+          <button className="w-full sm:w-auto px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black rounded-2xl transition-all flex items-center justify-center text-lg active:scale-95">
+            How It Works
+          </button>
+        </motion.div>
 
-        {/* Floating App Preview mockup */}
-        <div className="mt-20 md:mt-24 relative mx-auto border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl bg-[#1E222D]">
-          <div className="h-8 bg-[#131722] border-b border-gray-800 flex items-center px-4 space-x-2">
-            <div className="w-3 h-3 rounded-full bg-gray-700" />
-            <div className="w-3 h-3 rounded-full bg-gray-700" />
-            <div className="w-3 h-3 rounded-full bg-gray-700" />
-          </div>
-          <div className="h-[400px] bg-gradient-to-t from-[#131722] to-[#1E222D] p-8 flex items-center justify-center relative">
-            <div className="absolute inset-0 z-0 flex items-center justify-center opacity-10">
-               <span className="text-9xl font-black text-white rotate-12">STOXPILOT</span>
-            </div>
-            <div className="z-10 text-center">
-              <BarChart2 className="w-32 h-32 text-tvGreen mb-4 mx-auto drop-shadow-[0_0_15px_rgba(38,166,154,0.3)]" />
-              <div className="font-mono text-tvGreen text-sm animate-pulse">SYSTEM_ONLINE // EDUCATIONAL_MODE_ACTIVE</div>
-            </div>
-          </div>
-        </div>
+        {/* Cinematic Mockup Preview */}
+        <motion.div 
+           initial={{ opacity: 0, y: 100 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.5, type: 'spring', damping: 20 }}
+           className="mt-32 relative max-w-5xl mx-auto w-full group"
+        >
+           <div className="absolute inset-0 bg-tvGreen/20 blur-[100px] opacity-0 group-hover:opacity-30 transition-opacity" />
+           <div className="relative glass-card rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border-white/10">
+              <div className="h-10 bg-white/5 border-b border-white/5 flex items-center px-6 justify-between">
+                 <div className="flex space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                 </div>
+                 <div className="px-3 py-1 bg-black/40 rounded-full text-[10px] font-black text-gray-500 tracking-widest uppercase">
+                    StoxPilot System Interface v1.1
+                 </div>
+              </div>
+              <div className="h-[500px] bg-gradient-to-b from-[#1E222D] to-[#0a0e17] p-12 flex flex-col items-center justify-center relative">
+                 <div className="text-9xl font-black text-white/5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none tracking-tight">
+                    INTELLIGENCE
+                 </div>
+                 <motion.div
+                   animate={{ 
+                      y: [0, -10, 0],
+                      scale: [1, 1.02, 1]
+                   }}
+                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                   className="z-10 flex flex-col items-center"
+                 >
+                    <BarChart2 className="w-40 h-40 text-tvGreen mb-6 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                 </motion.div>
+                 <div className="mt-8 flex flex-col items-center space-y-3 z-10">
+                    <h3 className="text-white font-black text-xl tracking-tight">QUANT DATA STREAM ACTIVATED</h3>
+                    <div className="flex space-x-2">
+                       {[1,2,3,4,5].map(i => (
+                          <motion.div 
+                             key={i}
+                             animate={{ height: [10, 30, 15, 25, 12] }}
+                             transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                             className="w-1.5 bg-tvGreen rounded-full" 
+                          />
+                       ))}
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </motion.div>
       </main>
 
-      {/* How It Works Section */}
-      <section className="bg-[#1E222D] border-t border-b border-gray-800/50 py-24 px-6 relative z-10 w-full">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 italic">Learn the Market</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">StoxPilot automates the complex math behind technical analysis so you can study price behavior without the guesswork.</p>
-          </div>
+      {/* Value Proposition Section */}
+      <section className="bg-[#0d1117] border-y border-white/5 py-32 px-8 relative z-10 w-full overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-mesh-gradient opacity-20 pointer-events-none" />
+        <div className="max-w-7xl mx-auto w-full relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-24"
+          >
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">Technical Literacy. Simplified.</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-xl leading-relaxed font-medium">StoxPilot automates the complex math behind technical analysis so you can study price behavior without the guesswork.</p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-[#131722] rounded-xl border border-gray-800">
-              <div className="w-16 h-16 rounded-2xl bg-blue-900/30 text-blue-500 font-bold flex items-center justify-center mx-auto mb-6 text-2xl border border-blue-500/20">1</div>
-              <h3 className="text-xl font-bold text-white mb-2">Track Trends</h3>
-              <p className="text-gray-400">Search for any ticker to see how algorithmic indicators interpret current price momentum.</p>
-            </div>
-            <div className="text-center p-6 bg-[#131722] rounded-xl border border-gray-800">
-              <div className="w-16 h-16 rounded-2xl bg-tvGreen/20 text-tvGreen font-bold flex items-center justify-center mx-auto mb-6 text-2xl border border-tvGreen/30">2</div>
-              <h3 className="text-xl font-bold text-white mb-2">Study Technicals</h3>
-              <p className="text-gray-400">Observe how RSI, MACD, and EMA clusters form Bullish or Bearish readings based on historical math.</p>
-            </div>
-            <div className="text-center p-6 bg-[#131722] rounded-xl border border-gray-800">
-              <div className="w-16 h-16 rounded-2xl bg-yellow-500/20 text-yellow-500 font-bold flex items-center justify-center mx-auto mb-6 text-2xl border border-yellow-500/30">3</div>
-              <h3 className="text-xl font-bold text-white mb-2">Build Habits</h3>
-              <p className="text-gray-400">Use our educational entry zones and safety boundaries to practice disciplined analysis logic.</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <FeatureStep 
+              num="01"
+              title="Momentum Extraction" 
+              desc="Search for any ticker to see how algorithmic indicators interpret current price pressure via EMA confluence."
+              color="text-tvBlue"
+              icon={<Zap className="w-6 h-6" />}
+            />
+            <FeatureStep 
+              num="02"
+              numColor="text-tvGreen"
+              title="Cluster Analysis" 
+              desc="Observe how RSI, MACD, and Price Action form alignment zones based on historically proven math models."
+              color="text-tvGreen"
+              icon={<Layers className="w-6 h-6" />}
+            />
+            <FeatureStep 
+              num="03"
+              numColor="text-tvAmber"
+              title="Risk Guardrails" 
+              desc="Practice discipline with automated entry zones and safety boundaries designed for preservation."
+              color="text-tvAmber"
+              icon={<ShieldCheck className="w-6 h-6" />}
+            />
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-24 px-6 max-w-7xl mx-auto w-full relative z-10">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 text-center italic tracking-tight">The Educational Toolkit</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FeatureCard 
-            icon={<Zap />} color="text-yellow-500" bg="bg-yellow-500/10" border="border-yellow-500/20"
-            title="Logical Indicators" 
-            desc="Automated readings that explain the technical 'why' behind every price level." 
-          />
-          <FeatureCard 
-            icon={<BarChart2 />} color="text-tvBlue" bg="bg-tvBlue/10" border="border-tvBlue/20"
-            title="TradingView Pro Charts" 
-            desc="Full integration with the world's most robust charting platform for deep study." 
-          />
-          <FeatureCard 
-            icon={<Search />} color="text-purple-500" bg="bg-purple-500/10" border="border-purple-500/20"
-            title="Indicator Screener" 
-            desc="Find stocks hitting specific technical criteria like oversold RSI or EMA crossovers." 
-          />
-          <FeatureCard 
-            icon={<Star />} color="text-tvGreen" bg="bg-tvGreen/10" border="border-tvGreen/20"
-            title="Study List" 
-            desc="Save assets to your local browser storage to monitor their technical evolution." 
-          />
-          <FeatureCard 
-            icon={<PieChart />} color="text-orange-500" bg="bg-orange-500/10" border="border-orange-500/20"
-            title="Strategy Sandbox" 
-            desc="Model hypothetical setups and track their mathematical outcomes over time." 
-          />
-          <FeatureCard 
-            icon={<BookOpen />} color="text-red-400" bg="bg-red-400/10" border="border-red-400/20"
-            title="Technical Academy" 
-            desc="Master the core concepts of technical analysis with our zero-jargon study modules." 
-          />
+      {/* Interactive Tool Grid */}
+      <section className="py-32 px-8 max-w-7xl mx-auto w-full relative z-10">
+        <motion.div 
+           initial={{ opacity: 0 }}
+           whileInView={{ opacity: 1 }}
+           viewport={{ once: true }}
+           className="text-center mb-24"
+        >
+           <h2 className="text-4xl md:text-5xl font-black text-white mb-6 italic tracking-tight underline decoration-tvGreen/30 underline-offset-8">Educational Armory</h2>
+           <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">A ecosystem built for modern technical traders.</p>
+        </motion.div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[
+            { icon: <Zap />, color: "text-tvAmber", title: "Indicator Sentinels", desc: "Automated alerts that trigger when specific mathematical conditions are met across any market." },
+            { icon: <BarChart2 />, color: "text-tvBlue", title: "Pro Charting Suite", desc: "Deep-dive analysis tools powered by TradingView for surgical technical examination." },
+            { icon: <MousePointer2 />, color: "text-purple-500", title: "Pattern Screener", desc: "Filter thousands of assets based on RSI divergence, EMA crossovers, and volume spikes." },
+            { icon: <Globe />, color: "text-tvGreen", title: "Multi-Market Reach", desc: "Native support for US, NSE, LSE, and European exchanges with localized currency parity." },
+            { icon: <PieChart />, color: "text-orange-500", title: "Risk Sandbox", desc: "Model hypothetical trade outcomes and practice position sizing without active capital risk." },
+            { icon: <BookOpen />, color: "text-red-400", title: "Technical Academy", desc: "Zero-jargon modules designed to take you from market curiosity to technical proficiency." }
+          ].map((f, i) => (
+            <motion.div
+               key={i}
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               transition={{ delay: i * 0.1 }}
+            >
+              <FeatureCard {...f} />
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* Hero Footer */}
-      <footer className="bg-[#0f121b] border-t border-gray-800 py-12 px-6 w-full text-center md:text-left z-10 relative">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div>
-            <div className="text-xl font-bold flex items-center space-x-2 text-white justify-center md:justify-start">
-              <span>📈</span>
-              <span className="tracking-tight">StoxPilot</span>
+      {/* CTA Footer Section */}
+      <footer className="bg-[#05080f] border-t border-white/5 py-24 px-8 w-full z-10 relative">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+          <div className="space-y-6">
+            <div className="text-3xl font-black flex items-center space-x-3 text-white">
+              <TrendingUp className="w-8 h-8 text-tvGreen" />
+              <span className="tracking-tighter">StoxPilot</span>
             </div>
-            <p className="text-gray-500 text-sm mt-2 max-w-sm">Algorithmic technical education tracking market behavior via strict mathematical bounds.</p>
+            <p className="text-gray-500 text-sm max-w-md leading-relaxed">
+              StoxPilot is the global standard for free technical analysis education. 
+              We track market behavior via strict mathematical bounds to provide institutional-grade literacy for everyone.
+            </p>
+            <div className="flex space-x-4">
+               {['Twitter', 'Discord', 'Github'].map(s => (
+                 <a key={s} href="#" className="text-xs font-black uppercase text-gray-600 hover:text-white transition-colors tracking-widest">{s}</a>
+               ))}
+            </div>
           </div>
-          <div className="text-xs text-gray-500 max-w-2xl text-center md:text-right">
-            <strong className="text-tvAmber block mb-1 uppercase">StoxPilot is an educational platform. It is not a financial advisor and does not provide investment advice.</strong>
-            StoxPilot does not provide financial advice. All data and indicators are for informational purposes only. Trading involves risk. Please read our <Link href="/disclaimer" className="underline hover:text-white">Full Disclaimer</Link>.
+          <div className="text-right flex flex-col items-end">
+            <div className="text-[10px] text-tvAmber font-black uppercase tracking-[0.3em] mb-4 p-2 bg-tvAmber/10 rounded-lg border border-tvAmber/20">
+               ⚠️ STRICT EDUCATIONAL MANDATE
+            </div>
+            <p className="text-xs text-gray-600 max-w-xl leading-loose">
+               StoxPilot is an educational platform. We do not provide financial advice, buy/sell recommendations, or investment advisory services. 
+               Trading involves substantial risk of loss. Always consult with a licensed professional before making financial decisions. 
+               Read our <Link href="/disclaimer" className="text-white underline hover:no-underline font-bold">Risk Disclosure</Link>.
+            </p>
+            <p className="mt-8 text-xs text-gray-800 font-bold">© 2026 STOXPILOT QUANT LOGIC ENGINE. NOT AN ADVISOR.</p>
           </div>
         </div>
       </footer>
@@ -158,14 +263,30 @@ export default function Home() {
   )
 }
 
-function FeatureCard({ icon, title, desc, color, bg, border }: { icon: React.ReactNode, title: string, desc: string, color: string, bg: string, border: string }) {
+function FeatureCard({ icon, title, desc, color }: { icon: React.ReactNode, title: string, desc: string, color: string }) {
   return (
-    <div className="bg-[#1E222D] border border-gray-700/50 p-6 rounded-xl hover:-translate-y-1 transition-transform group">
-      <div className={`w-12 h-12 rounded-lg ${bg} ${border} border flex items-center justify-center ${color} mb-4 group-hover:scale-110 transition-transform`}>
+    <div className="glass-card p-10 rounded-3xl group hover:border-white/20 h-full">
+      <div className={`w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center ${color} mb-8 group-hover:scale-110 transition-all duration-500 group-hover:rotate-3`}>
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+      <h3 className="text-2xl font-black text-white mb-4 tracking-tight">{title}</h3>
+      <p className="text-sm text-gray-500 leading-relaxed font-medium">{desc}</p>
     </div>
   )
 }
+
+function FeatureStep({ num, title, desc, color, icon, numColor = "text-tvBlue" }: { num: string, title: string, desc: string, color: string, icon: any, numColor?: string }) {
+  return (
+    <div className="glass-panel p-10 rounded-3xl relative overflow-hidden group">
+      <div className={`absolute top-0 right-0 p-4 font-black text-6xl opacity-5 transition-opacity group-hover:opacity-10 ${numColor}`}>
+         {num}
+      </div>
+      <div className={`mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 w-fit ${color}`}>
+         {icon}
+      </div>
+      <h3 className="text-2xl font-black text-white mb-4 tracking-tight">{title}</h3>
+      <p className="text-sm text-gray-500 leading-relaxed font-medium">{desc}</p>
+    </div>
+  )
+}
+

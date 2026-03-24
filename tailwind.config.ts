@@ -12,11 +12,12 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        tvGreen: "#00C896", // Vibrant Premium Green
+        tvGreen: "var(--accent-color)", // Dynamically controlled accent
         tvRed: "#FF4757", // Vibrant Premium Red
         tvAmber: "#FFB347",
         tvBlue: "#4E8CFF",
         tvPurple: "#A855F7",
+        accent: "var(--accent-color)",
         card: "var(--card-bg)",
         cardElevated: "var(--card-elevated)",
       },

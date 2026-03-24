@@ -14,15 +14,18 @@ import {
   ChevronLeft,
   ChevronRight,
   Newspaper,
-  ArrowLeftRight
+  GitCompareArrows,
+  BookText
 } from "lucide-react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useMenuStore } from "@/store/useMenuStore"
 
 const navItems = [
   { name: "Daily Briefing", href: "/briefing", icon: Newspaper },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Compare", href: "/compare", icon: ArrowLeftRight },
+  { name: "Compare", href: "/compare", icon: GitCompareArrows },
+  { name: "Journal", href: "/journal", icon: BookText },
   { name: "Signals", href: "/signals", icon: Zap },
   { name: "Screener", href: "/screener", icon: Search },
   { name: "Watchlist", href: "/watchlist", icon: Star },
@@ -53,7 +56,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
+      <nav className="flex-1 py-6 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href)
           return (
@@ -62,21 +65,35 @@ export default function Sidebar() {
               href={item.href}
               title={isSidebarCollapsed ? item.name : undefined}
               className={cn(
-                "flex items-center transition-colors mx-2 rounded-md h-10 group",
+                "flex items-center transition-all duration-200 mx-3 rounded-xl h-11 group relative overflow-hidden",
                 isActive 
-                  ? "bg-tvGreen text-white" 
-                  : "text-foreground hover:bg-gray-800",
+                  ? "nav-active border border-white/5 shadow-lg shadow-black/20" 
+                  : "text-gray-400 hover:text-white hover:bg-white/5",
                 isSidebarCollapsed ? "justify-center" : "px-3 space-x-3"
               )}
             >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
+              <item.icon className={cn(
+                "w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110",
+                isActive ? "text-white" : "text-gray-500 group-hover:text-white"
+              )} />
               {!isSidebarCollapsed && (
-                <span className="font-medium text-sm whitespace-nowrap">{item.name}</span>
+                <span className={cn(
+                  "text-sm whitespace-nowrap tracking-wide transition-all",
+                  isActive ? "font-black" : "font-bold"
+                )}>{item.name}</span>
+              )}
+              {isActive && (
+                <motion.div 
+                   layoutId="active-pill"
+                   className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full" 
+                   style={{ backgroundColor: 'var(--accent-color)' }}
+                />
               )}
             </Link>
           )
         })}
       </nav>
+
 
       <div className="p-3 border-t border-gray-700/50">
         <button

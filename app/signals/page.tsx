@@ -5,21 +5,37 @@ import { MOCK_STOCKS, MOCK_SIGNALS } from '@/lib/mockData'
 import { SignalCard } from '@/components/signals/SignalCard'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
+import { useStore } from '@/store/store'
+import { MARKETS } from '@/lib/markets'
+
 export default function SignalsPage() {
+  const { selectedMarket } = useStore()
+  const marketConfig = MARKETS[selectedMarket]
   const [activeTab, setActiveTab] = useState('ALL')
   
-  // Create an array mapping from mocking mapping logic to completely secure local components explicitly mapping the 50 elements array over arbitrary signals 
   const data = useMemo(() => {
-    return MOCK_STOCKS.map((s, i) => {
-      // Rotate mock signals dynamically for variety
+    return marketConfig.popularStocks.map((s, i) => {
       const signalKeys = Object.keys(MOCK_SIGNALS);
       const randomSignal = MOCK_SIGNALS[signalKeys[i % signalKeys.length]];
+      const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
+        symbol: s.symbol,
+        name: s.name,
+        sector: s.sector,
+        price: 150 + Math.random() * 300,
+        change: 0,
+        changePercent: 0,
+        volume: 0,
+        high: 0,
+        low: 0,
+        open: 0,
+        prevClose: 0
+      }
       return {
-        ...s,
+        ...mockStock,
         signal: randomSignal
       }
     }).sort((a,b) => b.signal.strength - a.signal.strength)
-  }, [])
+  }, [selectedMarket, marketConfig])
 
   const filtered = useMemo(() => {
     if (activeTab === 'ALL') return data;
@@ -41,7 +57,7 @@ export default function SignalsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 border-b border-gray-800 pb-6">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight flex items-center">
-            <span className="text-blue-500 mr-3">🔔</span> Active Signals
+            <span className="text-blue-500 mr-3">{marketConfig.flag}</span> {marketConfig.name} Active Signals
           </h1>
           <p className="text-gray-400 mt-2 text-sm">Every mathematically validated configuration across the entire monitored universe mapped dynamically in real-time natively below.</p>
         </div>

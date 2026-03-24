@@ -11,25 +11,35 @@ import { formatCurrency, formatPercent } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Share, Star } from 'lucide-react'
 import { useStore } from '@/store/store'
+import { MARKETS, MarketRegion } from '@/lib/markets'
 
 export default function StockDetailPage({ params }: { params: { symbol: string } }) {
   const symbol = params.symbol.toUpperCase()
+  const { selectedMarket, watchlist, addToWatchlist, removeFromWatchlist } = useStore()
   
   const [stock, setStock] = useState<StockData | null>(null)
   const [signal, setSignal] = useState<Signal | null>(null)
   const [history, setHistory] = useState<OHLCV[]>([])
   const [loading, setLoading] = useState(true)
 
-  const { watchlist, addToWatchlist, removeFromWatchlist } = useStore()
   const inWatchlist = watchlist.some(w => w.symbol === symbol)
 
   useEffect(() => {
     // Mock simulation
     setTimeout(() => {
+      const marketConfig = MARKETS[selectedMarket]
       const mockStock = MOCK_STOCKS.find(s => s.symbol === symbol) || {
         ...MOCK_STOCKS[0],
         symbol,
         name: `${symbol} Corporation`,
+        price: 150 + Math.random() * 500,
+        change: 0,
+        changePercent: 0,
+        high: 0,
+        low: 0,
+        open: 0,
+        prevClose: 0,
+        volume: 1000000
       }
       setStock(mockStock)
       
@@ -41,7 +51,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
       
       setLoading(false)
     }, 1000)
-  }, [symbol])
+  }, [symbol, selectedMarket])
 
   if (loading || !stock || !signal) {
     return (
@@ -76,9 +86,9 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
             <span className="px-2 py-0.5 bg-gray-800 text-gray-300 text-xs rounded border border-gray-700">{stock.sector}</span>
           </div>
           <div className="flex items-center space-x-3 mt-2">
-            <span className="text-3xl font-bold text-white">{formatCurrency(stock.price)}</span>
+            <span className="text-3xl font-bold text-white">{formatCurrency(stock.price, selectedMarket)}</span>
             <span className={`text-lg font-semibold flex items-center ${isUp ? 'text-tvGreen' : 'text-tvRed'}`}>
-              {isUp ? '+' : ''}{formatCurrency(stock.change)} ({isUp ? '+' : ''}{formatPercent(stock.changePercent)})
+              {isUp ? '+' : ''}{formatCurrency(stock.change, selectedMarket)} ({isUp ? '+' : ''}{formatPercent(stock.changePercent)})
             </span>
           </div>
         </div>
@@ -113,8 +123,8 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
               <StatCard label="P/E Ratio" value={stock.pe?.toFixed(2) || 'N/A'} />
               <StatCard label="EPS" value={`$${stock.eps?.toFixed(2)}` || 'N/A'} />
               <StatCard label="Volatility" value="Medium" />
-              <StatCard label="52-Week High" value={formatCurrency(stock.week52High || stock.high)} />
-              <StatCard label="52-Week Low" value={formatCurrency(stock.week52Low || stock.low)} />
+              <StatCard label="52-Week High" value={formatCurrency(stock.week52High || stock.high, selectedMarket)} />
+              <StatCard label="52-Week Low" value={formatCurrency(stock.week52Low || stock.low, selectedMarket)} />
               <StatCard label="Avg Volume" value={`${(stock.volume / 1000000).toFixed(1)}M`} />
               <StatCard label="Yield" value="1.2%" />
             </div>
@@ -124,18 +134,18 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
             <h3 className="text-lg font-bold text-white border-b border-gray-800 pb-3 mb-4">Support & Resistance Levels</h3>
             <div className="relative pt-6 pb-2 px-4 max-w-2xl mx-auto">
               {/* Level visualize */}
-              <LevelLine label="Resistance 2" value={resistances[1]} color="text-tvRed" border="border-tvRed/50" />
-              <LevelLine label="Resistance 1" value={resistances[0]} color="text-red-400" border="border-red-400/50" />
+              <LevelLine label="Resistance 2" value={resistances[1]} color="text-tvRed" border="border-tvRed/50" market={selectedMarket} />
+              <LevelLine label="Resistance 1" value={resistances[0]} color="text-red-400" border="border-red-400/50" market={selectedMarket} />
               <div className="relative py-2 my-2 border-l-2 border-gray-700 pl-4">
                 <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 shadow-[0_0_10px_currentColor] rounded-full bg-white text-white"></span>
                 <div className="flex justify-between text-sm text-white font-bold">
                   <span>Current Price</span>
-                  <span>{formatCurrency(stock.price)}</span>
+                  <span>{formatCurrency(stock.price, selectedMarket)}</span>
                 </div>
               </div>
-              <LevelLine label="Pivot Point" value={pivot} color="text-yellow-500" border="border-yellow-500/50" />
-              <LevelLine label="Support 1" value={supports[0]} color="text-emerald-400" border="border-emerald-400/50" />
-              <LevelLine label="Support 2" value={supports[1]} color="text-tvGreen" border="border-tvGreen/50" />
+              <LevelLine label="Pivot Point" value={pivot} color="text-yellow-500" border="border-yellow-500/50" market={selectedMarket} />
+              <LevelLine label="Support 1" value={supports[0]} color="text-emerald-400" border="border-emerald-400/50" market={selectedMarket} />
+              <LevelLine label="Support 2" value={supports[1]} color="text-tvGreen" border="border-tvGreen/50" market={selectedMarket} />
             </div>
           </div>
         </div>
@@ -173,11 +183,11 @@ function StatCard({ label, value }: { label: string, value: string | number }) {
   )
 }
 
-function LevelLine({ label, value, color, border }: { label: string, value: number, color: string, border: string }) {
+function LevelLine({ label, value, color, border, market }: { label: string, value: number, color: string, border: string, market: MarketRegion }) {
   return (
     <div className={`flex justify-between items-center py-2 relative border-b border-dashed ${border}`}>
       <span className={`text-xs font-semibold uppercase ${color} bg-[#1E222D] pr-4`}>{label}</span>
-      <span className={`text-sm font-bold ${color} bg-[#1E222D] pl-4`}>{formatCurrency(Math.max(0, value))}</span>
+      <span className={`text-sm font-bold ${color} bg-[#1E222D] pl-4`}>{formatCurrency(Math.max(0, value), market)}</span>
     </div>
   )
 }

@@ -12,6 +12,8 @@ import { signIn, signOut, useSession } from "next-auth/react"
 import { useAppMode } from "@/hooks/useAppMode"
 import { Zap } from "lucide-react"
 
+import { MarketSelector } from "@/components/market/MarketSelector"
+
 export default function TopBar() {
   const pathname = usePathname()
   const toggleMenu = useMenuStore((state: any) => state.toggleSidebar)
@@ -56,8 +58,10 @@ export default function TopBar() {
         </div>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 md:space-x-4">
         <NotificationCenter />
+        
+        {mounted && <MarketSelector />}
 
         <button 
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}

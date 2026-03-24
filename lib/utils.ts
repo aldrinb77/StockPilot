@@ -5,11 +5,17 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(num: number): string {
-  return new Intl.NumberFormat('en-US', {
+import { MarketRegion, MARKETS } from "./markets"
+
+export function formatCurrency(value: number, market: MarketRegion = 'US'): string {
+  const config = MARKETS[market]
+  
+  return new Intl.NumberFormat(config.locale, {
     style: 'currency',
-    currency: 'USD',
-  }).format(num)
+    currency: config.currency,
+    minimumFractionDigits: config.currency === 'JPY' ? 0 : 2,
+    maximumFractionDigits: config.currency === 'JPY' ? 0 : 2,
+  }).format(value)
 }
 
 export function formatNumber(num: number): string {
@@ -21,31 +27,43 @@ export function formatPercent(num: number): string {
   return `${sign}${num.toFixed(2)}%`
 }
 
-export function getMarketStatus(): 'open' | 'closed' | 'pre-market' | 'after-hours' {
+export function getMarketStatus(market: MarketRegion = 'US'): 'open' | 'closed' | 'pre-market' | 'after-hours' {
+  const config = MARKETS[market]
   const now = new Date()
-  const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }))
   
-  const day = estTime.getDay()
-  const hours = estTime.getHours()
-  const minutes = estTime.getMinutes()
+  // Get time in market's timezone
+  const marketTimeStr = now.toLocaleString("en-US", { timeZone: config.marketHours.timezone })
+  const marketTime = new Date(marketTimeStr)
   
+  const day = marketTime.getDay() // 0 (Sun) to 6 (Sat)
+  const hours = marketTime.getHours()
+  const minutes = marketTime.getMinutes()
   const timeInMinutes = hours * 60 + minutes
 
+  // Markets typically closed on weekends
   if (day === 0 || day === 6) {
     return 'closed'
   }
 
-  // Pre-market: 4:00 AM - 9:30 AM EST
-  const preMarketStart = 4 * 60
-  const marketOpen = 9 * 60 + 30
-  const marketClose = 16 * 60 // 4:00 PM EST
-  const afterHoursEnd = 20 * 60 // 8:00 PM EST
-
-  if (timeInMinutes >= preMarketStart && timeInMinutes < marketOpen) {
-    return 'pre-market'
-  } else if (timeInMinutes >= marketOpen && timeInMinutes < marketClose) {
+  const [openH, openM] = config.marketHours.open.split(':').map(Number)
+  const [closeH, closeM] = config.marketHours.close.split(':').map(Number)
+  
+  const marketOpen = openH * 60 + openM
+  const marketClose = closeH * 60 + closeM
+  
+  // Simple check for open/closed based on provided hours
+  // This can be expanded for pre/after hours if desired, but for now we follow the core hours
+  if (timeInMinutes >= marketOpen && timeInMinutes < marketClose) {
     return 'open'
-  } else if (timeInMinutes >= marketClose && timeInMinutes < afterHoursEnd) {
+  }
+
+  // Pre-market (roughly 1-2 hours before)
+  if (timeInMinutes >= marketOpen - 120 && timeInMinutes < marketOpen) {
+    return 'pre-market'
+  }
+
+  // After-hours (roughly 2 hours after)
+  if (timeInMinutes >= marketClose && timeInMinutes < marketClose + 120) {
     return 'after-hours'
   }
 

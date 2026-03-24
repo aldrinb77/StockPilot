@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useStore } from "@/store/store"
-import { Check, ChevronRight } from "lucide-react"
+import { Check, ChevronRight, Globe } from "lucide-react"
+import { MARKETS, MarketRegion } from "@/lib/markets"
 
 export function OnboardingFlow() {
-  const { hasCompletedOnboarding, setHasCompletedOnboarding, setExperienceLevel } = useStore()
+  const { hasCompletedOnboarding, setHasCompletedOnboarding, setExperienceLevel, selectedMarket, setSelectedMarket } = useStore()
   const [step, setStep] = useState(1)
   const [mounted, setMounted] = useState(false)
 
@@ -42,7 +43,7 @@ export function OnboardingFlow() {
               <span className="text-7xl block mb-4 animate-bounce">👋</span>
               <h2 className="text-3xl font-extrabold text-white font-heading">Welcome to StoxPilot!</h2>
               <p className="text-gray-400 text-lg leading-relaxed">
-                We simplify the stock market using pure mathematics. No AI guesswork, no confusing jargon. Just explicit <strong>Buy</strong> and <strong>Sell</strong> signals.
+                We simplify the stock market using pure mathematics. No AI guesswork, no confusing jargon. Just explicit <strong>educational</strong> technical indicators.
               </p>
               <button 
                 onClick={() => setStep(2)}
@@ -54,6 +55,38 @@ export function OnboardingFlow() {
           )}
 
           {step === 2 && (
+            <div className="p-8 md:p-12 space-y-6">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-white font-heading mb-2">Select Your Market</h2>
+                <p className="text-gray-400">Choose the region you primarily trade in.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                {Object.values(MARKETS).map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      setSelectedMarket(m.id as MarketRegion);
+                      setStep(3);
+                    }}
+                    className={`p-4 rounded-xl border text-left transition-all flex flex-col items-center gap-2 ${
+                      selectedMarket === m.id 
+                        ? 'bg-tvGreen/10 border-tvGreen' 
+                        : 'bg-[#1E222D] border-gray-700 hover:border-tvGreen/30'
+                    }`}
+                  >
+                    <span className="text-4xl">{m.flag}</span>
+                    <div className="text-center">
+                      <p className="font-bold text-white text-sm">{m.name}</p>
+                      <p className="text-[10px] text-gray-500 uppercase">{m.currency}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
             <div className="p-8 md:p-12 space-y-8">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-white font-heading mb-2">What&apos;s your experience?</h2>
