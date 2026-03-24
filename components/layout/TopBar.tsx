@@ -8,7 +8,7 @@ import { useState, useEffect } from "react"
 import { useTheme } from "../ThemeProvider"
 import { useRouter } from "next/navigation"
 import { NotificationCenter } from "@/components/notifications/NotificationCenter"
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs"
+import { signIn, signOut, useSession } from "next-auth/react"
 import { useAppMode } from "@/hooks/useAppMode"
 import { Zap } from "lucide-react"
 
@@ -19,7 +19,7 @@ export default function TopBar() {
   const { theme, setTheme } = useTheme()
   const [search, setSearch] = useState('')
   const router = useRouter()
-  const { isSignedIn } = useUser()
+  const { data: session, status } = useSession()
   const { isGodMode } = useAppMode()
 
   useEffect(() => setMounted(true), [])
@@ -70,18 +70,37 @@ export default function TopBar() {
           )}
         </button>
 
-        {isGodMode && (
-          <div className="px-2 py-1 bg-yellow-500/20 text-yellow-500 font-bold text-xs rounded border border-yellow-500/50 hidden md:flex items-center shadow-lg shadow-yellow-500/10">
-            <Zap className="w-3 h-3 mr-1" /> GOD MODE
-          </div>
-        )}
-
         <div className="flex items-center justify-center pl-2">
-           {isSignedIn ? (
-             <UserButton afterSignOutUrl="/" />
+           {status === "authenticated" && session ? (
+              <div className="flex items-center gap-3">
+                {isGodMode && (
+                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-500 font-bold text-[10px] rounded border border-yellow-500/50 flex items-center shadow-lg shadow-yellow-500/10 uppercase tracking-widest">
+                    <Zap className="w-3 h-3 mr-1" /> GOD MODE
+                  </span>
+                )}
+                <div className="flex items-center gap-2 bg-[#1E222D] border border-gray-700 rounded-full pl-1 pr-3 py-1">
+                  {session.user?.image && (
+                    <img 
+                      src={session.user.image} 
+                      alt={session.user.name || "User"} 
+                      className="w-7 h-7 rounded-full border border-gray-600 shadow-sm"
+                    />
+                  )}
+                  <span className="text-xs font-bold text-gray-200 hidden sm:block">{session.user?.name}</span>
+                  <button 
+                    onClick={() => signOut()} 
+                    className="ml-2 text-[10px] font-bold text-gray-400 hover:text-tvRed transition-colors uppercase tracking-widest"
+                  >
+                    Exit
+                  </button>
+                </div>
+              </div>
            ) : (
-             <div className="bg-tvGreen hover:bg-emerald-500 text-white px-4 py-1.5 rounded-md font-bold text-sm transition-colors cursor-pointer border border-tvGreen/50 shadow-md">
-               <SignInButton mode="modal">Sign In</SignInButton>
+             <div 
+               onClick={() => signIn("google")}
+               className="bg-tvGreen hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm transition-all cursor-pointer border border-tvGreen/50 shadow-lg shadow-tvGreen/10 active:scale-95"
+             >
+               Sign In
              </div>
            )}
         </div>

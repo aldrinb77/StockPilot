@@ -37,7 +37,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
 }
 
-import { ClerkProvider } from '@clerk/nextjs'
+import { Providers } from './providers'
 
 export const metadata: Metadata = {
   title: "StoxPilot - Free Stock Market Education",
@@ -54,9 +54,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="dark" suppressHydrationWarning>
-        <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans bg-background text-foreground min-h-screen antialiased selection:bg-tvGreen/30 selection:text-tvGreen`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans bg-background text-foreground min-h-screen antialiased selection:bg-tvGreen/30 selection:text-tvGreen`}>
+        <Providers>
           <ThemeProvider>
             <DisclaimerModal />
             <CookieConsent />
@@ -75,8 +75,8 @@ export default function RootLayout({
               </div>
             </div>
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </Providers>
+      </body>
+    </html>
   )
 }

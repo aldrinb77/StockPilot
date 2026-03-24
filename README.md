@@ -21,7 +21,7 @@ StoxPilot is an intensive, completely algorithmic educational platform explicitl
 * **Styling Matrix:** Tailwind CSS v3 / Framer Motion / Lucide-React
 * **Calculations:** `technicalindicators` / `yahoo-finance2`
 * **Charting Native Tools:** `react-ts-tradingview-widgets`
-* **Auth:** Clerk
+* **Auth:** NextAuth.js (Custom Google Provider)
 
 ---
 

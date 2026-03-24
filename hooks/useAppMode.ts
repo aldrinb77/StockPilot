@@ -1,11 +1,21 @@
-"use client"
+"use client";
+import { useSession } from "next-auth/react";
 
-import { useUser } from "@clerk/nextjs"
+const GOD_MODE_EMAIL = "aldrinbino275@gmail.com";
 
 export function useAppMode() {
-  const { user, isLoaded } = useUser()
-  // Ensure the email matches the God Mode creator EXACTLY
-  const isGodMode = user?.primaryEmailAddress?.emailAddress === 'aldrinbino275@gmail.com'
+  const { data: session, status } = useSession();
   
-  return { isGodMode, isLoaded, user }
+  const isLoggedIn = status === "authenticated";
+  const userEmail = session?.user?.email ?? "";
+  const isGodMode = isLoggedIn && userEmail === GOD_MODE_EMAIL;
+  
+  return {
+    isLoggedIn,
+    isGodMode,
+    userEmail,
+    userName: session?.user?.name ?? "",
+    userImage: session?.user?.image ?? "",
+    status,
+  };
 }
