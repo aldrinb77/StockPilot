@@ -1,26 +1,27 @@
-# 📈 StockPilot 
+# 📈 StoxPilot 
 
 **Mathematical Rule-Based Free Stock Signal Engine**
 
-StockPilot is an intensive, completely algorithmic educational platform explicitly stripping out "guesswork", "AI generation", and abstract predictions, replacing them exclusively with hard-coded classical momentum/volatility mathematical arrays. Every aspect of the UI is optimized globally leveraging high-performance `Next.js 14`, local client boundaries leveraging `Zustand` persistent logic, and fully rendered explicit TradingView graphics.
+StoxPilot is an intensive, completely algorithmic educational platform explicitly stripping out "guesswork", "AI generation", and abstract predictions, replacing them exclusively with hard-coded classical momentum/volatility mathematical arrays. Every aspect of the UI is optimized globally leveraging high-performance `Next.js 14`, local client boundaries leveraging `Zustand` persistent logic, and fully rendered explicit TradingView graphics.
 
 > **⚠️ DISCLAIMER:** This isolated MVP maps mocked Yahoo proxy data and bounds signals entirely based on `technicalindicators`. It does NOT offer legal or professional financial advice. Past patterns implicitly do not map future alignment. Trade explicitly at your own local risk.
 
 ---
 
 ## 🔥 Features
-* **Spoon-Fed Signals Structure:** Instantly calculates Entry Boundaries, Stop-Loss triggers via True Range variants, and explicit 1:3 RR conditional Targets.
+* **Spoon-Fed Signals Structure:** Instantly calculates Entry Boundaries, Risk Level triggers via True Range variants, and explicit 1:3 RR conditional Technical Levels.
 * **100% Free / ZERO AI Engine:** All evaluations (RSI bounds checks, MACD crosses, Sub-Pivot support breaks, Standard Deviations bounding) run locally directly through formulas.
-* **Native Lightweight Charts:** Built entirely around the TradingView Lightweight-Charts framework visualizing Candlesticks alongside injected EMA layers dynamically.
-* **Screener & Watchlists:** Efficiently traverse and sort the universe filtering conditionally mapping specifically directly into localized `Zustand` hooks locally caching immediately.
-* **Mock Portfolio Trackers:** Mock theoretical investments observing explicit variations mapping securely instantly.
+* **Official TradingView Charts:** Built around the Professional TradingView Advanced Chart Widget visualizing Candlesticks alongside injected layers dynamically.
+* **Screener & Study Lists:** Efficiently traverse and sort the universe filtering conditionally mapping specifically directly into localized `Zustand` hooks locally caching immediately.
+* **Strategy Sandbox:** Model hypothetical setups and track their mathematical outcomes over time.
 
 ## ⚙️ Tech Stack Structure
 * **Core:** Next.js 14 (App router) / React 18 / TypeScript
 * **State Operations:** Zustand + Persist Middleware (LocalStorage)
 * **Styling Matrix:** Tailwind CSS v3 / Framer Motion / Lucide-React
 * **Calculations:** `technicalindicators` / `yahoo-finance2`
-* **Charting Native Tools:** `lightweight-charts`
+* **Charting Native Tools:** `react-ts-tradingview-widgets`
+* **Auth:** Clerk
 
 ---
 

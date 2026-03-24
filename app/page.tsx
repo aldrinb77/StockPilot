@@ -28,13 +28,13 @@ export default function Home() {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tighter leading-[1.1] mb-6 shadow-sm">
-            Free Stock Analysis <span className="text-transparent bg-clip-text bg-gradient-to-r from-tvGreen to-emerald-400">Indicators.</span>
+            Free Stock Market <span className="text-transparent bg-clip-text bg-gradient-to-r from-tvGreen to-emerald-400">Education Platform.</span>
           </h1>
           
           <p className="text-lg md:text-2xl text-gray-400 max-w-2xl mb-10 leading-relaxed font-medium">
-            Visualize technical patterns with automated entry zones, mathematical resistance targets, and risk management boundaries. 
+            Learn technical analysis with interactive indicator readings, educational charts, and beginner-friendly guides. 
             <br className="hidden md:block" />
-            <strong className="text-white mt-2 block italic text-sm md:text-lg">IMPORTANT: StoxPilot is an educational tool. We do NOT provide financial advice.</strong>
+            <strong className="text-white mt-2 block italic text-sm md:text-lg">No AI. Rule-based technical indicators. 100% Free.</strong>
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -149,7 +149,7 @@ export default function Home() {
             <p className="text-gray-500 text-sm mt-2 max-w-sm">Algorithmic technical education tracking market behavior via strict mathematical bounds.</p>
           </div>
           <div className="text-xs text-gray-500 max-w-2xl text-center md:text-right">
-            <strong className="text-tvAmber block mb-1">EDUCATIONAL DISCLAIMER:</strong>
+            <strong className="text-tvAmber block mb-1 uppercase">StoxPilot is an educational platform. It is not a financial advisor and does not provide investment advice.</strong>
             StoxPilot does not provide financial advice. All data and indicators are for informational purposes only. Trading involves risk. Please read our <Link href="/disclaimer" className="underline hover:text-white">Full Disclaimer</Link>.
           </div>
         </div>

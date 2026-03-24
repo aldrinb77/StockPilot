@@ -237,11 +237,9 @@ export function SignalCard(props: SignalCardProps) {
                </div>
             </div>
             
-            {!isGodMode && (
-              <div className="mt-8 pt-4 border-t border-gray-800/50 text-center">
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest">{labels.disclaimer}</p>
-              </div>
-            )}
+            <div className="mt-8 pt-4 border-t border-gray-800/50 text-center">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest">{isGodMode ? "DEBUG_INFO: INTERNAL SIGNALExtraction" : "⚠️ Educational reading only. Not financial advice."}</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

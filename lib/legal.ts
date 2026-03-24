@@ -6,11 +6,11 @@ export function getSignalLabel(type: string, isGodMode: boolean) {
     if (type.includes('STRONG_BEARISH') || type.includes('STRONG_SELL')) return "STRONG SELL 🩸"
     if (type.includes('BEARISH') || type.includes('SELL')) return "SELL"
   } else {
-    if (type.includes('STRONG_BULLISH')) return "STRONG BULLISH INDICATOR"
-    if (type.includes('BULLISH')) return "BULLISH READING"
-    if (type.includes('NEUTRAL')) return "NEUTRAL READING"
-    if (type.includes('STRONG_BEARISH')) return "STRONG BEARISH INDICATOR"
-    if (type.includes('BEARISH')) return "BEARISH READING"
+    if (type.includes('STRONG_BULLISH')) return "STRONG BULLISH"
+    if (type.includes('BULLISH')) return "BULLISH"
+    if (type.includes('NEUTRAL')) return "NEUTRAL"
+    if (type.includes('STRONG_BEARISH')) return "STRONG BEARISH"
+    if (type.includes('BEARISH')) return "BEARISH"
   }
   return type
 }
@@ -27,12 +27,12 @@ export function getLabel(isGodMode: boolean) {
     }
   } else {
     return {
-      stopLoss: "🛡️ RISK LEVEL (ATR)",
+      stopLoss: "🛡️ RISK LEVEL",
       target: "📈 TECHNICAL LEVEL",
-      entry: "📍 INDICATOR ZONE",
+      entry: "📍 INDICATOR ENTRY ZONE",
       advice: "EDUCATIONAL SUMMARY",
       badge: "EDUCATIONAL",
-      disclaimer: "⚠️ Educational indicator reading only. Not financial advice. DYOR."
+      disclaimer: "⚠️ Educational reading only. Not financial advice."
     }
   }
 }

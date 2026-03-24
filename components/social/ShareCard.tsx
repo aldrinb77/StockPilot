@@ -9,9 +9,9 @@ export function ShareCard({ symbol, signal, price }: any) {
   const isBuy = signal.type.includes('BUY')
 
   // Generate the plain text copy wrapper format
-  const copyText = `🚀 StockPilot Alert: ${symbol} is a ${signal.type.replace('_', ' ')}!
-💰 Entry: ${signal.entry.min}-${signal.entry.max} | 🛑 Stop Loss: ${signal.stopLoss}
-Find explicit algorithmic breakdowns without the AI guessing at: https://stockpilot.vercel.app/stock/${symbol}`
+  const copyText = `🚀 StoxPilot Alert: ${symbol} is a ${signal.type.replace('_', ' ')}!
+💰 Entry: ${signal.entry.min}-${signal.entry.max} | 🛡️ Risk Level: ${signal.stopLoss}
+Find explicit algorithmic breakdowns without the AI guessing at: https://stoxpilot.vercel.app/stock/${symbol}`
 
   const handleShare = () => {
     navigator.clipboard.writeText(copyText)
@@ -26,7 +26,7 @@ Find explicit algorithmic breakdowns without the AI guessing at: https://stockpi
         <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] rounded-full ${isBuy ? 'bg-tvGreen/20' : 'bg-tvRed/20'} -z-10 transition-opacity opacity-50`} />
         
         <div className="flex justify-between items-start mb-4">
-          <h1 className="text-2xl font-black font-heading text-white tracking-tighter">StockPilot</h1>
+          <h1 className="text-2xl font-black font-heading text-white tracking-tighter">StoxPilot</h1>
           <span className={`px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-widest ${isBuy ? 'bg-tvGreen/20 text-tvGreen' : 'bg-tvRed/20 text-tvRed'}`}>
             {signal.type.replace('_', ' ')}
           </span>

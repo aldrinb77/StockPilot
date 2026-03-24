@@ -59,7 +59,7 @@ export const useStore = create<AppState>()(
       setNotificationsEnabled: (val) => set({ notificationsEnabled: val })
     }),
     {
-      name: 'stockpilot-store-v2',
+      name: 'stoxpilot-store-v2',
       partialize: (state) => ({ 
         watchlist: state.watchlist, 
         portfolio: state.portfolio,

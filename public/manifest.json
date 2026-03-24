@@ -1,7 +1,7 @@
 {
-  "name": "StockPilot",
-  "short_name": "StockPilot",
-  "description": "Mathematical rule-based free stock signals engine.",
+  "name": "StoxPilot",
+  "short_name": "StoxPilot",
+  "description": "StoxPilot - Free Stock Market Education Platform.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#131722",

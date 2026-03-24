@@ -106,20 +106,20 @@ export default function DashboardPage() {
       {/* ROW 3: Top Signals */}
       <section className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div>
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center"><span className="text-tvGreen mr-2">🟢</span> Top BUY Signals</h2>
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center"><span className="text-tvGreen mr-2">🟢</span> Top BULLISH Indicators</h2>
           <div className="space-y-4">
             {buySignals.length > 0 ? buySignals.map(item => (
               <SignalCard key={item.symbol} stock={item} signal={item.signal} />
-            )) : <div className="p-8 text-center text-gray-500 bg-[#1E222D] rounded-xl border border-gray-700/50">No strong buy signals right now</div>}
+            )) : <div className="p-8 text-center text-gray-500 bg-[#1E222D] rounded-xl border border-gray-700/50">No strong bullish readings right now</div>}
           </div>
         </div>
         
         <div>
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center"><span className="text-tvRed mr-2">🔴</span> Top SELL Signals</h2>
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center"><span className="text-tvRed mr-2">🔴</span> Top BEARISH Indicators</h2>
           <div className="space-y-4">
             {sellSignals.length > 0 ? sellSignals.map(item => (
               <SignalCard key={item.symbol} stock={item} signal={item.signal} />
-            )) : <div className="p-8 text-center text-gray-500 bg-[#1E222D] rounded-xl border border-gray-700/50">No strong sell signals right now</div>}
+            )) : <div className="p-8 text-center text-gray-500 bg-[#1E222D] rounded-xl border border-gray-700/50">No strong bearish readings right now</div>}
           </div>
         </div>
       </section>

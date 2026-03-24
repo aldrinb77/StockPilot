@@ -8,7 +8,7 @@ export default function AboutPage() {
         <div className="w-20 h-20 bg-tvGreen/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-tvGreen/30 shadow-[0_0_30px_rgba(38,166,154,0.3)]">
           <BookHeart className="w-10 h-10 text-tvGreen" />
         </div>
-        <h1 className="text-5xl font-extrabold text-white tracking-tight mb-4">About StockPilot</h1>
+        <h1 className="text-5xl font-extrabold text-white tracking-tight mb-4">About StoxPilot</h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto">Democratizing explicit technical analysis via purely mathematical arrays. Completely transparent. 100% Free.</p>
       </div>
 

@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
       {/* System Details */}
       <section className="bg-[#131722] p-6 rounded-xl border border-gray-700/50 text-center">
-        <p className="text-sm text-gray-400">StockPilot Engine v1.0.0 (MVP)</p>
+        <p className="text-sm text-gray-400">StoxPilot Engine v1.0.0 (MVP)</p>
         <p className="text-xs text-gray-500 mt-2">React 18 / Next.js 14 / Mathematical Rule-Based Pipeline Array (10+ Checks)</p>
         <div className="flex items-center justify-center mt-4">
            <span className="px-3 py-1 bg-tvGreen/10 text-tvGreen text-xs rounded border border-tvGreen/30 uppercase tracking-widest font-bold">Zero AI Executions Configured</span>

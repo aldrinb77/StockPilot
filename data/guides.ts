@@ -24,7 +24,7 @@ The stock market is simply a marketplace, just like a farmers' market, but inste
     content: `
 # Buy, Sell, Hold Explained
 
-In stock trading, analysts and platforms (like StockPilot) issue ratings or signals to help you decide what to do. The three main actions are Buy, Sell, and Hold.
+In stock trading, analysts and platforms (like StoxPilot) issue ratings or signals to help you decide what to do. The three main actions are Buy, Sell, and Hold.
 
 **1. BUY (or Strong Buy)**
 A "Buy" signal means the stock is currently trading at a good price and is expected to go up in value. A "Strong Buy" means the mathematical indicators are extremely positive and the probability of the stock going up is very high.
@@ -52,7 +52,7 @@ Because no one can predict the stock market with 100% accuracy. If you buy a sto
 
 If you set a Stop Loss at $90, your broker will automatically sell your shares the moment the price hits $90. You lose $10 instead of $40. **A stop loss guarantees that a small mistake doesn't wipe out your account.**
 
-StockPilot automatically calculates a mathematical stop loss for every BUY signal based on the stock's natural volatility (ATR). Always use a stop loss!
+StoxPilot automatically calculates a mathematical stop loss for every BUY signal based on the stock's natural volatility (ATR). Always use a stop loss!
     `
   },
   {
@@ -66,7 +66,7 @@ StockPilot automatically calculates a mathematical stop loss for every BUY signa
 
 A Target Price (or Take Profit) is the price at which you plan to sell your stock to lock in a profit. Just as a Stop Loss protects you on the downside, a Target Price ensures you actually make money on the upside.
 
-StockPilot mathematically calculates three profit targets for every trade:
+StoxPilot mathematically calculates three profit targets for every trade:
 - **Target 1:** A highly conservative goal. Usually represents a 1:1 Risk-to-Reward ratio.
 - **Target 2:** A moderate goal. You might sell half your shares here.
 - **Target 3:** A more aggressive goal if the trend is very strong.
@@ -122,21 +122,21 @@ A candlestick with a very long wick at the bottom means that sellers tried to pu
   },
   {
     slug: 'read-stockpilot-signals',
-    title: 'How to Read Signals on StockPilot',
+    title: 'How to Read Signals on StoxPilot',
     description: 'Step-by-step walkthrough on how to use our platform.',
     icon: '🧭',
     readTime: '3 min',
     content: `
-# How to Use StockPilot Signals
+# How to Use StoxPilot Signals
 
-StockPilot does all the heavy math so you don't have to. Here's exactly how to use our Signal Cards:
+StoxPilot does all the heavy math so you don't have to. Here's exactly how to use our Signal Cards:
 
 1. **Check the Badge:** Wait for a **STRONG BUY** or **BUY** signal. Ignore HOLDs and SELLs if you are looking to buy.
 2. **Check the Entry Price:** We provide an Entry Zone (e.g., $150.00 - $152.00). Only buy the stock if the current price is currently inside this zone.
 3. **Set Your Stop Loss:** The moment your broker executes your buy order, immediately enter a Stop Loss order using the exact Stop Loss price listed on our card.
 4. **Wait for the Target:** Monitor the stock. Once it reaches Target 1 or Target 2, sell your shares and secure your profit.
 
-StockPilot's strength percentage tells you how many of our 10+ mathematical indicators agree on the signal. An 80% strength means 8 out of 10 complex mathematical rules are firing simultaneously.
+StoxPilot's strength percentage tells you how many of our 10+ mathematical indicators agree on the signal. An 80% strength means 8 out of 10 complex mathematical rules are firing simultaneously.
     `
   },
   {
@@ -154,7 +154,7 @@ Trading without risk management is gambling. Here are the unbreakable rules of s
 Never risk more than 1% to 2% of your total account value on a single trade. If you have $10,000, your maximum risk should be $200. This means the distance from your Entry Price to your Stop Loss, multiplied by your shares, should not exceed $200. You would have to lose 50 trades in a row to wipe out your account.
 
 **Rule 2: The 1:2 Risk-Reward Ratio**
-Only take trades where you stand to make twice as much as you risk. If your Stop Loss is going to cost you $50 if triggered, your Target Price should make you at least $100. If you do this, you can be wrong 50% of the time and still make money. StockPilot automatically calculates this for you!
+Only take trades where you stand to make twice as much as you risk. If your Stop Loss is going to cost you $50 if triggered, your Target Price should make you at least $100. If you do this, you can be wrong 50% of the time and still make money. StoxPilot automatically calculates this for you!
 
 **Rule 3: Cut Losses Early, Let Winners Run**
 Never hold onto a losing stock hoping it "comes back." If it hits your Stop Loss, sell it mechanically with zero emotion.
@@ -178,10 +178,10 @@ You need an app/broker to actually buy the stocks. Popular zero-commission broke
 Link your bank and transfer money you can afford to lose. Start small ($100-$500) while you learn.
 
 **3. Paper Trade First**
-Before using real money, "paper trade" (practice trade) using StockPilot signals. Write down the entry price and see if it hits the target or stop loss over the next week.
+Before using real money, "paper trade" (practice trade) using StoxPilot signals. Write down the entry price and see if it hits the target or stop loss over the next week.
 
 **4. Make Your First Real Trade**
-When a StockPilot STRONG BUY signal triggers, open your broker app. Search the stock ticker (e.g., AAPL). Enter a "Limit Order" for the entry price. Once filled, immediately set an OCO (One-Cancels-the-Other) order with your Target Price and Stop Loss.
+When a StoxPilot STRONG BUY signal triggers, open your broker app. Search the stock ticker (e.g., AAPL). Enter a "Limit Order" for the entry price. Once filled, immediately set an OCO (One-Cancels-the-Other) order with your Target Price and Stop Loss.
     `
   },
   {

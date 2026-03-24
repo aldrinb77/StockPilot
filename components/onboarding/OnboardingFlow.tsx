@@ -40,7 +40,7 @@ export function OnboardingFlow() {
           {step === 1 && (
             <div className="p-8 md:p-12 text-center space-y-6">
               <span className="text-7xl block mb-4 animate-bounce">👋</span>
-              <h2 className="text-3xl font-extrabold text-white font-heading">Welcome to StockPilot!</h2>
+              <h2 className="text-3xl font-extrabold text-white font-heading">Welcome to StoxPilot!</h2>
               <p className="text-gray-400 text-lg leading-relaxed">
                 We simplify the stock market using pure mathematics. No AI guesswork, no confusing jargon. Just explicit <strong>Buy</strong> and <strong>Sell</strong> signals.
               </p>

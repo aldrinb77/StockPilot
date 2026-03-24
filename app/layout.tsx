@@ -40,8 +40,8 @@ export const viewport: Viewport = {
 import { ClerkProvider } from '@clerk/nextjs'
 
 export const metadata: Metadata = {
-  title: "StoxPilot - Educational Stock Analysis",
-  description: "Rule-based technical analysis stock education. 100% Free, NO AI.",
+  title: "StoxPilot - Free Stock Market Education",
+  description: "StoxPilot is a rule-based technical analysis stock education platform. 100% Free, NO AI.",
   manifest: '/manifest.json',
   icons: {
     icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>",
