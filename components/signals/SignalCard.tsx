@@ -6,8 +6,10 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { STAGGER_CONTAINER, FADE_IN } from "@/lib/animations"
 import { useStore } from "@/store/store"
-import { getFriendlyIndicatorDescription, getFriendlySignalReason } from "@/lib/friendly"
+import { getFriendlyIndicatorDescription } from "@/lib/friendly"
 import { HelpBadge } from "@/components/guidance/HelpBadge"
+import { useAppMode } from "@/hooks/useAppMode"
+import { getLabel, getSignalLabel, getFriendlySignalReasonWithMode } from "@/lib/legal"
 
 interface SignalCardProps {
   symbol?: string
@@ -26,6 +28,8 @@ export function SignalCard(props: SignalCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [showHowToBuy, setShowHowToBuy] = useState(false)
   const { addToWatchlist, watchlist, removeFromWatchlist, experienceLevel } = useStore()
+  const { isGodMode } = useAppMode()
+  const labels = getLabel(!!isGodMode)
 
   const isWatched = watchlist.some((w: any) => w.symbol === symbol)
   
@@ -35,11 +39,20 @@ export function SignalCard(props: SignalCardProps) {
     else addToWatchlist({ symbol, name, addedAt: Date.now() })
   }
 
-  const isBuy = signal.type.includes('BUY')
-  const isSell = signal.type.includes('SELL')
-  const borderColor = isBuy ? 'border-tvGreen/30' : isSell ? 'border-tvRed/30' : 'border-tvAmber/30'
+  const isBuy = signal.type.includes('BULLISH') || signal.type.includes('BUY')
+  const isSell = signal.type.includes('BEARISH') || signal.type.includes('SELL')
+  
+  // Strict mode colors
+  const borderColor = isGodMode 
+    ? (isBuy ? 'border-tvGreen' : isSell ? 'border-tvRed' : 'border-gray-500')
+    : (isBuy ? 'border-tvGreen/30' : isSell ? 'border-tvRed/30' : 'border-tvAmber/30')
+    
   const glowClass = isBuy ? 'glow-green' : isSell ? 'glow-red' : ''
-  const bgColors = isBuy ? 'bg-tvGreen/10 text-tvGreen' : isSell ? 'bg-tvRed/10 text-tvRed' : 'bg-tvAmber/10 text-tvAmber'
+  const bgColors = isGodMode
+    ? (isBuy ? 'bg-tvGreen text-white' : isSell ? 'bg-tvRed text-white' : 'bg-gray-600 text-white')
+    : (isBuy ? 'bg-tvGreen/10 text-tvGreen' : isSell ? 'bg-tvRed/10 text-tvRed' : 'bg-tvAmber/10 text-tvAmber')
+
+  const signalLabel = getSignalLabel(signal.type, !!isGodMode)
 
   return (
     <motion.div 
@@ -75,18 +88,18 @@ export function SignalCard(props: SignalCardProps) {
         {/* Signal Badge */}
         <div className="flex items-center justify-between">
           <div className={`px-4 py-1.5 rounded-lg border flex items-center shadow-lg ${bgColors} ${borderColor}`}>
-            <div className={`w-2 h-2 rounded-full mr-2 ${isBuy ? 'bg-tvGreen animate-pulse' : isSell ? 'bg-tvRed animate-pulse' : 'bg-tvAmber'}`} />
-            <span className="font-bold tracking-wide">{signal.type.replace('_', ' ')}</span>
+            <div className={`w-2 h-2 rounded-full mr-2 ${isBuy ? 'bg-white animate-pulse' : isSell ? 'bg-white animate-pulse' : 'bg-white/50'}`} />
+            <span className="font-bold tracking-wide">{signalLabel}</span>
           </div>
           <div className="flex items-center text-sm font-medium glass-panel px-3 py-1.5 rounded-lg">
             <Battery className={`w-4 h-4 mr-1.5 ${isBuy ? 'text-tvGreen' : 'text-tvRed'}`} />
-            <span className="text-white">{Math.round(signal.strength)}% Strength</span>
+            <span className="text-white">{Math.round(signal.strength)}% Alignment</span>
           </div>
         </div>
         
         {/* Friendly Reason */}
         <p className="mt-4 text-sm text-gray-300 bg-black/20 p-3 rounded-lg border border-white/5 leading-relaxed">
-          {getFriendlySignalReason(signal)}
+          {getFriendlySignalReasonWithMode(signal, signal.reasons[0], !!isGodMode)}
         </p>
       </div>
 
@@ -103,15 +116,15 @@ export function SignalCard(props: SignalCardProps) {
             <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
               <div className="glass-panel p-4 rounded-xl">
                 <p className="text-xs text-gray-400 uppercase font-bold mb-1 flex items-center">
-                  Entry Zone
-                  <HelpBadge title="Entry Zone" description="The recommended price range to attempt buying this stock. Wait for it to fall within this pocket." />
+                  {labels.entry}
+                  <HelpBadge title={labels.entry} description="The mathematically generated boundary for tracking." />
                 </p>
                 <p className="text-lg font-bold text-white font-mono">${signal.entry.min} - ${signal.entry.max}</p>
               </div>
               <div className="glass-panel p-4 rounded-xl">
                 <p className="text-xs text-gray-400 uppercase font-bold mb-1 flex items-center">
-                  Stop Loss
-                  <HelpBadge title="Stop Loss" description="Your structural safety net. If the price hits this floor, exit the trade immediately to cut losses." />
+                  {labels.stopLoss}
+                  <HelpBadge title={labels.stopLoss} description="The ATR-derived safety net boundary." />
                 </p>
                 <p className="text-lg font-bold text-tvRed font-mono">${signal.stopLoss}</p>
               </div>
@@ -124,7 +137,7 @@ export function SignalCard(props: SignalCardProps) {
                   onClick={(e) => { e.stopPropagation(); setShowHowToBuy(!showHowToBuy); }}
                   className="w-full bg-tvBlue/10 hover:bg-tvBlue/20 text-tvBlue border border-tvBlue/30 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center"
                 >
-                  💡 How to trade this signal
+                  {isGodMode ? '💡 How to trade this stock' : '📚 Educational Guide: How Stock Purchasing Works'}
                 </button>
                 
                 <AnimatePresence>
@@ -137,18 +150,40 @@ export function SignalCard(props: SignalCardProps) {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="bg-[#111827] p-4 rounded-xl border border-gray-700/50 text-sm text-gray-300">
-                        <p className="font-bold text-white mb-2">📝 To buy {symbol}:</p>
-                        <ol className="list-decimal pl-5 space-y-1 mb-4">
-                          <li>Open your brokerage app.</li>
-                          <li>Select &quot;Limit Order&quot; (do not use Market).</li>
-                          <li>Set your buy price around <strong className="text-tvGreen font-mono">${((signal.entry.min + signal.entry.max)/2).toFixed(2)}</strong>.</li>
-                          <li>Set a Stop Loss order at <strong className="text-tvRed font-mono">${signal.stopLoss}</strong>.</li>
-                        </ol>
-                        <p className="font-bold text-white mb-2">🎯 When to sell:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>Target 1 (<strong className="text-tvAmber font-mono">${signal.targets[0]}</strong>): Sell 50%</li>
-                          <li>Target 2 (<strong className="text-tvAmber font-mono">${signal.targets[1]}</strong>): Sell 25%</li>
-                        </ul>
+                        {isGodMode ? (
+                          <>
+                            <p className="font-bold text-white mb-2">📝 To buy {symbol}:</p>
+                            <ol className="list-decimal pl-5 space-y-1 mb-4">
+                              <li>Open your brokerage app.</li>
+                              <li>Select &quot;Limit Order&quot; (do not use Market).</li>
+                              <li>Set your buy price around <strong className="text-tvGreen font-mono">${((signal.entry.min + signal.entry.max)/2).toFixed(2)}</strong>.</li>
+                              <li>Set a Stop Loss order at <strong className="text-tvRed font-mono">${signal.stopLoss}</strong>.</li>
+                            </ol>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-bold text-white mb-2">📚 How Stock Purchasing Generally Works (Educational):</p>
+                            <p className="text-xs text-gray-400 mb-2 italic">This is a general educational guide. This is NOT a recommendation to buy this or any stock.</p>
+                            <ol className="list-decimal pl-5 space-y-1 mb-4 text-xs">
+                              <li>Choose a licensed brokerage.</li>
+                              <li>Research the stock thoroughly.</li>
+                              <li>Decide YOUR OWN entry point based on YOUR risk tolerance.</li>
+                              <li>Consider using a &quot;Limit Order&quot;.</li>
+                              <li>Only invest money you can afford to lose.</li>
+                              <li>Consider setting a stop-loss to manage your risk.</li>
+                            </ol>
+                            <div className="text-xs text-tvAmber font-bold mt-2">⚠️ StoxPilot is an educational platform. We are NOT financial advisors.</div>
+                          </>
+                        )}
+                        {isGodMode && (
+                          <>
+                            <p className="font-bold text-white mb-2">🎯 When to sell:</p>
+                            <ul className="list-disc pl-5 space-y-1">
+                              <li>Target 1 (<strong className="text-tvAmber font-mono">${signal.targets[0]}</strong>): Sell 50%</li>
+                              <li>Target 2 (<strong className="text-tvAmber font-mono">${signal.targets[1]}</strong>): Sell 25%</li>
+                            </ul>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -159,11 +194,11 @@ export function SignalCard(props: SignalCardProps) {
             {/* Targets */}
             <div className="space-y-3 mb-6">
               <h4 className="text-xs font-bold text-gray-500 uppercase flex items-center">
-                <Target className="w-4 h-4 mr-1 text-gray-400" /> Targets
+                <Target className="w-4 h-4 mr-1 text-gray-400" /> {labels.target}
               </h4>
               {signal.targets.map((t: any, i: number) => (
                 <div key={i} className="flex justify-between items-center text-sm p-3 bg-black/20 rounded-lg border border-gray-800">
-                  <span className="text-gray-400 font-medium">Target {i + 1}</span>
+                  <span className="text-gray-400 font-medium">Level {i + 1}</span>
                   <span className="text-tvGreen font-bold font-mono">${t}</span>
                 </div>
               ))}
@@ -201,6 +236,12 @@ export function SignalCard(props: SignalCardProps) {
                  )}
                </div>
             </div>
+            
+            {!isGodMode && (
+              <div className="mt-8 pt-4 border-t border-gray-800/50 text-center">
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest">{labels.disclaimer}</p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

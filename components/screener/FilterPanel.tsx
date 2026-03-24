@@ -48,13 +48,13 @@ export function FilterPanel({ onFilterChange }: FilterPanelProps) {
         <div className="space-y-2">
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Signal Type</label>
           <div className="flex flex-wrap gap-2">
-            {['ALL', 'STRONG_BUY', 'BUY', 'HOLD', 'SELL'].map(s => (
+            {['ALL', 'STRONG_BULLISH', 'BULLISH', 'NEUTRAL', 'BEARISH'].map(s => (
               <button
                 key={s}
                 onClick={() => setSignal(s)}
                 className={`px-3 py-1.5 text-xs font-semibold flex-shrink-0 rounded-md transition-all ${
                   signal === s 
-                    ? s.includes('BUY') ? 'bg-tvGreen text-white' : s.includes('SELL') ? 'bg-tvRed text-white' : s === 'ALL' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'
+                    ? s.includes('BULLISH') ? 'bg-tvGreen text-white' : s.includes('BEARISH') ? 'bg-tvRed text-white' : s === 'ALL' ? 'bg-blue-600 text-white' : 'bg-yellow-500 text-white'
                     : 'bg-[#131722] text-gray-400 border border-gray-700/50 hover:border-gray-500'
                 }`}
               >

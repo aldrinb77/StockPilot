@@ -8,6 +8,9 @@ import { useState, useEffect } from "react"
 import { useTheme } from "../ThemeProvider"
 import { useRouter } from "next/navigation"
 import { NotificationCenter } from "@/components/notifications/NotificationCenter"
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs"
+import { useAppMode } from "@/hooks/useAppMode"
+import { Zap } from "lucide-react"
 
 export default function TopBar() {
   const pathname = usePathname()
@@ -16,6 +19,8 @@ export default function TopBar() {
   const { theme, setTheme } = useTheme()
   const [search, setSearch] = useState('')
   const router = useRouter()
+  const { isSignedIn } = useUser()
+  const { isGodMode } = useAppMode()
 
   useEffect(() => setMounted(true), [])
 
@@ -65,8 +70,20 @@ export default function TopBar() {
           )}
         </button>
 
-        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-tvGreen to-blue-500 border border-gray-700 flex items-center justify-center text-white font-bold text-xs cursor-pointer">
-          SP
+        {isGodMode && (
+          <div className="px-2 py-1 bg-yellow-500/20 text-yellow-500 font-bold text-xs rounded border border-yellow-500/50 hidden md:flex items-center shadow-lg shadow-yellow-500/10">
+            <Zap className="w-3 h-3 mr-1" /> GOD MODE
+          </div>
+        )}
+
+        <div className="flex items-center justify-center pl-2">
+           {isSignedIn ? (
+             <UserButton afterSignOutUrl="/" />
+           ) : (
+             <div className="bg-tvGreen hover:bg-emerald-500 text-white px-4 py-1.5 rounded-md font-bold text-sm transition-colors cursor-pointer border border-tvGreen/50 shadow-md">
+               <SignInButton mode="modal">Sign In</SignInButton>
+             </div>
+           )}
         </div>
       </div>
     </header>

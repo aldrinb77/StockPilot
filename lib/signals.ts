@@ -115,19 +115,19 @@ export function generateSignal(data: OHLCV[]): Signal {
   let bearishCount = verdicts.filter(v => v.verdict === 'bearish').length;
   const total = verdicts.length;
 
-  let type: Signal['type'] = 'HOLD';
+  let type: Signal['type'] = 'NEUTRAL';
   const strengthRaw = Math.max(bullishCount, bearishCount) / total;
   const strength = Math.round(strengthRaw * 100);
 
-  if (bullishCount >= 8) type = 'STRONG_BUY';
-  else if (bullishCount >= 6) type = 'BUY';
-  else if (bearishCount >= 8) type = 'STRONG_SELL';
-  else if (bearishCount >= 6) type = 'SELL';
-  else type = 'HOLD';
+  if (bullishCount >= 8) type = 'STRONG_BULLISH';
+  else if (bullishCount >= 6) type = 'BULLISH';
+  else if (bearishCount >= 8) type = 'STRONG_BEARISH';
+  else if (bearishCount >= 6) type = 'BEARISH';
+  else type = 'NEUTRAL';
 
   // Entry, SL, Targets
-  const isBuy = type === 'BUY' || type === 'STRONG_BUY';
-  const isSell = type === 'SELL' || type === 'STRONG_SELL';
+  const isBuy = type === 'BULLISH' || type === 'STRONG_BULLISH';
+  const isSell = type === 'BEARISH' || type === 'STRONG_BEARISH';
 
   let entryMin = currentPrice * 0.998;
   let entryMax = currentPrice * 1.002;
@@ -161,7 +161,7 @@ export function generateSignal(data: OHLCV[]): Signal {
   }
 
   const reasons = verdicts
-    .filter(v => (isBuy && v.verdict === 'bullish') || (isSell && v.verdict === 'bearish') || (type === 'HOLD' && v.verdict === 'neutral'))
+    .filter(v => (isBuy && v.verdict === 'bullish') || (isSell && v.verdict === 'bearish') || (type === 'NEUTRAL' && v.verdict === 'neutral'))
     .map(v => v.description)
     .slice(0, 3); // top 3 reasons
 

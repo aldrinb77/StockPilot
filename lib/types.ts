@@ -34,7 +34,7 @@ export interface IndicatorVerdict {
 }
 
 export interface Signal {
-  type: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'SELL' | 'STRONG_SELL';
+  type: 'STRONG_BULLISH' | 'BULLISH' | 'NEUTRAL' | 'BEARISH' | 'STRONG_BEARISH';
   strength: number; // 0-100
   entry: {
     min: number;

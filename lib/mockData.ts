@@ -16,7 +16,7 @@ export const MOCK_STOCKS: StockData[] = [
 
 export const MOCK_SIGNALS: Record<string, Signal> = {
   'AAPL': {
-    type: 'BUY', strength: 75,
+    type: 'BULLISH', strength: 75,
     entry: { min: 172.50, max: 174.50 }, targets: [178.00, 185.00, 195.00],
     stopLoss: 168.00, riskReward: 2.5,
     reasons: ['RSI at 35 — Oversold, bounce likely', 'MACD bullish crossover', 'Price above 50-EMA'],
@@ -28,7 +28,7 @@ export const MOCK_SIGNALS: Record<string, Signal> = {
     timeframe: 'Swing Trade (2-5 days)'
   },
   'NVDA': {
-    type: 'STRONG_BUY', strength: 90,
+    type: 'STRONG_BULLISH', strength: 90,
     entry: { min: 870.00, max: 880.00 }, targets: [920.00, 950.00, 1000.00],
     stopLoss: 840.00, riskReward: 3.2,
     reasons: ['Supertrend is bullish', 'High volume confirms trend', 'MACD bullish crossover'],
@@ -40,7 +40,7 @@ export const MOCK_SIGNALS: Record<string, Signal> = {
     timeframe: 'Swing Trade (1-2 weeks)'
   },
   'TSLA': {
-    type: 'STRONG_SELL', strength: 85,
+    type: 'STRONG_BEARISH', strength: 85,
     entry: { min: 174.00, max: 176.00 }, targets: [160.00, 150.00, 140.00],
     stopLoss: 185.00, riskReward: 2.8,
     reasons: ['Price below 50 & 200 EMA — Downtrend', 'RSI at 65 — Overbought pullback', 'MACD bearish crossover'],
@@ -52,7 +52,7 @@ export const MOCK_SIGNALS: Record<string, Signal> = {
     timeframe: 'Swing Trade (2-5 days)'
   },
   'MSFT': {
-    type: 'BUY', strength: 65,
+    type: 'BULLISH', strength: 65,
     entry: { min: 415.00, max: 418.00 }, targets: [425.00, 435.00, 450.00],
     stopLoss: 405.00, riskReward: 2.2,
     reasons: ['Price at lower Bollinger Band — Oversold', 'ADX strong trend'],
@@ -63,7 +63,7 @@ export const MOCK_SIGNALS: Record<string, Signal> = {
     timeframe: 'Swing Trade (2-5 days)'
   },
   'JNJ': {
-    type: 'SELL', strength: 70,
+    type: 'BEARISH', strength: 70,
     entry: { min: 155.00, max: 157.00 }, targets: [150.00, 145.00, 140.00],
     stopLoss: 160.00, riskReward: 2.0,
     reasons: ['SAR above price — Downtrend', 'Supertrend is bearish'],
@@ -74,7 +74,7 @@ export const MOCK_SIGNALS: Record<string, Signal> = {
     timeframe: 'Swing Trade (2-5 days)'
   },
   'META': {
-    type: 'HOLD', strength: 40,
+    type: 'NEUTRAL', strength: 40,
     entry: { min: 490.00, max: 498.00 }, targets: [510.00],
     stopLoss: 480.00, riskReward: 1.0,
     reasons: ['RSI is neutral', 'MACD is neutral', 'Low volume weakens signal'],

@@ -67,4 +67,4 @@ export const SECTORS = [
   'Communication'
 ] as const;
 
-export const SIGNAL_TYPES = ['STRONG_BUY', 'BUY', 'HOLD', 'SELL', 'STRONG_SELL'] as const;
+export const SIGNAL_TYPES = ['STRONG_BULLISH', 'BULLISH', 'NEUTRAL', 'BEARISH', 'STRONG_BEARISH'] as const;

@@ -48,7 +48,7 @@ export default function Sidebar() {
         <div className="flex items-center space-x-2 text-white">
           <span className="text-xl">📈</span>
           {!isSidebarCollapsed && (
-            <span className="text-xl font-bold tracking-tight">StockPilot</span>
+            <span className="text-xl font-bold tracking-tight">StoxPilot</span>
           )}
         </div>
       </div>

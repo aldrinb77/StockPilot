@@ -29,11 +29,11 @@ export default function SignalsPage() {
   // Get counts accurately mapped over filtered elements
   const counts = useMemo(() => ({
     all: data.length,
-    strongBuy: data.filter(d => d.signal.type === 'STRONG_BUY').length,
-    buy: data.filter(d => d.signal.type === 'BUY').length,
-    hold: data.filter(d => d.signal.type === 'HOLD').length,
-    sell: data.filter(d => d.signal.type === 'SELL').length,
-    strongSell: data.filter(d => d.signal.type === 'STRONG_SELL').length,
+    strongBuy: data.filter(d => d.signal.type === 'STRONG_BULLISH').length,
+    buy: data.filter(d => d.signal.type === 'BULLISH').length,
+    hold: data.filter(d => d.signal.type === 'NEUTRAL').length,
+    sell: data.filter(d => d.signal.type === 'BEARISH').length,
+    strongSell: data.filter(d => d.signal.type === 'STRONG_BEARISH').length,
   }), [data])
 
   return (
@@ -50,11 +50,11 @@ export default function SignalsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="bg-transparent justify-start border-b border-gray-700/50 w-full rounded-none px-0 h-auto overflow-x-auto pb-px mb-8 flex flex-nowrap shrink-0 snap-x">
           <TabsTrigger value="ALL" className="shrink-0">All Signals</TabsTrigger>
-          <TabsTrigger value="STRONG_BUY" className="shrink-0 text-tvGreen data-[state=active]:text-tvGreen data-[state=active]:border-tvGreen">Strong Buy ({counts.strongBuy})</TabsTrigger>
-          <TabsTrigger value="BUY" className="shrink-0 text-tvGreen data-[state=active]:text-tvGreen data-[state=active]:border-tvGreen">Buy ({counts.buy})</TabsTrigger>
-          <TabsTrigger value="HOLD" className="shrink-0 text-yellow-500 data-[state=active]:text-yellow-500 data-[state=active]:border-yellow-500">Hold ({counts.hold})</TabsTrigger>
-          <TabsTrigger value="SELL" className="shrink-0 text-tvRed data-[state=active]:text-tvRed data-[state=active]:border-tvRed">Sell ({counts.sell})</TabsTrigger>
-          <TabsTrigger value="STRONG_SELL" className="shrink-0 text-tvRed data-[state=active]:text-tvRed data-[state=active]:border-tvRed">Strong Sell ({counts.strongSell})</TabsTrigger>
+          <TabsTrigger value="STRONG_BULLISH" className="shrink-0 text-tvGreen data-[state=active]:text-tvGreen data-[state=active]:border-tvGreen">Strong Bullish ({counts.strongBuy})</TabsTrigger>
+          <TabsTrigger value="BULLISH" className="shrink-0 text-tvGreen data-[state=active]:text-tvGreen data-[state=active]:border-tvGreen">Bullish ({counts.buy})</TabsTrigger>
+          <TabsTrigger value="NEUTRAL" className="shrink-0 text-yellow-500 data-[state=active]:text-yellow-500 data-[state=active]:border-yellow-500">Neutral ({counts.hold})</TabsTrigger>
+          <TabsTrigger value="BEARISH" className="shrink-0 text-tvRed data-[state=active]:text-tvRed data-[state=active]:border-tvRed">Bearish ({counts.sell})</TabsTrigger>
+          <TabsTrigger value="STRONG_BEARISH" className="shrink-0 text-tvRed data-[state=active]:text-tvRed data-[state=active]:border-tvRed">Strong Bearish ({counts.strongSell})</TabsTrigger>
         </TabsList>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
