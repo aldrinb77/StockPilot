@@ -3,6 +3,8 @@ import Link from "next/link"
 import { ArrowLeft, Clock, ChevronRight, ChevronLeft } from "lucide-react"
 import { notFound } from "next/navigation"
 
+export const runtime = 'edge';
+
 export default function GuidePage({ params }: { params: { slug: string } }) {
   const currentIndex = GUIDES.findIndex(g => g.slug === params.slug)
   const guide = GUIDES[currentIndex]

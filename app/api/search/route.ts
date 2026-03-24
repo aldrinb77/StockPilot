@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const runtime = 'edge';
 import { POPULAR_STOCKS } from '@/lib/constants';
 
 export async function GET(request: Request) {
