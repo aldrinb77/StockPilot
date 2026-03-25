@@ -9,17 +9,56 @@ import { motion } from "framer-motion"
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
 import { TrendingUp, TrendingDown, Activity } from "lucide-react"
 
+import { useEffect, useState } from "react"
+import { fetchMultipleQuotes } from "@/lib/api"
+import { StockData } from "@/lib/types"
+
 export function MarketOverview() {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
+  const [data, setData] = useState<(StockData & { isMockData?: boolean })[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadMarketData = async () => {
+      setLoading(true)
+      try {
+        const symbols = marketConfig.indices.map(i => i.symbol)
+        const quotes = await fetchMultipleQuotes(symbols)
+        setData(quotes)
+      } catch (err) {
+        console.error('Market overview fetch failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadMarketData()
+  }, [selectedMarket, marketConfig])
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
       {marketConfig.indices.map((index, i) => {
-        const price = 5000 + (Math.sin(i) * 2000) + 10000 
-        const changePercent = (Math.sin(Date.now() / 10000 + i) * 2) 
-        const history = Array.from({length: 20}, (_, x) => price + Math.sin(x/3) * 100)
+        if (loading) {
+          return (
+            <div key={index.symbol} className="glass-card p-6 rounded-2xl border border-white/5 animate-pulse">
+               <div className="h-4 w-24 bg-white/5 rounded-full mb-4" />
+               <div className="h-8 w-32 bg-white/5 rounded-xl mb-8" />
+               <div className="flex justify-between items-end">
+                  <div className="space-y-2">
+                     <div className="h-6 w-20 bg-white/5 rounded" />
+                     <div className="h-3 w-12 bg-white/5 rounded" />
+                  </div>
+                  <div className="h-10 w-20 bg-white/5 rounded" />
+               </div>
+            </div>
+          )
+        }
+
+        const stock = data.find(d => d.symbol === index.symbol)
+        const price = stock?.price ?? 0
+        const changePercent = stock?.changePercent ?? 0
         const isUp = changePercent >= 0
+        const history = Array.from({length: 20}, (_, x) => price + Math.sin(x/3) * (price * 0.01))
 
         return (
           <motion.div 
@@ -30,6 +69,12 @@ export function MarketOverview() {
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
             className={`glass-card relative overflow-hidden p-6 group cursor-pointer border border-white/5`}
           >
+             {/* Sample Badge */}
+             {stock?.isMockData && (
+                <div className="absolute top-2 left-2 z-20">
+                   <span className="text-[7px] font-black bg-tvAmber/20 text-tvAmber px-1 rounded">SAMPLE</span>
+                </div>
+             )}
             {/* Sentiment Glow */}
             <div className={`absolute top-0 right-0 w-24 h-24 blur-[50px] opacity-10 group-hover:opacity-20 transition-opacity ${isUp ? 'bg-tvGreen' : 'bg-tvRed'}`} />
             

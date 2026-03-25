@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { StockData, Signal, OHLCV } from '@/lib/types'
 import { MOCK_STOCKS, MOCK_SIGNALS, getMockHistoricalData } from '@/lib/mockData'
-import { StockChart } from '@/components/charts/StockChart'
 import { SignalCard } from '@/components/signals/SignalCard'
 import { IndicatorBreakdown } from '@/components/signals/IndicatorBreakdown'
 import { calcSupportResistance } from '@/lib/indicators'
@@ -12,58 +11,80 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Share, Star } from 'lucide-react'
 import { useStore } from '@/store/store'
 import { MARKETS, MarketRegion } from '@/lib/markets'
+import { fetchStockQuote, fetchHistoricalData } from '@/lib/api'
+import TradingViewWidget from '@/components/charts/TradingViewWidget'
+import { toTradingViewSymbol } from '@/lib/utils'
 
 export default function StockDetailPage({ params }: { params: { symbol: string } }) {
   const symbol = params.symbol.toUpperCase()
   const { selectedMarket, watchlist, addToWatchlist, removeFromWatchlist } = useStore()
   
-  const [stock, setStock] = useState<StockData | null>(null)
+  const [stock, setStock] = useState<(StockData & { isMockData?: boolean }) | null>(null)
   const [signal, setSignal] = useState<Signal | null>(null)
   const [history, setHistory] = useState<OHLCV[]>([])
   const [loading, setLoading] = useState(true)
 
+  const [errorNotFound, setErrorNotFound] = useState(false)
   const inWatchlist = watchlist.some(w => w.symbol === symbol)
 
   useEffect(() => {
-    // Mock simulation
-    setTimeout(() => {
-      const marketConfig = MARKETS[selectedMarket]
-      const mockStock = MOCK_STOCKS.find(s => s.symbol === symbol) || {
-        ...MOCK_STOCKS[0],
-        symbol,
-        name: `${symbol} Corporation`,
-        price: 150 + Math.random() * 500,
-        change: 0,
-        changePercent: 0,
-        high: 0,
-        low: 0,
-        open: 0,
-        prevClose: 0,
-        volume: 1000000
+    const loadData = async () => {
+      setLoading(true)
+      try {
+        const quote = await fetchStockQuote(symbol)
+        const hist = await fetchHistoricalData(symbol)
+        
+        setStock(quote)
+        setHistory(hist)
+        
+        const mockSignal = MOCK_SIGNALS[symbol] || MOCK_SIGNALS['META']
+        setSignal(mockSignal)
+        
+        if (quote.price === 0 && !quote.isMockData) {
+           setErrorNotFound(true)
+        }
+      } catch (err) {
+        console.error('Failed to load stock detail:', err)
+        setErrorNotFound(true)
+      } finally {
+        setLoading(false)
       }
-      setStock(mockStock)
-      
-      const mockSignal = MOCK_SIGNALS[symbol] || MOCK_SIGNALS['AAPL']
-      setSignal(mockSignal)
-      
-      const hist = getMockHistoricalData(mockStock.price)
-      setHistory(hist)
-      
-      setLoading(false)
-    }, 1000)
+    }
+
+    loadData()
   }, [symbol, selectedMarket])
 
-  if (loading || !stock || !signal) {
+  if (loading || (!stock && !errorNotFound) || (!signal && !errorNotFound)) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-24 w-full" />
+      <div className="space-y-6 animate-in fade-in">
+        <Skeleton className="h-24 w-full rounded-xl shimmer" />
         <div className="flex flex-col xl:flex-row gap-6">
-          <Skeleton className="h-[500px] flex-grow rounded-xl" />
-          <Skeleton className="h-[500px] w-full xl:w-[400px] rounded-xl" />
+          <Skeleton className="h-[500px] flex-grow rounded-xl shimmer" />
+          <Skeleton className="h-[500px] w-full xl:w-[400px] rounded-xl shimmer" />
         </div>
       </div>
     )
   }
+
+  if (errorNotFound) {
+    return (
+       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-in fade-in zoom-in-95 duration-700">
+         <div className="w-24 h-24 bg-tvRed/10 rounded-full flex items-center justify-center text-tvRed mb-4 border-2 border-tvRed/20 shadow-2xl shadow-tvRed/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+         </div>
+         <h1 className="text-4xl font-black text-white tracking-tight">System Fault: Asset Unknown</h1>
+         <p className="text-gray-400 text-lg max-w-lg mb-8">
+           The algorithmic engine could not locate mathematical records for <span className="font-mono text-tvRed bg-tvRed/10 px-2 py-1 rounded shadow-inner">{symbol}</span>. 
+           Please verify the ticker or adjust your designated exchange settings.
+         </p>
+         <button onClick={() => window.history.back()} className="px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all ripple">
+           Return to Intelligence
+         </button>
+       </div>
+    )
+  }
+
+  if (!stock || !signal) return null;
 
   // Calc S&R
   const closes = history.map(h => h.close)
@@ -113,7 +134,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
         {/* Main Chart Column */}
         <div className="flex-grow space-y-6">
           <div className="h-[500px] w-full bg-[#1E222D] rounded-xl border border-gray-700/50 overflow-hidden shadow-sm flex flex-col">
-            <StockChart symbol={symbol} data={history} />
+            <TradingViewWidget symbol={toTradingViewSymbol(symbol, selectedMarket)} height={500} />
           </div>
 
           <div className="bg-[#1E222D] p-6 rounded-xl border border-gray-700/50">

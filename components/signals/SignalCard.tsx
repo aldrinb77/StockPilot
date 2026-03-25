@@ -13,6 +13,7 @@ import { getLabel, getSignalLabel, getFriendlySignalReasonWithMode } from "@/lib
 import { formatCurrency } from "@/lib/utils"
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
 import { MARKETS } from "@/lib/markets"
+import Link from "next/link"
 
 interface SignalCardProps {
   symbol?: string
@@ -20,6 +21,7 @@ interface SignalCardProps {
   signal: any
   price?: number
   stock?: any
+  isMockData?: boolean
 }
 
 export function SignalCard(props: SignalCardProps) {
@@ -27,6 +29,7 @@ export function SignalCard(props: SignalCardProps) {
   const symbol = props.symbol || props.stock?.symbol
   const name = props.name || props.stock?.name || ''
   const price = props.price || props.stock?.price || 0
+  const isMockData = props.isMockData || props.stock?.isMockData || false
   
   const [expanded, setExpanded] = useState(false)
   const [showHowToBuy, setShowHowToBuy] = useState(false)
@@ -76,9 +79,22 @@ export function SignalCard(props: SignalCardProps) {
       >
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="flex items-center space-x-3">
-              <h3 className="text-2xl font-black font-heading text-white tracking-tight">{symbol}</h3>
-              <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] uppercase font-bold text-gray-400 tracking-widest">{marketConfig.exchangeCode}</div>
+            <div className="flex items-center space-x-4">
+              <Link 
+                href={`/stock/${symbol}`} 
+                onClick={(e) => e.stopPropagation()}
+                className="hover:underline flex items-center space-x-3"
+              >
+                <h3 className="text-2xl font-black font-heading text-white tracking-tight">{symbol}</h3>
+              </Link>
+              <div className="flex items-center gap-1.5">
+                <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] uppercase font-bold text-gray-400 tracking-widest">{marketConfig.exchangeCode}</div>
+                {isMockData && (
+                  <div className="px-2 py-0.5 rounded bg-tvAmber/10 border border-tvAmber/30 text-[10px] uppercase font-black text-tvAmber tracking-widest flex items-center gap-1">
+                    📊 Sample
+                  </div>
+                )}
+              </div>
             </div>
             <p className="text-sm text-gray-500 font-medium truncate max-w-[180px] mt-1">{name}</p>
             <div className="text-3xl font-black text-white font-mono mt-3 tracking-tighter">
@@ -279,7 +295,14 @@ export function SignalCard(props: SignalCardProps) {
                </div>
             </div>
             
+            
             <div className="mt-10 pt-6 border-t border-white/5 text-center px-4">
+              <Link 
+                href={`/stock/${symbol}`}
+                className="w-full inline-block mb-4 bg-tvBlue/10 hover:bg-tvBlue/20 text-tvBlue font-black uppercase tracking-widest text-xs py-3 rounded-xl transition-all"
+              >
+                View Detailed Analysis →
+              </Link>
               <p className="text-[10px] text-gray-600 uppercase font-black tracking-[0.2em] leading-loose">
                 {isGodMode ? "STOX_QUANT_ENGINE // VERIFIED_SIGNAL_SOURCE" : "⚠️ STOXPILOT IS AN EDUCATIONAL UTILITY. ALL DATA IS FOR LITERACY PURPOSES ONLY."}
               </p>

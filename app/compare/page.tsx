@@ -4,26 +4,47 @@ import { useState, useMemo } from "react"
 import { useStore } from "@/store/store"
 import { MARKETS } from "@/lib/markets"
 import { MOCK_STOCKS, MOCK_SIGNALS } from "@/lib/mockData"
+import { StockData, Signal } from "@/lib/types"
 import { formatCurrency, formatPercent } from "@/lib/utils"
 import { GitCompareArrows, Search, TrendingUp, TrendingDown, Target, Info, CheckCircle, Zap } from "lucide-react"
 import Link from "next/link"
 import { SignalBadge } from "@/components/signals/SignalBadge"
-import { StockChart } from "@/components/charts/StockChart"
+import { useEffect } from 'react'
+import { fetchMultipleQuotes } from "@/lib/api"
+import TradingViewWidget from "@/components/charts/TradingViewWidget"
+import { toTradingViewSymbol } from "@/lib/utils"
 
 export default function ComparisonPage() {
   const { selectedMarket } = useStore()
   const [selectedSymbols, setSelectedSymbols] = useState<string[]>([])
   const [search, setSearch] = useState("")
+  const [stocks, setStocks] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
+  const [loading, setLoading] = useState(false)
 
   const marketConfig = MARKETS[selectedMarket]
-  const suggestions = search ? MOCK_STOCKS.filter(s => s.symbol.toLowerCase().includes(search.toLowerCase()) && !selectedSymbols.includes(s.symbol)).slice(0, 5) : []
+  const suggestions = search ? marketConfig.popularStocks.filter(s => s.symbol.toLowerCase().includes(search.toLowerCase()) && !selectedSymbols.includes(s.symbol)).slice(0, 5) : []
 
-  const stocks = useMemo(() => {
-    return selectedSymbols.map(sym => {
-      const base = MOCK_STOCKS.find(s => s.symbol === sym) || MOCK_STOCKS[0]
-      const signal = MOCK_SIGNALS[sym] || MOCK_SIGNALS['AAPL']
-      return { ...base, signal }
-    })
+  useEffect(() => {
+    const loadData = async () => {
+      if (selectedSymbols.length === 0) {
+        setStocks([])
+        return
+      }
+      setLoading(true)
+      try {
+        const quotes = await fetchMultipleQuotes(selectedSymbols)
+        const mapped = quotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        }))
+        setStocks(mapped)
+      } catch (err) {
+        console.error('Comparison fetch failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [selectedSymbols])
 
   const findWinner = (key: keyof typeof MOCK_STOCKS[0] | 'signalStrength', higherIsBetter: boolean = true) => {
@@ -44,7 +65,7 @@ export default function ComparisonPage() {
     change: findWinner('changePercent'),
     marketCap: findWinner('marketCap'),
     signal: findWinner('signalStrength'),
-    volatility: findWinner('pe', false) // Use PE as a proxy or just false for lower is better
+    volatility: findWinner('pe', false)
   }
 
   return (
@@ -109,6 +130,9 @@ export default function ComparisonPage() {
                     <h3 className="text-2xl font-black text-white">{stock.symbol}</h3>
                     <p className="text-xs text-gray-500 truncate w-full mb-4">{stock.name}</p>
                     <SignalBadge type={stock.signal.type} />
+                    <div className="mt-4 w-full h-[180px] rounded-lg overflow-hidden border border-white/5">
+                       <TradingViewWidget symbol={toTradingViewSymbol(stock.symbol, selectedMarket)} height={180} />
+                    </div>
                  </div>
 
                  {/* Comparison Metrics */}

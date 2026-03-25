@@ -8,18 +8,37 @@ import Link from "next/link"
 import { Search } from "lucide-react"
 import { StockData, Signal } from "@/lib/types"
 
+import { fetchMultipleQuotes } from "@/lib/api"
+
 export default function WatchlistPage() {
   const { watchlist, removeFromWatchlist } = useStore()
-  const [data, setData] = useState<(StockData & { signal: Signal })[]>([])
+  const [data, setData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
+  const [loading, setLoading] = useState(true)
   
   useEffect(() => {
-    // Hydrate the watchlist from standard MOCK arrays natively.
-    const hydrated = watchlist.map(w => {
-      const stock = MOCK_STOCKS.find(s => s.symbol === w.symbol) || { ...MOCK_STOCKS[0], symbol: w.symbol, name: w.name }
-      const signal = MOCK_SIGNALS[w.symbol] || MOCK_SIGNALS['AAPL'] // default signal
-      return { ...stock, signal }
-    })
-    setData(hydrated)
+    const loadData = async () => {
+      if (watchlist.length === 0) {
+        setLoading(false)
+        return
+      }
+      setLoading(true)
+      try {
+        const symbols = watchlist.map(w => w.symbol)
+        const quotes = await fetchMultipleQuotes(symbols)
+        
+        const mapped = quotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        }))
+        
+        setData(mapped)
+      } catch (err) {
+        console.error('Watchlist fetch failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [watchlist])
 
   if (watchlist.length === 0) {

@@ -3,22 +3,18 @@
 import { useStore } from "@/store/store"
 import { PortfolioItem } from "@/lib/types"
 import { formatCurrency, formatPercent } from "@/lib/utils"
-import { useState } from "react"
-import { MOCK_STOCKS } from "@/lib/mockData"
 
-export function PortfolioTable() {
+interface PortfolioTableProps {
+  livePrices: Record<string, number>
+}
+
+export function PortfolioTable({ livePrices }: PortfolioTableProps) {
   const { portfolio, removeFromPortfolio, selectedMarket } = useStore()
   
   if (portfolio.length === 0) return null
   
-  // Hydrate LIVE prices (Mocked for MVP)
   const rows = portfolio.map(p => {
-    const liveStock = MOCK_STOCKS.find(s => s.symbol === p.symbol) || { 
-      symbol: p.symbol,
-      price: p.buyPrice * (1 + (Math.random() * 0.1 - 0.05)), // Mock slight change
-      name: p.name
-    }
-    const currentPrice = liveStock.price || p.buyPrice
+    const currentPrice = livePrices[p.symbol] || p.buyPrice
     const totalValue = currentPrice * p.quantity
     const investment = p.buyPrice * p.quantity
     const pnl = totalValue - investment

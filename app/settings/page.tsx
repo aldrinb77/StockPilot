@@ -5,11 +5,13 @@ import { useStore } from "@/store/store"
 import { useTheme } from "@/components/ThemeProvider"
 import { Toggle } from "@/components/ui/toggle"
 import { Select } from "@/components/ui/select"
-import { Moon, Sun, Bell, Trash2, ShieldAlert, Settings2, Monitor } from "lucide-react"
+import { Moon, Sun, Bell, Trash2, ShieldAlert, Settings2, Monitor, Zap } from "lucide-react"
+import { useAppMode } from "@/hooks/useAppMode"
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const { isGodMode } = useAppMode()
   const { watchlist, portfolio, appearance, setAppearance } = useStore()
   
   // Directly manipulating Zustand store for clearing arrays
@@ -169,8 +171,13 @@ export default function SettingsPage() {
       <section className="bg-[#131722] p-6 rounded-xl border border-gray-700/50 text-center">
         <p className="text-sm text-gray-400">StoxPilot Engine v1.0.0 (MVP)</p>
         <p className="text-xs text-gray-500 mt-2">React 18 / Next.js 14 / Mathematical Rule-Based Pipeline Array (10+ Checks)</p>
-        <div className="flex items-center justify-center mt-4">
+        <div className="flex items-center justify-center mt-4 space-x-3">
            <span className="px-3 py-1 bg-tvGreen/10 text-tvGreen text-xs rounded border border-tvGreen/30 uppercase tracking-widest font-bold">Zero AI Executions Configured</span>
+           {isGodMode && (
+             <span className="px-3 py-1 bg-yellow-500/20 text-yellow-500 text-xs rounded border border-yellow-500/50 flex items-center shadow-[0_0_15px_rgba(234,179,8,0.2)] font-bold uppercase tracking-widest">
+               <Zap className="w-3 h-3 mr-1" /> God Mode Active
+             </span>
+           )}
         </div>
       </section>
     </div>

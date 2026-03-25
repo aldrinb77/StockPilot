@@ -87,3 +87,18 @@ export function timeAgo(date: number | Date): string {
   const years = Math.floor(days / 365)
   return `${years} year${years !== 1 ? 's' : ''} ago`
 }
+
+export function toTradingViewSymbol(symbol: string, market: string): string {
+  if (market === 'IN') return 'NSE:' + symbol.replace('.NS', '');
+  if (market === 'UK') return 'LSE:' + symbol.replace('.L', '');
+  if (market === 'JP') return 'TSE:' + symbol.replace('.T', '');
+  if (market === 'AU') return 'ASX:' + symbol.replace('.AX', '');
+  if (market === 'CA') return 'TSX:' + symbol.replace('.TO', '');
+  if (market === 'HK') return 'HKEX:' + symbol.replace('.HK', '');
+  if (market === 'EU') {
+    if (symbol.endsWith('.DE')) return 'XETR:' + symbol.replace('.DE', '');
+    if (symbol.endsWith('.PA')) return 'EURONEXT:' + symbol.replace('.PA', '');
+    if (symbol.endsWith('.AS')) return 'EURONEXT:' + symbol.replace('.AS', '');
+  }
+  return symbol;
+}

@@ -6,21 +6,58 @@ import { formatCurrency, formatPercent } from "@/lib/utils"
 import { SignalBadge } from "@/components/signals/SignalBadge"
 import { TrendingUp, Volume2, Compass, History, Activity, Sparkles, ChevronRight, ArrowUpRight, Star } from "lucide-react"
 import Link from "next/link"
-import { MOCK_STOCKS, getMockHistoricalData } from "@/lib/mockData"
+import { MOCK_STOCKS, MOCK_SIGNALS, getMockHistoricalData } from "@/lib/mockData"
 import { getTopSectors } from "@/lib/userBehavior"
 import { motion } from "framer-motion"
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
 import { Sparkline } from "@/components/charts/Sparkline"
 import { STAGGER_CONTAINER, FADE_IN } from "@/lib/animations"
 
+import { useEffect, useState } from "react"
+import { fetchMultipleQuotes } from "@/lib/api"
+import { StockData, Signal } from "@/lib/types"
+
 export function PersonalizedFeed() {
   const { selectedMarket, watchlist, viewHistory, browsedSectors } = useStore()
   const marketConfig = MARKETS[selectedMarket]
+  const [watchlistData, setWatchlistData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
+  const [historyData, setHistoryData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
+  const [loading, setLoading] = useState(true)
   
   const hour = new Date().getHours()
   const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening"
 
-  // Market Pulse Mock Logic
+  useEffect(() => {
+    const loadPersonalized = async () => {
+      setLoading(true)
+      try {
+        const watchSymbols = watchlist.slice(0, 4).map(w => w.symbol)
+        const histSymbols = viewHistory.slice(0, 5).map(h => h.symbol)
+        
+        const [watchQuotes, histQuotes] = await Promise.all([
+          watchSymbols.length > 0 ? fetchMultipleQuotes(watchSymbols) : Promise.resolve([]),
+          histSymbols.length > 0 ? fetchMultipleQuotes(histSymbols) : Promise.resolve([])
+        ])
+
+        setWatchlistData(watchQuotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        })))
+
+        setHistoryData(histQuotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        })))
+      } catch (err) {
+        console.error('Personalized feed fetch failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadPersonalized()
+  }, [watchlist, viewHistory, selectedMarket])
+
+  // Market Pulse Logic
   const bullishCount = Math.floor(Math.random() * 20) + 10
   const bearishCount = Math.floor(Math.random() * 20) + 5
   const sentiment = bullishCount > bearishCount + 5 ? "Bullish" : bearishCount > bullishCount + 5 ? "Bearish" : "Neutral"
@@ -68,22 +105,25 @@ export function PersonalizedFeed() {
           <motion.div variants={FADE_IN} className="space-y-6">
             <div className="flex items-center justify-between">
                <h2 className="text-xl font-black text-white flex items-center tracking-tight">
-                 <Star className="w-5 h-5 mr-3 text-tvAmber fill-tvAmber/20" /> Active Watchlist
+                 <Star className="w-5 h-5 mr-3 text-tvAmber fill-tvAmber/20" /> Your Watchlist Snapshot
                </h2>
                <Link href="/watchlist" className="text-[10px] font-black text-tvBlue hover:underline uppercase tracking-widest">Manage All</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {watchlist.slice(0, 4).map(w => {
-                const stock = MOCK_STOCKS.find(s => s.symbol === w.symbol) || MOCK_STOCKS[0]
+              {loading ? [1,2,3,4].map(i => <div key={i} className="h-32 bg-white/5 rounded-2xl animate-pulse" />) : 
+                watchlistData.map(stock => {
                 const isUp = stock.change >= 0
                 return (
-                  <Link href={`/stock/${w.symbol}`} key={w.symbol} className="glass-card p-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all group border border-white/5">
+                  <Link href={`/stock/${stock.symbol}`} key={stock.symbol} className="glass-card p-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all group border border-white/5">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex flex-col">
-                         <span className="font-black text-white text-lg tracking-tight group-hover:text-tvBlue transition-colors">{w.symbol}</span>
+                         <span className="font-black text-white text-lg tracking-tight group-hover:text-tvBlue transition-colors flex items-center gap-2">
+                           {stock.symbol}
+                           {stock.isMockData && <span className="text-[8px] bg-tvAmber/20 text-tvAmber px-1 rounded">S</span>}
+                         </span>
                          <span className="text-[9px] text-gray-500 font-bold uppercase truncate max-w-[80px]">{stock.name}</span>
                       </div>
-                      <SignalBadge type={isUp ? 'STRONG_BULLISH' : 'NEUTRAL'} className="scale-75 origin-right font-black" />
+                      <SignalBadge type={stock.signal.type} className="scale-75 origin-right font-black" />
                     </div>
                     <div className="flex justify-between items-end">
                       <div className="text-xl font-black text-white font-mono tracking-tighter">
@@ -107,18 +147,32 @@ export function PersonalizedFeed() {
               <History className="w-5 h-5 mr-3 text-tvBlue" /> Retrieval History
             </h2>
             <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
-              {viewHistory.slice(0, 5).map((h, i) => (
+              {loading ? [1,2,3].map(i => <div key={i} className="h-16 border-b border-white/5 animate-pulse" />) :
+                historyData.map((h, i) => (
                 <Link href={`/stock/${h.symbol}`} key={h.symbol} className="flex items-center justify-between p-4 hover:bg-white/[0.03] transition-all group border-b border-white/5 last:border-0 relative overflow-hidden">
                   <div className="flex items-center space-x-4 relative z-10">
                     <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[10px] font-black text-gray-400 border border-white/5 group-hover:scale-110 transition-transform">
                        {h.symbol}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-white leading-tight group-hover:text-tvBlue transition-colors">{h.symbol}</p>
+                      <p className="text-sm font-black text-white leading-tight group-hover:text-tvBlue transition-colors flex items-center gap-2">
+                        {h.symbol}
+                        {h.isMockData && <span className="text-[8px] bg-tvAmber/20 text-tvAmber px-1 rounded">S</span>}
+                      </p>
                       <p className="text-[10px] text-gray-500 font-bold uppercase truncate max-w-[150px]">{h.name}</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-gray-600 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                       <p className="text-xs font-black text-white font-mono tracking-tighter">
+                          <AnimatedNumber value={h.price} />
+                       </p>
+                       <p className={`text-[9px] font-bold ${h.change >= 0 ? 'text-tvGreen' : 'text-tvRed'}`}>
+                         {h.change >= 0 ? '+' : ''}{h.changePercent.toFixed(2)}%
+                       </p>
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-gray-600 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                  </div>
                 </Link>
               ))}
             </div>

@@ -8,33 +8,37 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { useStore } from '@/store/store'
 import { MARKETS } from '@/lib/markets'
 
+import { useEffect } from 'react'
+import { fetchMultipleQuotes } from '@/lib/api'
+import { StockData, Signal } from '@/lib/types'
+
 export default function SignalsPage() {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
   const [activeTab, setActiveTab] = useState('ALL')
+  const [data, setData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
+  const [loading, setLoading] = useState(true)
   
-  const data = useMemo(() => {
-    return marketConfig.popularStocks.map((s, i) => {
-      const signalKeys = Object.keys(MOCK_SIGNALS);
-      const randomSignal = MOCK_SIGNALS[signalKeys[i % signalKeys.length]];
-      const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
-        symbol: s.symbol,
-        name: s.name,
-        sector: s.sector,
-        price: 150 + Math.random() * 300,
-        change: 0,
-        changePercent: 0,
-        volume: 0,
-        high: 0,
-        low: 0,
-        open: 0,
-        prevClose: 0
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true)
+      try {
+        const symbols = marketConfig.popularStocks.map(s => s.symbol)
+        const quotes = await fetchMultipleQuotes(symbols)
+        
+        const mapped = quotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        }))
+        
+        setData(mapped.sort((a,b) => b.signal.strength - a.signal.strength))
+      } catch (err) {
+        console.error('Signals fetch failed:', err)
+      } finally {
+        setLoading(false)
       }
-      return {
-        ...mockStock,
-        signal: randomSignal
-      }
-    }).sort((a,b) => b.signal.strength - a.signal.strength)
+    }
+    loadData()
   }, [selectedMarket, marketConfig])
 
   const filtered = useMemo(() => {

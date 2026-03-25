@@ -10,34 +10,22 @@ import { Pin } from "lucide-react"
 import { useStore } from "@/store/store"
 import { MARKETS } from "@/lib/markets"
 
-export function RecommendedForYou() {
+import { StockData, Signal } from "@/lib/types"
+
+interface RecommendedForYouProps {
+  data: (StockData & { signal: Signal; isMockData?: boolean })[]
+}
+
+export function RecommendedForYou({ data }: RecommendedForYouProps) {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
   const [recommended, setRecommended] = useState<{ stocks: StockWithSignal[], reason: string } | null>(null)
 
   useEffect(() => {
-    const mapped = marketConfig.popularStocks.map(s => {
-      const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
-        ...MOCK_STOCKS[0],
-        symbol: s.symbol,
-        name: s.name,
-        price: 150 + Math.random() * 500
-      }
-      
-      const mockOHLCV = []
-      let p = mockStock.price * 0.8
-      for(let i=0; i<30; i++) {
-        p = p * (1 + (Math.random() - 0.45) * 0.05)
-        mockOHLCV.push({ time: i, open: p, high: p*1.02, low: p*0.98, close: p, volume: 10000 })
-      }
-      return { ...mockStock, signal: generateSignal(mockOHLCV) }
-    })
-    
-    setTimeout(() => {
-      const recs = generateRecommendations(mapped)
-      setRecommended(recs)
-    }, 500)
-  }, [marketConfig, selectedMarket])
+    if (data.length === 0) return
+    const recs = generateRecommendations(data as StockWithSignal[])
+    setRecommended(recs)
+  }, [data])
 
   if (!recommended || recommended.stocks.length === 0) return null
 

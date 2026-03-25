@@ -29,17 +29,22 @@ import {
   TrendingDown, 
   Star, 
   ArrowRight,
-  Plus
+  Plus,
+  BarChart2
 } from 'lucide-react'
 import Link from 'next/link'
+
+import { fetchMultipleQuotes } from '@/lib/api'
 
 export default function DashboardPage() {
   const { selectedMarket, dashboardLayout, watchlist } = useStore()
   const marketConfig = MARKETS[selectedMarket]
-  const [data, setData] = useState<(StockData & { signal: Signal })[]>([])
+  const [data, setData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
   const [loading, setLoading] = useState(true)
   const [marketStatus, setMarketStatus] = useState<'open' | 'closed' | 'pre-market' | 'after-hours'>('closed')
   const [showCustomizer, setShowCustomizer] = useState(false)
+
+  const [isMockData, setIsMockData] = useState(false)
 
   useEffect(() => {
     setMarketStatus(getMarketStatus(selectedMarket))
@@ -47,34 +52,25 @@ export default function DashboardPage() {
     
     const loadData = async () => {
       setLoading(true)
+      setIsMockData(false)
       
-      // 1. Splash Screen Timeout Failsafe (Maximum 3 seconds loading regardless of API)
       const splashTimeout = setTimeout(() => {
         setLoading(false)
       }, 3000);
 
       try {
-        // 2. Wrap all data fetching in try-catch with 5 sec timeout
-        const controller = new AbortController();
-        const fetchTimeoutId = setTimeout(() => controller.abort(), 5000);
+        const symbols = marketConfig.popularStocks.map(s => s.symbol)
+        const quotes = await fetchMultipleQuotes(symbols)
         
-        try {
-          const response = await fetch('/api/market/dashboard?region=' + selectedMarket, { signal: controller.signal });
-          clearTimeout(fetchTimeoutId);
-          if (!response.ok) throw new Error('API failed');
-          const apiData = await response.json();
-          setData(apiData);
-          clearTimeout(splashTimeout);
-          setLoading(false);
-          return;
-        } catch (error) {
-          clearTimeout(fetchTimeoutId);
-          console.warn('API call failed, using mock data');
-          throw error; // Let outer try/catch handle the mock fallback
-        }
-
+        const mapped = quotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        }))
+        
+        setData(mapped)
+        setIsMockData(mapped.some(m => m.isMockData))
       } catch (err) {
-        // Mock data fallback
+        setIsMockData(true)
         const mapped = marketConfig.popularStocks.map(s => {
           const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
             symbol: s.symbol,
@@ -87,11 +83,15 @@ export default function DashboardPage() {
             high: 110,
             low: 90,
             open: 100,
-            prevClose: 100
+            prevClose: 100,
+            marketCap: 0,
+            pe: 0,
+            eps: 0
           }
           return {
             ...mockStock as StockData,
-            signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META']
+            signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META'],
+            isMockData: true
           }
         })
         setData(mapped)
@@ -136,7 +136,14 @@ export default function DashboardPage() {
       {/* Header with Customizer Toggle */}
       <div className="flex justify-between items-center bg-[#131722]/40 p-4 rounded-2xl border border-white/5 backdrop-blur-md">
         <div>
-           <h1 className="text-2xl font-black text-white tracking-tight">Market Intelligence</h1>
+           <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+             Market Intelligence
+             {isMockData && (
+               <span className="px-2 py-0.5 bg-tvAmber/10 border border-tvAmber/30 text-tvAmber text-[10px] font-black uppercase tracking-widest rounded flex items-center gap-1">
+                 <BarChart2 className="w-3 h-3" /> Sample Data
+               </span>
+             )}
+           </h1>
            <p className="text-xs text-gray-400 font-medium">Localized tracking for {marketConfig.name} exchange.</p>
         </div>
         <button 
@@ -246,7 +253,7 @@ export default function DashboardPage() {
             case 'TOP_MOVERS':
               return <motion.div key={section.id} variants={FADE_IN}><TopMovers gainers={gainers} losers={losers} /></motion.div>
             case 'SECTOR_HEATMAP':
-              return <motion.div key={section.id} variants={FADE_IN}><RecommendedForYou /></motion.div>
+              return <motion.div key={section.id} variants={FADE_IN}><RecommendedForYou data={data} /></motion.div>
             case 'TOOLS_CALCULATOR':
               return <motion.div key={section.id} variants={FADE_IN}><WhatIfCalculator /></motion.div>
             case 'LEARNING_TIPS':

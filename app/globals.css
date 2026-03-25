@@ -55,6 +55,32 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  .nav-active {
+    background: rgba(38, 166, 154, 0.1) !important;
+    color: #26A69A !important;
+    border-color: rgba(38, 166, 154, 0.2) !important;
+  }
+
+  .nav-active svg {
+    color: #26A69A !important;
+  }
+
+  .bg-animated-mesh {
+    background: #0a0e17;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(215, 60%, 15%, 1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225, 40%, 10%, 1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(240, 50%, 15%, 1) 0, transparent 50%);
+    background-size: 200% 200%;
+    animation: mesh-shift 15s ease infinite;
+  }
+}
+
+@keyframes mesh-shift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
 }
 
 /* Custom Scrollbar for sleek UI */
@@ -72,3 +98,4 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.5);
 }
+

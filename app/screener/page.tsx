@@ -10,10 +10,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useStore } from '@/store/store'
 import { MARKETS } from '@/lib/markets'
 
+import { fetchMultipleQuotes } from '@/lib/api'
+
 export default function ScreenerPage() {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
-  const [data, setData] = useState<(StockData & { signal: Signal })[]>([])
+  const [data, setData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({ signal: 'ALL', sector: 'ALL', price: 'ALL' })
 
@@ -21,27 +23,18 @@ export default function ScreenerPage() {
     const loadData = async () => {
       setLoading(true)
       try {
-        const mapped = marketConfig.popularStocks.map(s => {
-          const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
-            symbol: s.symbol,
-            name: s.name,
-            sector: s.sector,
-            price: 150 + Math.random() * 300,
-            change: 0,
-            changePercent: 0,
-            volume: 0,
-            high: 0,
-            low: 0,
-            open: 0,
-            prevClose: 0
-          }
-          return {
-            ...mockStock as StockData,
-            signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META']
-          }
-        })
-        await new Promise(r => setTimeout(r, 600))
+        const symbols = marketConfig.popularStocks.map(s => s.symbol)
+        const quotes = await fetchMultipleQuotes(symbols)
+        
+        const mapped = quotes.map(q => ({
+          ...q,
+          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+        }))
+        
         setData(mapped)
+      } catch (err) {
+        console.error('Screener fetch failed:', err)
+        // Fallback to mock locally if desired, but fetchMultipleQuotes already handles fallback
       } finally {
         setLoading(false)
       }

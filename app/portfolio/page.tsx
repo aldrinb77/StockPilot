@@ -7,10 +7,40 @@ import { MOCK_STOCKS } from "@/lib/mockData"
 import { formatCurrency, formatPercent } from "@/lib/utils"
 import { Plus, PieChart, TrendingUp, TrendingDown, DollarSign } from "lucide-react"
 
+import { useEffect } from 'react'
+import { fetchMultipleQuotes } from "@/lib/api"
+import { StockData } from "@/lib/types"
+
 export default function PortfolioPage() {
-  const { portfolio, addToPortfolio } = useStore()
+  const { portfolio, addToPortfolio, selectedMarket } = useStore()
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ symbol: '', quantity: '', price: '' })
+  const [livePrices, setLivePrices] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (portfolio.length === 0) {
+        setLoading(false)
+        return
+      }
+      setLoading(true)
+      try {
+        const symbols = portfolio.map(p => p.symbol)
+        const quotes = await fetchMultipleQuotes(symbols)
+        const priceMap = quotes.reduce((acc, q) => {
+          acc[q.symbol] = q.price
+          return acc
+        }, {} as Record<string, number>)
+        setLivePrices(priceMap)
+      } catch (err) {
+        console.error('Portfolio lookup failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [portfolio])
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,14 +63,10 @@ export default function PortfolioPage() {
   let totalInvested = 0
   let currentValue = 0
   
-  const chartData = portfolio.map(p => {
-    const livePrice = MOCK_STOCKS.find(s => s.symbol === p.symbol)?.price || p.buyPrice
-    const invested = p.quantity * p.buyPrice
-    const current = p.quantity * livePrice
-    
-    totalInvested += invested
-    currentValue += current
-    return { symbol: p.symbol, current }
+  portfolio.forEach(p => {
+    const livePrice = livePrices[p.symbol] || p.buyPrice
+    totalInvested += p.quantity * p.buyPrice
+    currentValue += p.quantity * livePrice
   })
 
   const totalPnl = currentValue - totalInvested
@@ -133,7 +159,7 @@ export default function PortfolioPage() {
             </div>
           </div>
 
-          <PortfolioTable />
+          <PortfolioTable livePrices={livePrices} />
         </>
       )}
     </div>

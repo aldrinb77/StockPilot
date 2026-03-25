@@ -26,124 +26,128 @@ export async function fetchWithTimeout(url: string, options: RequestInit = {}, t
   }
 }
 
-export async function fetchStockQuote(symbol: string, market: MarketRegion = 'US'): Promise<StockData> {
-  const config = MARKETS[market];
-  const fullSymbol = getSymbolWithSuffix(symbol, market);
-  const popular = config.popularStocks.find(s => s.symbol === fullSymbol || s.symbol === symbol);
+export async function fetchStockQuote(symbol: string): Promise<StockData & { isMockData?: boolean }> {
+  const apiKey = process.env.NEXT_PUBLIC_TWELVE_DATA_API_KEY;
   
-  // 1. Try Twelve Data
-  try {
-    const tdKey = process.env.NEXT_PUBLIC_TWELVE_DATA_KEY;
-    if (tdKey) {
-      const res = await fetchWithTimeout(`https://api.twelvedata.com/quote?symbol=${fullSymbol}&apikey=${tdKey}`);
-      const data = await res.json();
-      if (!data.code && data.close) {
-        return {
-          symbol: fullSymbol,
-          name: popular?.name || data.name || fullSymbol,
-          sector: popular?.sector || 'Unknown',
-          price: parseFloat(data.close),
-          change: parseFloat(data.change),
-          changePercent: parseFloat(data.percent_change),
-          volume: parseInt(data.volume) || 0,
-          high: parseFloat(data.high),
-          low: parseFloat(data.low),
-          open: parseFloat(data.open),
-          prevClose: parseFloat(data.previous_close)
-        };
-      }
-    }
-  } catch (e) { console.warn('Twelve Data limit reached'); }
+  if (!apiKey) {
+    console.warn('No API key found, using mock data');
+    const mock = getMockQuote(symbol);
+    return { ...mock, isMockData: true };
+  }
 
-  // 2. Try Finnhub (Suffix logic might differ but we follow the request)
   try {
-    const fhKey = process.env.NEXT_PUBLIC_FINNHUB_KEY;
-    if (fhKey) {
-      const res = await fetchWithTimeout(`https://finnhub.io/api/v1/quote?symbol=${fullSymbol}&token=${fhKey}`);
-      const data = await res.json();
-      if (data && data.c) {
-        return {
-          symbol: fullSymbol,
-          name: popular?.name || fullSymbol,
-          sector: popular?.sector || 'Unknown',
-          price: data.c,
-          change: data.d,
-          changePercent: data.dp,
-          volume: 0,
-          high: data.h,
-          low: data.l,
-          open: data.o,
-          prevClose: data.pc
-        };
-      }
-    }
-  } catch (e) { console.warn('Finnhub limit reached'); }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-  // 3. Try Alpha Vantage
-  try {
-    const avKey = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY;
-    if (avKey) {
-      const res = await fetchWithTimeout(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${fullSymbol}&apikey=${avKey}`);
-      const data = await res.json();
-      const quote = data['Global Quote'];
-      if (quote && quote['05. price']) {
-        return {
-          symbol: fullSymbol,
-          name: popular?.name || fullSymbol,
-          sector: popular?.sector || 'Unknown',
-          price: parseFloat(quote['05. price']),
-          change: parseFloat(quote['09. change']),
-          changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-          volume: parseInt(quote['06. volume']),
-          high: parseFloat(quote['03. high']),
-          low: parseFloat(quote['04. low']),
-          open: parseFloat(quote['02. open']),
-          prevClose: parseFloat(quote['08. previous close'])
-        };
-      }
-    }
-  } catch (e) { console.warn('Alpha Vantage limit reached'); }
+    const response = await fetch(
+      `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${apiKey}`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeoutId);
 
-  // 4. Fallback to Mock Data (Safe Educational Fallback)
-  console.log(`[API Fallback] Using secure educational mock data for ${fullSymbol}`);
-  return getMockQuote(fullSymbol, market);
+    if (!response.ok) throw new Error('API response not ok');
+    
+    const data = await response.json();
+    
+    if (data.code === 400 || data.status === 'error') {
+      throw new Error(data.message || 'API error');
+    }
+
+    return {
+      symbol: data.symbol || symbol,
+      name: data.name || symbol,
+      sector: '',
+      price: parseFloat(data.close) || 0,
+      change: parseFloat(data.change) || 0,
+      changePercent: parseFloat(data.percent_change) || 0,
+      volume: parseInt(data.volume) || 0,
+      high: parseFloat(data.high) || 0,
+      low: parseFloat(data.low) || 0,
+      open: parseFloat(data.open) || 0,
+      prevClose: parseFloat(data.previous_close) || 0,
+      marketCap: 0,
+      pe: 0,
+      eps: 0,
+      week52High: parseFloat(data.fifty_two_week?.high) || 0,
+      week52Low: parseFloat(data.fifty_two_week?.low) || 0,
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch quote for ${symbol}:`, error);
+    const mock = getMockQuote(symbol);
+    return { ...mock, isMockData: true };
+  }
 }
 
-export async function fetchHistoricalData(symbol: string, market: MarketRegion = 'US', range: string = 'ytd', interval: string = '1d'): Promise<OHLCV[]> {
-  const fullSymbol = getSymbolWithSuffix(symbol, market);
+export async function fetchHistoricalData(
+  symbol: string, 
+  range: string = '3mo',
+  interval: string = '1day'
+): Promise<OHLCV[]> {
+  const apiKey = process.env.NEXT_PUBLIC_TWELVE_DATA_API_KEY;
   
-  // 1. Try Twelve Data Time Series
-  try {
-    const tdKey = process.env.NEXT_PUBLIC_TWELVE_DATA_KEY;
-    if (tdKey) {
-      const res = await fetchWithTimeout(`https://api.twelvedata.com/time_series?symbol=${fullSymbol}&interval=${interval}&outputsize=200&apikey=${tdKey}`);
-      const data = await res.json();
-      if (data.values && data.values.length > 0) {
-        return data.values.reverse().map((v: any) => ({
-          time: new Date(v.datetime).getTime() / 1000,
-          open: parseFloat(v.open),
-          high: parseFloat(v.high),
-          low: parseFloat(v.low),
-          close: parseFloat(v.close),
-          volume: parseInt(v.volume)
-        }));
-      }
-    }
-  } catch (e) { console.warn('Twelve Data history limit reached'); }
+  if (!apiKey) {
+    return getMockHistorical(symbol);
+  }
 
-  // Fallback to secure educational mock data
-  console.log(`[API Fallback] Using secure educational historical mock data for ${fullSymbol}`);
-  const stock = MOCK_STOCKS.find(s => s.symbol === fullSymbol) || MOCK_STOCKS[0];
-  return getMockHistoricalData(stock.price);
+  // Map range to outputsize
+  const sizeMap: Record<string, number> = {
+    '1mo': 30, '3mo': 90, '6mo': 180, '1y': 365, '5y': 500
+  };
+  const outputsize = sizeMap[range] || 200;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const response = await fetch(
+      `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&apikey=${apiKey}`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeoutId);
+
+    if (!response.ok) throw new Error('API failed');
+    
+    const data = await response.json();
+    
+    if (data.code === 400 || data.status === 'error' || !data.values) {
+      throw new Error(data.message || 'No data');
+    }
+
+    return data.values.map((bar: any) => ({
+      time: new Date(bar.datetime).getTime() / 1000,
+      open: parseFloat(bar.open),
+      high: parseFloat(bar.high),
+      low: parseFloat(bar.low),
+      close: parseFloat(bar.close),
+      volume: parseInt(bar.volume) || 0,
+    })).reverse(); // Oldest first
+  } catch (error) {
+    console.warn(`Failed to fetch history for ${symbol}:`, error);
+    return getMockHistorical(symbol);
+  }
 }
 
-export async function fetchMultipleQuotes(symbols: string[], market: MarketRegion = 'US'): Promise<StockData[]> {
-  const promises = symbols.map(sym => fetchStockQuote(sym, market));
-  const results = await Promise.allSettled(promises);
+export async function fetchMultipleQuotes(
+  symbols: string[]
+): Promise<(StockData & { isMockData?: boolean })[]> {
+  const results: (StockData & { isMockData?: boolean })[] = [];
   
-  return results
-    .filter((res): res is PromiseFulfilledResult<StockData> => res.status === 'fulfilled')
-    .map(res => res.value);
+  for (let i = 0; i < symbols.length; i++) {
+    try {
+      const quote = await fetchStockQuote(symbols[i]);
+      results.push(quote);
+      
+      // Rate limit: wait 1 second between requests
+      if (i < symbols.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    } catch (error) {
+      const mock = getMockQuote(symbols[i]);
+      results.push({ ...mock, isMockData: true });
+    }
+  }
+  
+  return results;
 }
 
 export async function searchStocks(query: string, market: MarketRegion = 'US'): Promise<{symbol: string, name: string}[]> {
@@ -157,19 +161,17 @@ export async function searchStocks(query: string, market: MarketRegion = 'US'): 
   ).slice(0, 5);
 }
 
-function getMockQuote(symbol: string, market: MarketRegion = 'US'): StockData {
-  const config = MARKETS[market];
+function getMockQuote(symbol: string): StockData {
   const mockStock = MOCK_STOCKS.find(s => s.symbol === symbol);
   if (mockStock) return mockStock;
   
   const mockPrice = 150 + Math.random() * 50;
   const mockChange = (Math.random() * 10) - 5;
-  const popular = config.popularStocks.find(s => s.symbol === symbol);
   
   return {
     symbol,
-    name: popular?.name || symbol,
-    sector: popular?.sector || 'Unknown',
+    name: symbol,
+    sector: 'Unknown',
     price: mockPrice,
     change: mockChange,
     changePercent: (mockChange / (mockPrice - mockChange)) * 100,
@@ -177,6 +179,14 @@ function getMockQuote(symbol: string, market: MarketRegion = 'US'): StockData {
     high: mockPrice + 5,
     low: mockPrice - 5,
     open: mockPrice - mockChange,
-    prevClose: mockPrice - mockChange
+    prevClose: mockPrice - mockChange,
+    marketCap: 0,
+    pe: 0,
+    eps: 0
   };
+}
+
+function getMockHistorical(symbol: string): OHLCV[] {
+  const stock = MOCK_STOCKS.find(s => s.symbol === symbol) || MOCK_STOCKS[0];
+  return getMockHistoricalData(stock.price);
 }

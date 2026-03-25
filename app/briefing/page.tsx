@@ -3,30 +3,42 @@
 import { useStore } from "@/store/store"
 import { Sun, CheckSquare, Target, Clock, ArrowRight } from "lucide-react"
 import Link from "next/link"
-import { MOCK_STOCKS } from "@/lib/mockData"
+import { MOCK_STOCKS, MOCK_SIGNALS } from "@/lib/mockData"
 import { SignalCard } from "@/components/signals/SignalCard"
 import { generateSignal } from "@/lib/signals"
 
+import { useEffect, useState } from "react"
+import { fetchStockQuote } from "@/lib/api"
+import { StockData, Signal } from "@/lib/types"
+
 export default function DailyBriefing() {
-  const { watchlist, experienceLevel } = useStore()
+  const { watchlist, experienceLevel, selectedMarket } = useStore()
+  const [topStock, setTopStock] = useState<(StockData & { signal: Signal; isMockData?: boolean }) | null>(null)
+  const [loading, setLoading] = useState(true)
   
-  // Date and Time bounds formatting directly locally without hydration errors
   const now = new Date()
   const dateString = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const hour = now.getHours()
   const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening'
 
-  // Pick today's top signal recommendation purely rule based
-  const topMock = MOCK_STOCKS[0]
-  
-  // Generate signal from mock tracking arrays
-  const mockOHLCV = []
-  let p = topMock.price * 0.8
-  for(let i=0; i<250; i++) {
-     p = p * (1 + (Math.random() - 0.45) * 0.05)
-     mockOHLCV.push({ time: i, open: p, high: p*1.02, low: p*0.98, close: p, volume: 10000 })
-  }
-  const topSignal = generateSignal(mockOHLCV)
+  useEffect(() => {
+    const loadTopPick = async () => {
+      setLoading(true)
+      try {
+        const symbol = 'AAPL' // Could be dynamic from marketConfig.popularStocks[0]
+        const quote = await fetchStockQuote(symbol)
+        setTopStock({
+          ...quote,
+          signal: MOCK_SIGNALS[symbol] || MOCK_SIGNALS['META']
+        })
+      } catch (err) {
+        console.error('Briefing pick failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadTopPick()
+  }, [])
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 max-w-5xl mx-auto">
@@ -88,18 +100,24 @@ export default function DailyBriefing() {
             </h2>
             <p className="text-sm text-gray-400 mb-6">The engine identified immense momentum crossing limits exactly today.</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-              <SignalCard 
-                stock={topMock} 
-                signal={topSignal}
-              />
-              <div className="space-y-4 text-sm text-gray-300 bg-black/20 p-4 rounded-xl border border-white/5">
-                <p><strong>Strict Output:</strong> The technicals bounds for {topMock.symbol} exhibit structural crossover variables.</p>
-                <p><strong>What it means:</strong> The MACD and RSI are mutually validating an upward trend perfectly crossing Standard Deviation bounds organically.</p>
-                <Link href={`/stock/${topMock.symbol}`} className="flex items-center text-tvBlue font-bold mt-2 hover:underline">
-                  Execute Trade <ArrowRight className="w-4 h-4 ml-1" />
-                </Link>
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+               {loading ? (
+                  <div className="h-48 bg-white/5 rounded-2xl animate-pulse" />
+               ) : topStock ? (
+                  <>
+                    <SignalCard 
+                      stock={topStock} 
+                      signal={topStock.signal}
+                    />
+                    <div className="space-y-4 text-sm text-gray-300 bg-black/20 p-4 rounded-xl border border-white/5">
+                      <p><strong>Strict Output:</strong> The technicals bounds for {topStock.symbol} exhibit structural crossover variables.</p>
+                      <p><strong>What it means:</strong> The MACD and RSI are mutually validating an upward trend perfectly crossing Standard Deviation bounds organically.</p>
+                      <Link href={`/stock/${topStock.symbol}`} className="flex items-center text-tvBlue font-bold mt-2 hover:underline">
+                        Execute Trade <ArrowRight className="w-4 h-4 ml-1" />
+                      </Link>
+                    </div>
+                  </>
+               ) : null}
             </div>
           </section>
         </div>
