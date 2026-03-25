@@ -47,7 +47,34 @@ export default function DashboardPage() {
     
     const loadData = async () => {
       setLoading(true)
+      
+      // 1. Splash Screen Timeout Failsafe (Maximum 3 seconds loading regardless of API)
+      const splashTimeout = setTimeout(() => {
+        setLoading(false)
+      }, 3000);
+
       try {
+        // 2. Wrap all data fetching in try-catch with 5 sec timeout
+        const controller = new AbortController();
+        const fetchTimeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        try {
+          const response = await fetch('/api/market/dashboard?region=' + selectedMarket, { signal: controller.signal });
+          clearTimeout(fetchTimeoutId);
+          if (!response.ok) throw new Error('API failed');
+          const apiData = await response.json();
+          setData(apiData);
+          clearTimeout(splashTimeout);
+          setLoading(false);
+          return;
+        } catch (error) {
+          clearTimeout(fetchTimeoutId);
+          console.warn('API call failed, using mock data');
+          throw error; // Let outer try/catch handle the mock fallback
+        }
+
+      } catch (err) {
+        // Mock data fallback
         const mapped = marketConfig.popularStocks.map(s => {
           const mockStock = MOCK_STOCKS.find(ms => ms.symbol === s.symbol) || {
             symbol: s.symbol,
@@ -67,10 +94,9 @@ export default function DashboardPage() {
             signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META']
           }
         })
-        
-        await new Promise(r => setTimeout(r, 600))
         setData(mapped)
       } finally {
+        clearTimeout(splashTimeout);
         setLoading(false)
       }
     }

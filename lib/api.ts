@@ -10,6 +10,22 @@ function getSymbolWithSuffix(symbol: string, market: MarketRegion): string {
   return `${symbol}${config.symbolSuffix}`;
 }
 
+export async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 5000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal  
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
 export async function fetchStockQuote(symbol: string, market: MarketRegion = 'US'): Promise<StockData> {
   const config = MARKETS[market];
   const fullSymbol = getSymbolWithSuffix(symbol, market);
@@ -19,7 +35,7 @@ export async function fetchStockQuote(symbol: string, market: MarketRegion = 'US
   try {
     const tdKey = process.env.NEXT_PUBLIC_TWELVE_DATA_KEY;
     if (tdKey) {
-      const res = await fetch(`https://api.twelvedata.com/quote?symbol=${fullSymbol}&apikey=${tdKey}`);
+      const res = await fetchWithTimeout(`https://api.twelvedata.com/quote?symbol=${fullSymbol}&apikey=${tdKey}`);
       const data = await res.json();
       if (!data.code && data.close) {
         return {
@@ -43,7 +59,7 @@ export async function fetchStockQuote(symbol: string, market: MarketRegion = 'US
   try {
     const fhKey = process.env.NEXT_PUBLIC_FINNHUB_KEY;
     if (fhKey) {
-      const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${fullSymbol}&token=${fhKey}`);
+      const res = await fetchWithTimeout(`https://finnhub.io/api/v1/quote?symbol=${fullSymbol}&token=${fhKey}`);
       const data = await res.json();
       if (data && data.c) {
         return {
@@ -67,7 +83,7 @@ export async function fetchStockQuote(symbol: string, market: MarketRegion = 'US
   try {
     const avKey = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY;
     if (avKey) {
-      const res = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${fullSymbol}&apikey=${avKey}`);
+      const res = await fetchWithTimeout(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${fullSymbol}&apikey=${avKey}`);
       const data = await res.json();
       const quote = data['Global Quote'];
       if (quote && quote['05. price']) {
@@ -100,7 +116,7 @@ export async function fetchHistoricalData(symbol: string, market: MarketRegion =
   try {
     const tdKey = process.env.NEXT_PUBLIC_TWELVE_DATA_KEY;
     if (tdKey) {
-      const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${fullSymbol}&interval=${interval}&outputsize=200&apikey=${tdKey}`);
+      const res = await fetchWithTimeout(`https://api.twelvedata.com/time_series?symbol=${fullSymbol}&interval=${interval}&outputsize=200&apikey=${tdKey}`);
       const data = await res.json();
       if (data.values && data.values.length > 0) {
         return data.values.reverse().map((v: any) => ({
