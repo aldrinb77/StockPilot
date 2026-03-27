@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import { useStore, JournalEntry } from "@/store/store"
-import { BookText, Plus, Search, Trash2, Calendar, Smile, Meh, Frown, Save, X, Download } from "lucide-react"
+import { BookText, Plus, Search, Trash2, Calendar, Smile, Meh, Frown, Save, X, Download, Terminal, Sparkles, Activity } from "lucide-react"
+import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/FadeIn"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function JournalPage() {
   const { journalEntries, addJournalEntry, removeJournalEntry } = useStore()
@@ -34,57 +36,80 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in pb-20 max-w-5xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center">
-            <BookText className="w-8 h-8 text-tvPurple mr-4" /> Market Learning Journal
-          </h1>
-          <p className="text-gray-400 mt-1">Reflect on your trades and indicators readings to improve your discipline.</p>
-        </div>
-        <div className="flex space-x-3 w-full md:w-auto">
-           <button 
-              onClick={exportToCSV}
-              className="flex-1 md:flex-none flex items-center justify-center space-x-2 px-4 py-2 rounded-xl bg-white/5 border border-gray-700 text-gray-300 hover:text-white transition-all"
-           >
-              <Download className="w-4 h-4" />
-              <span className="text-sm font-bold">Export CSV</span>
-           </button>
-           <button 
-              onClick={() => setShowForm(true)}
-              className="flex-1 md:flex-none flex items-center justify-center space-x-2 px-6 py-2 rounded-xl bg-tvPurple text-white font-bold shadow-lg shadow-tvPurple/20 hover:scale-105 transition-all"
-           >
-              <Plus className="w-4 h-4" />
-              <span>New Entry</span>
-           </button>
-        </div>
-      </div>
-
-      {showForm && <JournalForm onClose={() => setShowForm(false)} onAdd={addJournalEntry} />}
-
-      <div className="relative mb-8">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-        <input 
-          type="text" 
-          placeholder="Search entries or symbols..." 
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-full bg-[#1E222D] border border-gray-700/50 rounded-2xl py-4 pl-12 pr-6 text-white focus:border-tvPurple outline-none transition-all shadow-inner"
-        />
-      </div>
-
-      <div className="space-y-6 relative before:absolute before:left-8 before:top-4 before:bottom-4 before:w-0.5 before:bg-gray-800">
-        {filtered.map(entry => (
-          <JournalEntryCard key={entry.id} entry={entry} onRemove={removeJournalEntry} />
-        ))}
-        {filtered.length === 0 && (
-          <div className="text-center py-20 bg-white/5 rounded-2xl border border-dashed border-gray-800">
-            <BookText className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-            <p className="text-gray-500 font-medium">No journal entries found matching your search.</p>
+    <FadeIn>
+      <div className="space-y-12 pb-20 max-w-7xl mx-auto px-6">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-10">
+          <div className="space-y-2">
+             <div className="flex items-center space-x-2 text-[#7c4dff]">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Cognitive Trading Protocol</span>
+             </div>
+             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-4">
+               <Terminal className="w-8 h-8 text-white/20" /> 
+               Insight Journal
+             </h1>
+             <p className="text-[#8899a6] font-bold text-lg">Document your market psychometrics and strategic adjustments.</p>
           </div>
-        )}
+          <div className="flex gap-4">
+             <button 
+                onClick={exportToCSV}
+                className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-[#f0f4f8] hover:bg-white/10 transition-all flex items-center gap-3 group"
+             >
+                <Download className="w-4 h-4" /> Export
+             </button>
+             <button 
+                onClick={() => setShowForm(true)}
+                className="px-8 py-4 bg-gradient-to-r from-[#7c4dff] to-[#651fff] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#7c4dff20] flex items-center gap-3"
+             >
+                <Plus className="w-5 h-5" /> New Log Entry
+             </button>
+          </div>
+        </div>
+
+        <AnimatePresence>
+           {showForm && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                  <JournalForm onClose={() => setShowForm(false)} onAdd={addJournalEntry} />
+              </motion.div>
+           )}
+        </AnimatePresence>
+
+        <div className="max-w-3xl">
+           <div className="relative group">
+             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5c6b7a] group-focus-within:text-[#7c4dff] transition-colors" />
+             <input 
+               type="text" 
+               placeholder="Search logs by asset or keyword..." 
+               value={filter}
+               onChange={(e) => setFilter(e.target.value)}
+               className="w-full bg-white/5 border border-white/10 rounded-[2rem] py-5 pl-16 pr-6 text-white font-bold focus:border-[#7c4dff] focus:ring-4 focus:ring-[#7c4dff10] outline-none transition-all placeholder:text-[#5c6b7a]"
+             />
+           </div>
+        </div>
+
+        <div className="space-y-8 relative before:absolute before:left-10 before:top-4 before:bottom-4 before:w-px before:bg-white/5">
+           <StaggerContainer>
+              {filtered.map(entry => (
+                <StaggerItem key={entry.id}>
+                   <JournalEntryCard entry={entry} onRemove={removeJournalEntry} />
+                </StaggerItem>
+              ))}
+           </StaggerContainer>
+           
+           {filtered.length === 0 && (
+              <div className="text-center py-32 glass-card rounded-[3rem] border-2 border-dashed border-white/5">
+                <BookText className="w-16 h-16 text-white/5 mx-auto mb-6" />
+                <p className="text-[#5c6b7a] font-black uppercase tracking-widest text-sm">No encrypted logs found matching criteria</p>
+              </div>
+           )}
+        </div>
       </div>
-    </div>
+    </FadeIn>
   )
 }
 
@@ -105,32 +130,35 @@ function JournalForm({ onClose, onAdd }: { onClose: () => void, onAdd: any }) {
   }
 
   return (
-    <div className="glass-card p-8 rounded-2xl border-tvPurple/30 mb-8 relative animate-in slide-in-from-top-4 duration-300">
-       <button onClick={onClose} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"><X className="w-6 h-6" /></button>
-       <h2 className="text-xl font-bold text-white mb-8">Log Your Market Insight</h2>
+    <div className="glass-card p-10 rounded-[2.5rem] border border-[#7c4dff30] relative overflow-hidden group">
+       <div className="absolute top-0 right-0 w-64 h-64 bg-[#7c4dff] blur-[100px] opacity-10 pointer-events-none" />
+       <button onClick={onClose} className="absolute top-8 right-8 text-[#5c6b7a] hover:text-white transition-all transform hover:rotate-90">
+          <X className="w-6 h-6" />
+       </button>
+       <h2 className="text-2xl font-black text-white mb-10 tracking-tighter uppercase">Log Protocol Entry</h2>
        
-       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Stock Symbol (Optional)</label>
+       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="space-y-8">
+             <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-[0.3em] px-2">Hardware/Ticker (Optional)</label>
                 <input 
                   type="text" 
                   value={entry.symbol} 
                   onChange={e => setEntry({...entry, symbol: e.target.value.toUpperCase()})}
-                  placeholder="e.g. BTCUSDT"
-                  className="w-full bg-black/40 border border-gray-700/50 rounded-xl py-3 px-4 text-white focus:border-tvPurple outline-none"
+                  placeholder="e.g. NIFTY50"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold focus:border-[#7c4dff] outline-none transition-all focus:ring-4 focus:ring-[#7c4dff10]"
                 />
              </div>
              
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Entry Category</label>
-                <div className="flex bg-black/40 p-1 rounded-xl border border-gray-700/50">
+             <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-[0.3em] px-2">Action Category</label>
+                <div className="grid grid-cols-2 gap-3 p-2 bg-white/5 rounded-2xl border border-white/5">
                    {['Bought', 'Sold', 'Watching', 'Learning'].map(t => (
                       <button 
                         key={t}
                         type="button"
                         onClick={() => setEntry({...entry, type: t as any})}
-                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${entry.type === t ? 'bg-tvPurple text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                        className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entry.type === t ? 'bg-[#7c4dff] text-white shadow-xl shadow-[#7c4dff20]' : 'text-[#8899a6] hover:bg-white/5 hover:text-white'}`}
                       >
                         {t}
                       </button>
@@ -138,19 +166,19 @@ function JournalForm({ onClose, onAdd }: { onClose: () => void, onAdd: any }) {
                 </div>
              </div>
 
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Your Mood</label>
-                <div className="flex space-x-4">
+             <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-[0.3em] px-2">Psychometric State</label>
+                <div className="flex gap-4">
                    {[
-                      { id: 'HAPPY', emoji: <Smile />, color: 'text-tvGreen' },
-                      { id: 'NEUTRAL', emoji: <Meh />, color: 'text-tvAmber' },
-                      { id: 'SAD', emoji: <Frown />, color: 'text-tvRed' }
+                      { id: 'HAPPY', emoji: <Smile className="w-5 h-5" />, color: 'text-[#00e676]' },
+                      { id: 'NEUTRAL', emoji: <Meh className="w-5 h-5" />, color: 'text-[#ffab00]' },
+                      { id: 'SAD', emoji: <Frown className="w-5 h-5" />, color: 'text-[#ff1744]' }
                    ].map(m => (
                       <button 
                         key={m.id}
                         type="button"
                         onClick={() => setEntry({...entry, mood: m.id as any})}
-                        className={`p-3 rounded-xl border transition-all ${entry.mood === m.id ? `bg-white/5 border-white ${m.color}` : 'border-gray-800 text-gray-600 hover:border-gray-700'}`}
+                        className={`flex-1 py-4 rounded-2xl border flex items-center justify-center transition-all ${entry.mood === m.id ? `bg-white/10 border-white/20 ${m.color} scale-105 shadow-xl` : 'border-white/5 text-[#5c6b7a] hover:bg-white/5'}`}
                       >
                          {m.emoji}
                       </button>
@@ -159,34 +187,33 @@ function JournalForm({ onClose, onAdd }: { onClose: () => void, onAdd: any }) {
              </div>
           </div>
 
-          <div className="space-y-6">
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Observations & Strategy</label>
+          <div className="space-y-8">
+             <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-[0.3em] px-2">Strategic Observations</label>
                 <textarea 
                    value={entry.notes}
                    onChange={e => setEntry({...entry, notes: e.target.value})}
-                   rows={4}
+                   rows={5}
                    required
-                   placeholder="Describe what indicators you read, why you made the move..."
-                   className="w-full bg-black/40 border border-gray-700/50 rounded-xl py-3 px-4 text-white focus:border-tvPurple outline-none resize-none"
+                   placeholder="Document indicator alignment and entry rationale..."
+                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold focus:border-[#7c4dff] outline-none transition-all focus:ring-4 focus:ring-[#7c4dff10] resize-none leading-relaxed"
                 />
              </div>
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Key Lesson (The &quot;Why&quot;)</label>
+             <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-[0.3em] px-2">Protocol Lesson</label>
                 <textarea 
                    value={entry.lesson}
                    onChange={e => setEntry({...entry, lesson: e.target.value})}
-                   rows={2}
-                   placeholder="What did this teach you about the market today?"
-                   className="w-full bg-black/40 border border-gray-700/50 rounded-xl py-3 px-4 text-white focus:border-tvPurple outline-none resize-none"
+                   rows={3}
+                   placeholder="Synthesize current insight for future execution..."
+                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold focus:border-[#7c4dff] outline-none transition-all focus:ring-4 focus:ring-[#7c4dff10] resize-none leading-relaxed"
                 />
              </div>
           </div>
 
-          <div className="md:col-span-2 pt-4">
-             <button type="submit" className="w-full py-4 bg-tvPurple text-white font-bold rounded-xl text-lg hover:scale-[1.01] transition-all flex items-center justify-center space-x-2">
-                <Save className="w-5 h-5" />
-                <span>Save Entry to Learning Lab</span>
+          <div className="md:col-span-2 pt-6">
+             <button type="submit" className="w-full py-5 bg-gradient-to-r from-[#7c4dff] to-[#651fff] text-white font-black rounded-2xl text-sm uppercase tracking-[0.2em] shadow-2xl shadow-[#7c4dff30] hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                <Save className="w-5 h-5" /> Commit Entry to Memory
              </button>
           </div>
        </form>
@@ -196,57 +223,64 @@ function JournalForm({ onClose, onAdd }: { onClose: () => void, onAdd: any }) {
 
 function JournalEntryCard({ entry, onRemove }: { entry: JournalEntry, onRemove: any }) {
   const MoodIcon = entry.mood === 'HAPPY' ? Smile : entry.mood === 'NEUTRAL' ? Meh : Frown
-  const moodColor = entry.mood === 'HAPPY' ? 'text-tvGreen' : entry.mood === 'NEUTRAL' ? 'text-tvAmber' : 'text-tvRed'
+  const moodColor = entry.mood === 'HAPPY' ? 'text-[#00e676]' : entry.mood === 'NEUTRAL' ? 'text-[#ffab00]' : 'text-[#ff1744]'
 
   return (
-    <div className="relative pl-20 animate-in slide-in-from-left-4 duration-500">
-       <div className="absolute left-4 top-0 w-8 h-8 rounded-full bg-[#111827] border-2 border-tvPurple flex items-center justify-center z-10 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-          <div className="w-2 h-2 rounded-full bg-tvPurple animate-pulse" />
-       </div>
+    <div className="relative pl-24 group">
+       <div className="absolute left-[34px] top-8 w-3 h-3 rounded-full bg-[#7c4dff] z-10 shadow-[0_0_20px_rgba(124,77,255,0.6)]" />
 
-       <div className="glass-card p-6 rounded-2xl group relative overflow-hidden">
-          <div className={`absolute top-0 right-0 w-32 h-32 opacity-[0.03] -mr-8 -mt-8 ${moodColor}`}>
-             <MoodIcon className="w-full h-full" />
-          </div>
+       <div className="glass-card p-10 rounded-[2.5rem] relative overflow-hidden hover:translate-y-[-4px] transition-all border border-white/5">
+          <div className={cn("absolute -top-10 -right-10 w-48 h-48 blur-[80px] opacity-10 pointer-events-none transition-all group-hover:opacity-20", moodColor.replace('text-', 'bg-'))} />
 
           <button 
              onClick={() => onRemove(entry.id)}
-             className="absolute top-4 right-4 p-2 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-tvRed/10 text-gray-600 hover:text-tvRed transition-all"
+             className="absolute top-8 right-8 p-3 rounded-xl opacity-0 group-hover:opacity-100 bg-[#ff174410] text-[#ff1744] hover:bg-[#ff1744] hover:text-white transition-all shadow-xl"
           >
              <Trash2 className="w-4 h-4" />
           </button>
 
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-             <div className="flex items-center space-x-3">
-                <span className="text-2xl">{MoodIcon === Smile ? '😀' : MoodIcon === Meh ? '😐' : '😟'}</span>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+             <div className="flex items-center gap-6">
+                <div className={cn("w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform group-hover:scale-110", moodColor)}>
+                   <MoodIcon className="w-7 h-7" />
+                </div>
                 <div>
-                   <h3 className="font-bold text-white text-lg flex items-center">
-                      {entry.symbol || "General Insight"} 
-                      <span className="mx-3 w-1 h-1 rounded-full bg-gray-700" />
-                      <span className="text-tvPurple text-sm uppercase tracking-widest">{entry.type}</span>
+                   <h3 className="font-black text-white text-2xl tracking-tighter uppercase flex items-center gap-4">
+                      {entry.symbol || "INSIGHT LOG"} 
+                      <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
+                      <span className="text-[#7c4dff] text-xs font-black tracking-[0.3em] uppercase">{entry.type}</span>
                    </h3>
-                   <p className="text-xs font-bold text-gray-500 uppercase mt-1 flex items-center">
-                     <Calendar className="w-3 h-3 mr-1.5" /> {entry.date}
-                   </p>
+                   <div className="flex items-center gap-4 mt-2">
+                      <p className="text-[10px] font-black text-[#5c6b7a] uppercase tracking-widest flex items-center gap-2">
+                        <Calendar className="w-3 h-3" /> {entry.date}
+                      </p>
+                      <div className="h-1 w-1 rounded-full bg-white/10" />
+                      <p className={cn("text-[10px] font-black uppercase tracking-widest", moodColor)}>
+                        {entry.mood} STATE
+                      </p>
+                   </div>
                 </div>
              </div>
           </div>
 
-          <div className="space-y-4">
-             <div className="bg-black/30 p-4 rounded-xl border border-white/5">
-                <p className="text-gray-300 leading-relaxed text-sm italic italic-quotes">
-                  &quot;{entry.notes}&quot;
+          <div className="space-y-6">
+             <div className="bg-white/[0.02] p-8 rounded-3xl border border-white/5 relative">
+                <div className="absolute top-4 left-4 opacity-5">
+                   <Activity className="w-12 h-12 text-white" />
+                </div>
+                <p className="text-[#8899a6] font-bold text-lg leading-relaxed italic relative z-10">
+                  &ldquo;{entry.notes}&rdquo;
                 </p>
              </div>
              
              {entry.lesson && (
-               <div className="flex items-start space-x-3 bg-tvPurple/5 p-4 rounded-xl border border-tvPurple/10">
-                  <div className="p-1.5 rounded bg-tvPurple/20 text-tvPurple shrink-0">
-                    <BookText className="w-4 h-4" />
+               <div className="flex items-start gap-6 bg-[#7c4dff08] p-8 rounded-3xl border border-[#7c4dff10] group-hover:border-[#7c4dff30] transition-colors">
+                  <div className="p-3 rounded-xl bg-[#7c4dff15] text-[#7c4dff] shrink-0 mt-1 shadow-lg">
+                    <Zap className="w-5 h-5" />
                   </div>
-                  <div>
-                     <p className="text-xs font-bold text-tvPurple uppercase tracking-widest mb-1">Lesson Learned</p>
-                     <p className="text-sm font-medium text-gray-300">{entry.lesson}</p>
+                  <div className="space-y-2">
+                     <p className="text-[10px] font-black text-[#7c4dff] uppercase tracking-[0.3em]">Protocol Synthesis</p>
+                     <p className="text-lg font-black text-white/90 leading-tight">{entry.lesson}</p>
                   </div>
                </div>
              )}
@@ -254,4 +288,8 @@ function JournalEntryCard({ entry, onRemove }: { entry: JournalEntry, onRemove: 
        </div>
     </div>
   )
+}
+
+function cn(...classes: string[]) {
+  return classes.filter(Boolean).join(' ')
 }

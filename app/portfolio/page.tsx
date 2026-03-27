@@ -1,15 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useStore } from "@/store/store"
 import { PortfolioTable } from "@/components/portfolio/PortfolioTable"
-import { MOCK_STOCKS } from "@/lib/mockData"
 import { formatCurrency, formatPercent } from "@/lib/utils"
-import { Plus, PieChart, TrendingUp, TrendingDown, DollarSign } from "lucide-react"
-
-import { useEffect } from 'react'
+import { Plus, PieChart, TrendingUp, TrendingDown, DollarSign, Wallet, Activity, Sparkles, Terminal } from "lucide-react"
 import { fetchMultipleQuotes } from "@/lib/api"
 import { StockData } from "@/lib/types"
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
+import { PulseDot } from "@/components/ui/PulseDot"
+import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/FadeIn"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function PortfolioPage() {
   const { portfolio, addToPortfolio, selectedMarket } = useStore()
@@ -59,7 +60,6 @@ export default function PortfolioPage() {
     setShowAdd(false)
   }
 
-  // Calculate top line stats
   let totalInvested = 0
   let currentValue = 0
   
@@ -73,95 +73,139 @@ export default function PortfolioPage() {
   const totalPnlPercent = totalInvested > 0 ? (totalPnl / totalInvested) * 100 : 0
   const isProfit = totalPnl >= 0
 
+  if (loading) {
+     return (
+        <div className="space-y-12 animate-in fade-in px-6 max-w-7xl mx-auto">
+           <Skeleton className="h-16 w-80 rounded-2xl shimmer" />
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[1,2,3].map(i => <Skeleton key={i} className="h-48 w-full rounded-3xl shimmer" />)}
+           </div>
+           <Skeleton className="h-96 w-full rounded-[2.5rem] shimmer" />
+        </div>
+     )
+  }
+
   return (
-    <div className="space-y-8 animate-in fade-in pb-20 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 border-b border-gray-800 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center"><PieChart className="w-8 h-8 text-blue-500 mr-3" /> My Portfolio</h1>
-          <p className="text-gray-400 mt-2 text-sm">Simulate active holdings tracking natively against LIVE variations seamlessly without external accounts.</p>
-        </div>
-        <button 
-          onClick={() => setShowAdd(!showAdd)}
-          className="mt-4 md:mt-0 px-5 py-2.5 bg-tvGreen text-white font-bold rounded-lg hover:bg-tvGreen/90 transition-colors flex items-center shadow-lg shadow-tvGreen/20"
-        >
-          <Plus className="w-5 h-5 mr-1" /> Add Position
-        </button>
-      </div>
-
-      {showAdd && (
-        <form onSubmit={handleAdd} className="bg-[#1E222D] p-6 rounded-xl border border-gray-700/50 shadow-lg grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-tvGreen" />
+    <FadeIn>
+      <div className="space-y-12 pb-20 max-w-7xl mx-auto px-6">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-10">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 uppercase">Symbol</label>
-            <input 
-              type="text" required placeholder="e.g. AAPL" 
-              value={form.symbol} onChange={e => setForm({...form, symbol: e.target.value})}
-              className="w-full bg-[#131722] border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-tvGreen focus:ring-1 focus:ring-tvGreen" 
-            />
+             <div className="flex items-center space-x-2 text-[#2979ff]">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Capital Allocation Monitor</span>
+             </div>
+             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-4">
+               <Terminal className="w-8 h-8 text-white/20" /> 
+               Portfolio Guard
+             </h1>
+             <p className="text-[#8899a6] font-bold text-lg">Live simulation of your active holdings tracking real-time fluctuations.</p>
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 uppercase">Shares</label>
-            <input 
-              type="number" required min="0.1" step="0.1" placeholder="e.g. 10"
-              value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})}
-              className="w-full bg-[#131722] border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-tvGreen focus:ring-1 focus:ring-tvGreen" 
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 uppercase">Avg Buy Price</label>
-            <input 
-              type="number" required min="1" step="0.01" placeholder="e.g. 150.50"
-              value={form.price} onChange={e => setForm({...form, price: e.target.value})}
-              className="w-full bg-[#131722] border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-tvGreen focus:ring-1 focus:ring-tvGreen" 
-            />
-          </div>
-          <button type="submit" className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">
-            Confirm Trade
+          <button 
+            onClick={() => setShowAdd(!showAdd)}
+            className="px-8 py-4 bg-gradient-to-r from-[#00e676] to-[#00c853] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#00e67620] flex items-center gap-3"
+          >
+            <Plus className="w-5 h-5" /> Open Position
           </button>
-        </form>
-      )}
-
-      {portfolio.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center border border-dashed border-gray-700/50 rounded-2xl bg-[#131722]/50">
-          <DollarSign className="w-16 h-16 text-gray-600 mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Portfolio Empty</h2>
-          <p className="text-gray-400 mb-6 max-w-sm">Add your very first stock above to start tracking gains & tracking allocation seamlessly.</p>
         </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#1E222D] p-6 rounded-xl border border-gray-700/50 flex flex-col justify-center">
-              <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Total Value</p>
-              <h2 className="text-4xl font-bold text-white">{formatCurrency(currentValue)}</h2>
-              <p className="text-sm text-gray-500 mt-2">Invested: {formatCurrency(totalInvested)}</p>
-            </div>
-            
-            <div className={`bg-[#1E222D] p-6 rounded-xl border ${isProfit ? 'border-tvGreen/30 bg-tvGreen/5' : 'border-tvRed/30 bg-tvRed/5'} flex flex-col justify-center relative overflow-hidden`}>
-              {isProfit ? <TrendingUp className="absolute -right-4 -bottom-4 w-32 h-32 text-tvGreen/10" /> : <TrendingDown className="absolute -right-4 -bottom-4 w-32 h-32 text-tvRed/10" />}
-              <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Total P&L</p>
-              <h2 className={`text-4xl font-bold ${isProfit ? 'text-tvGreen' : 'text-tvRed'}`}>
-                {isProfit ? '+' : ''}{formatCurrency(totalPnl)}
-              </h2>
-              <p className={`text-sm font-bold mt-2 inline-flex ${isProfit ? 'text-tvGreen' : 'text-tvRed'}`}>
-                {isProfit ? '+' : ''}{totalPnlPercent.toFixed(2)}% All-time
-              </p>
-            </div>
 
-            <div className="bg-[#1E222D] p-6 rounded-xl border border-gray-700/50 flex items-center justify-center">
-              <div className="w-full max-w-[200px] h-[120px] rounded-full border-[16px] border-[#131722] relative flex items-center justify-center aspect-square"
-               style={{ 
-                 background: `conic-gradient(#26A69A 0% 35%, #2962FF 35% 85%, #9C27B0 85% 100%)` 
-               }}>
-                 <div className="w-full h-full bg-[#1E222D] rounded-full flex items-center justify-center absolute scale-75">
-                   <span className="text-xs font-bold text-gray-400">ALLOCATION</span>
-                 </div>
-              </div>
+        {showAdd && (
+          <form onSubmit={handleAdd} className="glass-card p-8 rounded-[2rem] border border-white/10 shadow-2xl grid grid-cols-1 md:grid-cols-4 gap-6 items-end relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-[#00e676]" />
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-widest px-1">Symbol Ticker</label>
+              <input 
+                type="text" required placeholder="e.g. RELIANCE" 
+                value={form.symbol} onChange={e => setForm({...form, symbol: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white font-bold focus:outline-none focus:border-[#00e676] focus:ring-4 focus:ring-[#00e67610] transition-all" 
+              />
             </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-widest px-1">Quantity/Shares</label>
+              <input 
+                type="number" required min="0.1" step="0.1" placeholder="10.00"
+                value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white font-bold focus:outline-none focus:border-[#00e676] focus:ring-4 focus:ring-[#00e67610] transition-all" 
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#8899a6] uppercase tracking-widest px-1">Avg Execution Price</label>
+              <input 
+                type="number" required min="1" step="0.01" placeholder="0.00"
+                value={form.price} onChange={e => setForm({...form, price: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white font-bold focus:outline-none focus:border-[#00e676] focus:ring-4 focus:ring-[#00e67610] transition-all" 
+              />
+            </div>
+            <button type="submit" className="w-full py-4 bg-[#2979ff] hover:bg-[#2979ff]/90 text-white font-black rounded-2xl transition-all shadow-xl shadow-[#2979ff20] uppercase text-[11px] tracking-widest">
+              Confirm Transaction
+            </button>
+          </form>
+        )}
+
+        {portfolio.length === 0 ? (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center border-2 border-dashed border-white/5 rounded-[3rem] px-8">
+            <div className="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center mb-8">
+               <DollarSign className="w-12 h-12 text-[#5c6b7a] opacity-30" />
+            </div>
+            <h2 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase">Portfolio Inactive</h2>
+            <p className="text-[#8899a6] mb-10 max-w-md font-bold text-lg leading-relaxed">Your simulated holdings will appear here. Start by adding your active positions above.</p>
+            <button onClick={() => setShowAdd(true)} className="px-10 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3">
+               Start Tracking Now
+            </button>
           </div>
+        ) : (
+          <StaggerContainer className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <StaggerItem className="glass-card p-8 rounded-3xl group overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#2979ff] blur-[70px] opacity-10 pointer-events-none" />
+                <p className="text-[11px] font-black text-[#8899a6] uppercase tracking-[0.2em] mb-4">Total Liquidation Value</p>
+                <h2 className="text-5xl font-black text-white font-mono tracking-tighter leading-none mb-6">
+                   <AnimatedNumber value={currentValue} prefix="₹" />
+                </h2>
+                <div className="flex items-center gap-2">
+                   <PulseDot color="green" />
+                   <p className="text-xs text-[#00e676] font-black uppercase tracking-widest">Invested: {formatCurrency(totalInvested)}</p>
+                </div>
+              </StaggerItem>
+              
+              <StaggerItem className={cn("glass-card p-8 rounded-3xl group overflow-hidden relative border-l-4", isProfit ? 'border-[#00e676]' : 'border-[#ff1744]')}>
+                <div className={cn("absolute top-0 right-0 w-32 h-32 blur-[70px] opacity-10 pointer-events-none", isProfit ? 'bg-[#00e676]' : 'bg-[#ff1744]')} />
+                <p className="text-[11px] font-black text-[#8899a6] uppercase tracking-[0.2em] mb-4">Unrealized P&L</p>
+                <h2 className={cn("text-5xl font-black font-mono tracking-tighter leading-none mb-6", isProfit ? 'text-[#00e676]' : 'text-[#ff1744]')}>
+                   {isProfit ? '+' : ''}<AnimatedNumber value={totalPnl} prefix="₹" />
+                </h2>
+                <div className="flex items-center gap-3">
+                   <div className={cn("px-2 py-1 rounded text-[10px] font-black tracking-widest", isProfit ? 'bg-[#00e67620]' : 'bg-[#ff174420]')}>
+                      {isProfit ? '+' : ''}{totalPnlPercent.toFixed(2)}% ROI
+                   </div>
+                   <p className="text-[10px] text-[#5c6b7a] font-black uppercase tracking-widest">Market Variance</p>
+                </div>
+              </StaggerItem>
 
-          <PortfolioTable livePrices={livePrices} />
-        </>
-      )}
-    </div>
+              <StaggerItem className="glass-card p-8 rounded-3xl flex flex-col items-center justify-center relative overflow-hidden text-center group">
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#7c4dff] blur-[70px] opacity-10 pointer-events-none" />
+                 <div className="w-20 h-20 rounded-full border-[8px] border-[#7c4dff20] flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <PieChart className="w-8 h-8 text-[#7c4dff]" />
+                 </div>
+                 <p className="mt-4 text-[10px] font-black text-[#8899a6] uppercase tracking-widest">Allocation Profile</p>
+                 <p className="text-xl font-black text-white tracking-tighter mt-1">{portfolio.length} ACTIVE ASSETS</p>
+              </StaggerItem>
+            </div>
+
+            <StaggerItem className="glass-card rounded-[2.5rem] overflow-hidden border border-white/5">
+               <div className="p-8 border-b border-white/5 flex items-center gap-4">
+                  <Activity className="w-6 h-6 text-[#2979ff]" />
+                  <h3 className="text-xl font-black text-white uppercase tracking-tighter">Live Monitor</h3>
+               </div>
+               <PortfolioTable livePrices={livePrices} />
+            </StaggerItem>
+          </StaggerContainer>
+        )}
+      </div>
+    </FadeIn>
   )
+}
+
+function cn(...classes: string[]) {
+  return classes.filter(Boolean).join(' ')
 }

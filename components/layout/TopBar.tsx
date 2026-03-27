@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { Search, Moon, Sun, Menu, Zap, User } from "lucide-react"
+import { Search, Moon, Sun, Menu, Zap, Bell, Command } from "lucide-react"
 import { useMenuStore } from "@/store/useMenuStore"
 import { useState, useEffect } from "react"
 import { useTheme } from "../ThemeProvider"
@@ -31,54 +31,56 @@ export default function TopBar() {
   if (pathname === "/") return null
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0a0e17]/80 backdrop-blur-xl border-b border-white/5 h-20 w-full flex items-center justify-between px-6 lg:px-10">
+    <header className="sticky top-0 z-40 bg-[#060a13e6] backdrop-blur-xl border-b border-white/5 h-16 w-full flex items-center justify-between px-6 lg:px-8 transition-all">
       
-      <div className="flex flex-1 items-center">
-        <button onClick={toggleMenu} className="lg:hidden mr-6 text-gray-400 hover:text-white transition-all transform active:scale-90">
-          <Menu className="w-6 h-6" />
+      <div className="flex flex-1 items-center gap-6">
+        <button onClick={toggleMenu} className="lg:hidden text-gray-400 hover:text-white transition-all transform active:scale-90">
+          <Menu className="w-5 h-5" />
         </button>
-        {/* Search Bar */}
-        <div className="max-w-md hidden md:flex items-center w-full group">
+        
+        {/* Search Bar - Pill Shape */}
+        <div className="max-w-[400px] hidden md:flex items-center w-full group relative">
           <form onSubmit={handleSearch} className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-tvGreen transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-[#00e676] transition-colors" />
             <input 
               type="text" 
-              placeholder="Search ticker (e.g. AAPL, RELIANCE.NS)..." 
+              placeholder="Search stocks... (e.g., RELIANCE, TCS, AAPL)" 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 focus:border-tvGreen focus:ring-4 focus:ring-tvGreen/10 rounded-2xl pl-12 pr-4 py-3 text-sm text-foreground transition-all duration-300 outline-none font-bold placeholder:text-gray-600"
+              className="w-full bg-white/5 border border-white/10 focus:border-[#00e676] focus:ring-4 focus:ring-[#00e67610] rounded-full pl-11 pr-16 py-2.5 text-sm text-[#f0f4f8] transition-all duration-300 outline-none font-bold placeholder:text-[#5c6b7a]"
             />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] text-gray-500 font-black pointer-events-none">
+               <Command className="w-2.5 h-2.5" />
+               <span>K</span>
+            </div>
           </form>
         </div>
       </div>
 
-      <div className="flex items-center space-x-6 md:space-x-8">
-        <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-2 space-x-3 group cursor-pointer hover:bg-white/10 transition-all">
-           <div className="w-8 h-8 rounded-xl bg-tvGreen/20 flex items-center justify-center border border-tvGreen/30">
-              <User className="w-4 h-4 text-tvGreen" />
-           </div>
-           <div className="hidden lg:block">
-              <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest leading-none mb-1">Hey,</p>
-              <p className="text-xs text-white font-black tracking-tight leading-none">{userName}</p>
-           </div>
+      <div className="flex items-center space-x-6">
+        
+        <div className="hidden md:flex items-center">
+           <MarketSelector />
         </div>
 
+        <div className="h-4 w-px bg-white/5 mx-2" />
+
         <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-[10px] bg-tvAmber/10 text-tvAmber px-3 py-1.5 rounded-xl font-black shadow-lg shadow-tvAmber/10 border border-tvAmber/30 flex items-center tracking-[0.2em]">
-              <Zap className="w-3 h-3 mr-2" /> GOD MODE
-            </span>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center gap-2.5 px-3 py-1.5 bg-[#ffab00]/10 text-[#ffab00] border border-[#ffab00]/20 rounded-xl font-black text-[10px] tracking-widest shadow-lg shadow-[#ffab000a] animate-pulse">
+                <Zap className="w-3 h-3 fill-[#ffab00]" />
+                GOD MODE
+             </div>
           </div>
           
-          <div className="h-6 w-px bg-white/10 mx-2" />
-
-          <NotificationCenter />
-          
-          {mounted && <MarketSelector />}
+          <button className="relative p-2 text-gray-500 hover:text-white transition-colors group">
+             <Bell className="w-5 h-5 group-hover:animate-bounce" />
+             <span className="absolute top-1 right-1 w-2 h-2 bg-[#ff1744] rounded-full border-2 border-[#060a13]" />
+          </button>
 
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="text-gray-500 hover:text-white p-2 transition-all hover:rotate-12 active:scale-90"
+            className="text-gray-500 hover:text-white p-2 transition-all active:scale-90"
             title="Toggle Theme"
           >
             {mounted && (

@@ -2,54 +2,58 @@
 
 import { useStore } from "@/store/store"
 import { MARKETS } from "@/lib/markets"
+import { PulseDot } from "@/components/ui/PulseDot"
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { usePathname } from "next/navigation"
 
 export function BottomStatusBar() {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
-  const [time, setTime] = useState(new Date())
+  const [lastUpdate, setLastUpdate] = useState(0)
+  const pathname = usePathname()
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000)
+    const timer = setInterval(() => setLastUpdate(prev => prev + 1), 1000)
     return () => clearInterval(timer)
   }, [])
 
+  if (pathname === "/") return null
+
   return (
-    <div className="hidden md:flex fixed bottom-0 left-0 right-0 h-7 bg-[#0d1117] border-t border-white/5 z-[120] items-center px-4 justify-between text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2">
-           <div className="w-2 h-2 rounded-full bg-tvGreen pulse-dot" />
-           <span>System Operational</span>
+    <div className="hidden lg:flex fixed bottom-0 left-0 right-0 h-7 bg-[#060a13f2] backdrop-blur-md border-t border-white/5 z-[60] items-center px-4 justify-between select-none">
+      <div className="flex items-center space-x-6 text-[10px] font-mono font-black tracking-widest text-[#5c6b7a] uppercase">
+        <div className="flex items-center gap-2">
+           <PulseDot color="green" />
+           <span className="text-[#00e676]">Live Market Feed</span>
         </div>
-        <div className="h-3 w-px bg-white/10" />
-        <div className="flex items-center space-x-2">
-           <span className="text-white/40">Market:</span>
-           <span className="text-white">{marketConfig.name} ({marketConfig.exchangeCode})</span>
+        <div className="flex items-center gap-2">
+           <span className="text-white/20">|</span>
+           <span>Market: {marketConfig.name}</span>
         </div>
-        <div className="h-3 w-px bg-white/10" />
-        <div className="overflow-hidden w-64 relative group">
-           <motion.div 
-             animate={{ x: [-200, 200] }}
-             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-             className="whitespace-nowrap flex space-x-8"
-           >
-             {marketConfig.indices.map(idx => (
-               <span key={idx.symbol}>{idx.displaySymbol}: <span className="text-tvGreen">TRACKING</span></span>
-             ))}
-           </motion.div>
+        <div className="flex items-center gap-2">
+           <span className="text-white/20">|</span>
+           <span>NIFTY: <AnimatedNumber value={24150.35} decimals={2} /></span>
+           <span className="text-[#00e676]">(+0.82%)</span>
+        </div>
+        <div className="flex items-center gap-2">
+           <span className="text-white/20">|</span>
+           <span>SENSEX: <AnimatedNumber value={79502.12} decimals={2} /></span>
+           <span className="text-[#00e676]">(+0.55%)</span>
         </div>
       </div>
-      
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2">
-           <span className="text-white/40">Time:</span>
-           <span className="text-white font-mono">{time.toLocaleTimeString()}</span>
+
+      <div className="flex items-center space-x-6 text-[10px] font-mono font-black tracking-[0.2em] text-[#5c6b7a] uppercase">
+        <div className="flex items-center gap-2">
+           <span>Engine Status: <span className="text-[#00e676]">Optimal</span></span>
         </div>
-        <div className="h-3 w-px bg-white/10" />
-        <div className="flex items-center space-x-1">
-           <span className="text-tvBlue">StoxPilot</span>
-           <span className="text-white/20">v1.1.0-PREMIUM</span>
+        <div className="flex items-center gap-2">
+           <span className="text-white/20">|</span>
+           <span>Updated: {lastUpdate}s Ago</span>
+        </div>
+        <div className="flex items-center gap-2">
+           <span className="text-white/20">|</span>
+           <span className="text-white/40">StoxPilot Private Terminal v2.1</span>
         </div>
       </div>
     </div>

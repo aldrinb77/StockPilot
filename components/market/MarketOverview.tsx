@@ -7,6 +7,7 @@ import { useStore } from "@/store/store"
 import { MARKETS } from "@/lib/markets"
 import { motion } from "framer-motion"
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
+import { PulseDot } from "@/components/ui/PulseDot"
 import { TrendingUp, TrendingDown, Activity } from "lucide-react"
 
 import { useEffect, useState } from "react"
@@ -16,7 +17,7 @@ import { StockData } from "@/lib/types"
 export function MarketOverview() {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
-  const [data, setData] = useState<(StockData & { isMockData?: boolean })[]>([])
+  const [data, setData] = useState<StockData[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -38,74 +39,58 @@ export function MarketOverview() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
       {marketConfig.indices.map((index, i) => {
-        if (loading) {
-          return (
-            <div key={index.symbol} className="glass-card p-6 rounded-2xl border border-white/5 animate-pulse">
-               <div className="h-4 w-24 bg-white/5 rounded-full mb-4" />
-               <div className="h-8 w-32 bg-white/5 rounded-xl mb-8" />
-               <div className="flex justify-between items-end">
-                  <div className="space-y-2">
-                     <div className="h-6 w-20 bg-white/5 rounded" />
-                     <div className="h-3 w-12 bg-white/5 rounded" />
-                  </div>
-                  <div className="h-10 w-20 bg-white/5 rounded" />
-               </div>
-            </div>
-          )
-        }
-
         const stock = data.find(d => d.symbol === index.symbol)
         const price = stock?.price ?? 0
         const changePercent = stock?.changePercent ?? 0
         const isUp = changePercent >= 0
         const history = Array.from({length: 20}, (_, x) => price + Math.sin(x/3) * (price * 0.01))
 
+        if (loading) {
+           return <div key={index.symbol} className="glass-card h-40 w-full animate-pulse bg-white/5 border border-white/5 rounded-3xl" />
+        }
+
         return (
           <motion.div 
             key={index.symbol}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
-            className={`glass-card relative overflow-hidden p-6 group cursor-pointer border border-white/5`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.05 }}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className={`glass-card p-6 border border-white/5 group relative h-full flex flex-col justify-between overflow-hidden`}
           >
-             {/* Sample Badge */}
-             {stock?.isMockData && (
-                <div className="absolute top-2 left-2 z-20">
-                   <span className="text-[7px] font-black bg-tvAmber/20 text-tvAmber px-1 rounded">SAMPLE</span>
+             {/* Gradient Accent */}
+             <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] opacity-10 group-hover:opacity-20 transition-opacity ${isUp ? 'bg-[#00e676]' : 'bg-[#ff1744]'}`} />
+             
+             <div className="flex justify-between items-start z-10">
+                <div className="space-y-1">
+                   <p className="text-[10px] font-black text-[#5c6b7a] uppercase tracking-[0.2em]">{index.name}</p>
+                   <h3 className="text-xl font-black text-white tracking-tighter uppercase">{index.displaySymbol}</h3>
                 </div>
-             )}
-            {/* Sentiment Glow */}
-            <div className={`absolute top-0 right-0 w-24 h-24 blur-[50px] opacity-10 group-hover:opacity-20 transition-opacity ${isUp ? 'bg-tvGreen' : 'bg-tvRed'}`} />
-            
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                 <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">{index.name}</span>
-                    <div className={`p-1.5 rounded-lg ${isUp ? 'bg-tvGreen/10 text-tvGreen' : 'bg-tvRed/10 text-tvRed'} border border-white/5`}>
-                       {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                    </div>
-                 </div>
-                 <h3 className="text-2xl font-black text-white tracking-tighter flex items-center">
-                    {index.displaySymbol}
-                    <Activity className="w-3 h-3 ml-2 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                 </h3>
-              </div>
+                <div className={cn(
+                   "px-3 py-1.5 rounded-xl border flex items-center gap-2",
+                   isUp ? "bg-[#00e67610] border-[#00e67620] text-[#00e676]" : "bg-[#ff174410] border-[#ff174420] text-[#ff1744]"
+                )}>
+                   {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                   <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                      {isUp ? '+' : ''}{changePercent.toFixed(2)}%
+                   </span>
+                </div>
+             </div>
 
-              <div className="mt-8 flex items-end justify-between">
-                 <div>
-                    <div className="text-xl font-mono font-black text-white tracking-tighter mb-1">
-                       <AnimatedNumber value={price} prefix={marketConfig.currencySymbol} decimals={0} />
-                    </div>
-                    <p className={`text-[10px] font-black tracking-widest uppercase flex items-center ${isUp ? 'text-tvGreen' : 'text-tvRed'}`}>
-                       {isUp ? '+' : ''}<AnimatedNumber value={changePercent} suffix="%" decimals={2} />
-                    </p>
-                 </div>
-                 <div className="w-[80px] h-[40px] opacity-40 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 transition-transform">
-                    <Sparkline data={history} color={isUp ? "#10B981" : "#ef4444"} />
-                 </div>
-              </div>
-            </div>
+             <div className="mt-8 flex items-end justify-between z-10">
+                <div className="space-y-1">
+                   <div className="text-2xl font-black text-white font-mono tracking-tighter">
+                      <AnimatedNumber value={price} prefix={marketConfig.currencySymbol} decimals={0} />
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <PulseDot color={isUp ? 'green' : 'red'} />
+                      <span className="text-[9px] font-black text-[#8899a6] uppercase tracking-widest">LIVE DATA FEED</span>
+                   </div>
+                </div>
+                <div className="w-[100px] h-[50px] opacity-20 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                   <Sparkline data={history} color={isUp ? "#00e676" : "#ff1744"} />
+                </div>
+             </div>
           </motion.div>
         )
       })}
@@ -113,3 +98,6 @@ export function MarketOverview() {
   )
 }
 
+function cn(...classes: string[]) {
+   return classes.filter(Boolean).join(' ')
+}

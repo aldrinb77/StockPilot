@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, BookOpen, Clock } from "lucide-react"
+import { ArrowRight, BookOpen, Clock, Shield, Terminal } from "lucide-react"
 
 interface GuideCardProps {
   guide: {
@@ -17,24 +17,32 @@ export function GuideCard({ guide }: GuideCardProps) {
   return (
     <Link 
       href={`/learn/${guide.slug}`}
-      className="bg-[#1E222D] border border-gray-700/50 hover:border-tvGreen/50 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-tvGreen/10 flex flex-col h-full group"
+      className="glass-card p-10 rounded-[2.5rem] border border-white/5 hover:border-[#2979ff40] flex flex-col h-full group relative overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="w-12 h-12 bg-[#131722] rounded-lg border border-gray-700/50 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-[#2979ff] blur-[70px] opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none" />
+      
+      <div className="flex items-center justify-between mb-8">
+        <div className="w-16 h-16 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center text-3xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl">
           {guide.icon}
         </div>
-        <div className="flex items-center text-xs text-gray-400 font-medium bg-gray-800/50 px-2 py-1 rounded-full">
-          <Clock className="w-3 h-3 mr-1" />
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-[#8899a6] uppercase tracking-widest">
+          <Clock className="w-3.5 h-3.5" />
           {guide.readTime}
         </div>
       </div>
       
-      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-tvGreen transition-colors">{guide.title}</h3>
-      <p className="text-gray-400 text-sm leading-relaxed flex-grow">{guide.description}</p>
+      <div className="space-y-3 mb-10 flex-grow">
+         <h3 className="text-2xl font-black text-white tracking-tighter uppercase group-hover:text-[#2979ff] transition-colors duration-300">{guide.title}</h3>
+         <p className="text-[#8899a6] font-bold text-sm leading-relaxed">{guide.description}</p>
+      </div>
       
-      <div className="mt-6 flex items-center font-bold text-sm text-tvGreen uppercase tracking-wider">
-        Read Guide
-        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+        <div className="flex items-center gap-2 text-[10px] font-black text-[#2979ff] uppercase tracking-[0.2em]">
+           <Terminal className="w-3.5 h-3.5" /> Start Protocol
+        </div>
+        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#2979ff] group-hover:text-white transition-all transform group-hover:translate-x-1">
+           <ArrowRight className="w-5 h-5" />
+        </div>
       </div>
     </Link>
   )

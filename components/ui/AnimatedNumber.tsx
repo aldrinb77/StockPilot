@@ -1,43 +1,44 @@
-"use client"
-
-import { useEffect, useRef } from "react"
-import { useMotionValue, useSpring, useInView, animate } from "framer-motion"
+"use client";
+import { useEffect, useRef, useState } from 'react';
 
 export function AnimatedNumber({ 
   value, 
-  prefix = "", 
-  suffix = "", 
-  decimals = 0 
-}: { 
-  value: number, 
-  prefix?: string, 
-  suffix?: string, 
-  decimals?: number 
+  prefix = '', 
+  suffix = '', 
+  decimals = 2,
+  duration = 1000 
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  duration?: number;
 }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const motionValue = useMotionValue(0)
-  const springValue = useSpring(motionValue, {
-    damping: 30,
-    stiffness: 100,
-  })
-  const isInView = useInView(ref, { once: true, margin: "-50px" })
-
+  const [displayValue, setDisplayValue] = useState(0);
+  const startTime = useRef(Date.now());
+  const startValue = useRef(0);
+  
   useEffect(() => {
-    if (isInView) {
-      animate(motionValue, value, { duration: 1 })
-    }
-  }, [isInView, value, motionValue])
+    startValue.current = displayValue;
+    startTime.current = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      
+      const current = startValue.current + (value - startValue.current) * eased;
+      setDisplayValue(current);
+      
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    
+    requestAnimationFrame(animate);
+  }, [value, duration]);
 
-  useEffect(() => {
-    springValue.on("change", (latest) => {
-      if (ref.current) {
-        ref.current.textContent = `${prefix}${latest.toLocaleString(undefined, {
-          minimumFractionDigits: decimals,
-          maximumFractionDigits: decimals,
-        })}${suffix}`
-      }
-    })
-  }, [springValue, prefix, suffix, decimals])
-
-  return <span ref={ref} className="tabular-numbers" />
+  return (
+    <span className="tabular-nums font-mono">
+      {prefix}{displayValue.toFixed(decimals)}{suffix}
+    </span>
+  );
 }

@@ -9,7 +9,9 @@ import { useStore } from '@/store/store'
 import { MARKETS } from '@/lib/markets'
 import { fetchMultipleQuotes } from '@/lib/api'
 import { generateSignal } from '@/lib/signals'
-import { Search, Sparkles, Filter, Terminal } from 'lucide-react'
+import { Search, Sparkles, Filter, Terminal, Activity, Database } from 'lucide-react'
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/ui/FadeIn'
+import { PulseDot } from '@/components/ui/PulseDot'
 
 export default function ScreenerPage() {
   const { selectedMarket } = useStore()
@@ -24,13 +26,7 @@ export default function ScreenerPage() {
       try {
         const symbols = marketConfig.popularStocks.map(s => s.symbol)
         const quotes = await fetchMultipleQuotes(symbols)
-        
-        const mapped = quotes.map(q => ({
-          ...q,
-          signal: generateSignal([] as any) 
-        }))
-        
-        setData(mapped)
+        setData(quotes.map(q => ({ ...q, signal: generateSignal([] as any) })))
       } catch (err) {
         console.error('Screener fetch failed:', err)
       } finally {
@@ -42,11 +38,8 @@ export default function ScreenerPage() {
 
   const filteredData = useMemo(() => {
     return data.filter(item => {
-      // Signal
       if (filters.signal !== 'ALL' && !item.signal.type.includes(filters.signal)) return false;
-      // Sector
       if (filters.sector !== 'ALL' && item.sector !== filters.sector) return false;
-      // Price
       if (filters.price !== 'ALL') {
         if (filters.price === 'UNDER_50' && item.price >= 50) return false;
         if (filters.price === '50_TO_100' && (item.price < 50 || item.price >= 100)) return false;
@@ -58,61 +51,84 @@ export default function ScreenerPage() {
   }, [data, filters])
 
   return (
-    <div className="space-y-12 animate-in fade-in pb-20 max-w-7xl mx-auto px-6">
-      
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-10">
-        <div className="space-y-2">
-           <div className="flex items-center space-x-2 text-tvGreen">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Quantum Filter</span>
+    <FadeIn>
+      <div className="space-y-12 pb-20 max-w-7xl mx-auto px-6">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-10">
+          <div className="space-y-2">
+             <div className="flex items-center space-x-2 text-[#00e676]">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Quantum Market Filter</span>
+             </div>
+             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-4">
+               <Terminal className="w-8 h-8 text-white/20" /> 
+               Asset Screener
+             </h1>
+             <p className="text-[#8899a6] font-bold text-lg max-w-2xl">
+               Expose precise structural advantages across the {marketConfig.name} universe using multifaceted algorithmic filters.
+             </p>
+          </div>
+          <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl">
+             <PulseDot color="green" />
+             <p className="text-[10px] font-black uppercase text-white/60 tracking-widest">Scanning {data.length} Nodes</p>
+          </div>
+        </div>
+
+        <div className="glass-card p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+           <div className="absolute top-0 right-0 w-48 h-48 bg-[#00e676] blur-[100px] opacity-[0.03] pointer-events-none" />
+           <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-4">
+                 <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-[#00e676]">
+                    <Filter className="w-5 h-5" />
+                 </div>
+                 <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Filter Configuration</h3>
+              </div>
+              <div className="text-[10px] font-black text-[#8899a6] uppercase tracking-widest bg-white/5 px-4 py-2 rounded-xl">
+                 Institutional Logic 2.1
+              </div>
            </div>
-           <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-4">
-             <Terminal className="w-8 h-8 text-white/20" /> 
-             Market Screener
-           </h1>
-           <p className="text-gray-500 font-medium max-w-xl">
-             Filter the {marketConfig.name} universe exclusively using algorithmic indicators to expose precise structural advantages.
-           </p>
-        </div>
-      </div>
-
-      <div className="glass-card p-8 rounded-[2rem] border border-white/5">
-        <div className="flex items-center gap-3 mb-8">
-           <Filter className="w-5 h-5 text-tvGreen" />
-           <h3 className="text-sm font-black text-white uppercase tracking-widest">Configuration Panel</h3>
-        </div>
-        <FilterPanel onFilterChange={setFilters} />
-      </div>
-
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-           <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-tvGreen" />
-              <h2 className="text-xl font-black text-white tracking-tight uppercase tracking-widest">System Results</h2>
-           </div>
-           <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-              Identified <span className="text-tvGreen">{filteredData.length}</span> / {data.length} Assets
-           </p>
+           <FilterPanel onFilterChange={setFilters} />
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-80 w-full rounded-3xl shimmer" />)}
+        <div className="space-y-10">
+          <div className="flex items-center justify-between">
+             <div className="flex items-center gap-4">
+                <div className="w-2 h-8 bg-[#00e676] rounded-full" />
+                <h2 className="text-2xl font-black text-white tracking-tighter uppercase transition-all">Command Results</h2>
+             </div>
+             <div className="flex items-center gap-6">
+                <p className="text-[10px] font-black text-[#5c6b7a] uppercase tracking-widest">
+                   IDENTIFIED: <span className="text-[#00e676]">{filteredData.length}</span> / {data.length} OPERATIONAL TARGETS
+                </p>
+             </div>
           </div>
-        ) : filteredData.length === 0 ? (
-          <div className="text-center py-32 glass-card rounded-[2.5rem] border-2 border-dashed border-white/5">
-            <div className="text-4xl mb-6 opacity-30 cursor-pointer hover:scale-110 transition-transform">🔍</div>
-            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Zero Alignment Filtered</h3>
-            <p className="text-sm text-gray-500 font-medium max-w-sm mx-auto">Try broadening your search criteria. Currently scanning with high-precision threshold.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-8">
-            {filteredData.map(item => (
-              <SignalCard key={item.symbol} stock={item} signal={item.signal} />
-            ))}
-          </div>
-        )}
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-96 w-full rounded-3xl shimmer" />)}
+            </div>
+          ) : filteredData.length === 0 ? (
+            <div className="text-center py-40 glass-card rounded-[3rem] border-2 border-dashed border-white/5 space-y-8">
+              <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto opacity-20">
+                 <Database className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                 <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tighter">Zero Correlation Detected</h3>
+                 <p className="text-[#8899a6] font-bold max-w-sm mx-auto">Try broadening your search parameters. No assets currently align with your strict mathematical threshold.</p>
+              </div>
+              <button onClick={() => window.location.reload()} className="px-8 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all">Clear All Filters</button>
+            </div>
+          ) : (
+            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-10">
+              {filteredData.map(item => (
+                <StaggerItem key={item.symbol}>
+                   <SignalCard stock={item} signal={item.signal} />
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          )}
+        </div>
       </div>
-    </div>
+    </FadeIn>
   )
 }
