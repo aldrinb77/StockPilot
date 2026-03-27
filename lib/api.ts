@@ -189,19 +189,31 @@ function getMockQuote(symbol: string): StockData {
   const mockStock = MOCK_STOCKS.find(s => s.symbol === symbol);
   if (mockStock) return mockStock;
   
-  const mockPrice = 150 + Math.random() * 50;
-  const mockChange = (Math.random() * 10) - 5;
+  // Provide realistic starting prices for common indices if mock
+  let basePrice = 150 + Math.random() * 50;
+  if (symbol.includes('GSPC') || symbol.includes('SPX')) basePrice = 5200;
+  if (symbol.includes('IXIC') || symbol.includes('NDX')) basePrice = 16000;
+  if (symbol.includes('DJI')) basePrice = 39000;
+  if (symbol.includes('NIFTY50') || symbol.includes('NSEI')) basePrice = 22500;
+  if (symbol.includes('SENSEX') || symbol.includes('BSESN')) basePrice = 74000;
+  if (symbol.includes('BANKNIFTY')) basePrice = 48000;
+  if (symbol.includes('NIFTYIT')) basePrice = 35000;
+  if (symbol.includes('FTSE')) basePrice = 79000;
+  if (symbol.includes('DAX') || symbol.includes('GDAXI')) basePrice = 18000;
+  
+  const mockPrice = basePrice + (Math.random() * (basePrice * 0.01));
+  const mockChange = (Math.random() * (basePrice * 0.02)) - (basePrice * 0.01);
   
   return {
     symbol,
     name: symbol,
-    sector: 'Unknown',
+    sector: 'Index / Sector',
     price: mockPrice,
     change: mockChange,
     changePercent: (mockChange / (mockPrice - mockChange)) * 100,
     volume: 1000000 + Math.floor(Math.random() * 5000000),
-    high: mockPrice + 5,
-    low: mockPrice - 5,
+    high: mockPrice + (basePrice * 0.005),
+    low: mockPrice - (basePrice * 0.005),
     open: mockPrice - mockChange,
     prevClose: mockPrice - mockChange,
     marketCap: 0,

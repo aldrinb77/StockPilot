@@ -69,10 +69,10 @@ export const MARKETS: Record<MarketRegion, MarketConfig> = {
     marketHours: { open: '09:15', close: '15:30', timezone: 'Asia/Kolkata' },
     symbolSuffix: '.NS',
     indices: [
-      { symbol: '^NSEI', name: 'NIFTY 50', displaySymbol: 'NIFTY' },
-      { symbol: '^BSESN', name: 'SENSEX', displaySymbol: 'SENSEX' },
-      { symbol: '^NSEBANK', name: 'BANK NIFTY', displaySymbol: 'BANKNIFTY' },
-      { symbol: '^CNXIT', name: 'NIFTY IT', displaySymbol: 'NIFTYIT' },
+      { symbol: 'NIFTY50', name: 'NIFTY 50', displaySymbol: 'NIFTY' },
+      { symbol: 'SENSEX', name: 'SENSEX', displaySymbol: 'SENSEX' },
+      { symbol: 'BANKNIFTY', name: 'BANK NIFTY', displaySymbol: 'BANKNIFTY' },
+      { symbol: 'NIFTYIT', name: 'NIFTY IT', displaySymbol: 'NIFTYIT' },
     ],
     popularStocks: [
       { symbol: 'RELIANCE.NS', name: 'Reliance Industries', sector: 'Energy' },

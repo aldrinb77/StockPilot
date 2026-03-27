@@ -35,6 +35,7 @@ import {
 import Link from 'next/link'
 
 import { fetchMultipleQuotes } from '@/lib/api'
+import { getDynamicMockSignal } from '@/lib/signals'
 
 export default function DashboardPage() {
   const { selectedMarket, dashboardLayout, watchlist } = useStore()
@@ -64,7 +65,7 @@ export default function DashboardPage() {
         
         const mapped = quotes.map(q => ({
           ...q,
-          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+          signal: MOCK_SIGNALS[q.symbol] || getDynamicMockSignal(q)
         }))
         
         setData(mapped)
@@ -90,7 +91,7 @@ export default function DashboardPage() {
           }
           return {
             ...mockStock as StockData,
-            signal: MOCK_SIGNALS[s.symbol] || MOCK_SIGNALS['META'],
+            signal: MOCK_SIGNALS[s.symbol] || getDynamicMockSignal(mockStock as StockData),
             isMockData: true
           }
         })
@@ -107,8 +108,8 @@ export default function DashboardPage() {
 
   const stats = useMemo(() => {
     const total = data.length
-    const bullish = data.filter(s => s.signal.type.includes('BUY')).length
-    const bearish = data.filter(s => s.signal.type.includes('SELL')).length
+    const bullish = data.filter(s => s.signal.type.includes('BULLISH')).length
+    const bearish = data.filter(s => s.signal.type.includes('BEARISH')).length
     const watched = watchlist.length
     
     return {
@@ -125,8 +126,8 @@ export default function DashboardPage() {
      return <DashboardSkeleton />
   }
 
-  const buySignals = data.filter(s => s.signal.type.includes('BUY')).sort((a,b) => b.signal.strength - a.signal.strength).slice(0, 5)
-  const sellSignals = data.filter(s => s.signal.type.includes('SELL')).sort((a,b) => b.signal.strength - a.signal.strength).slice(0, 5)
+  const buySignals = data.filter(s => s.signal.type.includes('BULLISH')).sort((a,b) => b.signal.strength - a.signal.strength).slice(0, 5)
+  const sellSignals = data.filter(s => s.signal.type.includes('BEARISH')).sort((a,b) => b.signal.strength - a.signal.strength).slice(0, 5)
   const gainers = [...data].sort((a,b) => b.changePercent - a.changePercent).slice(0, 5)
   const losers = [...data].sort((a,b) => a.changePercent - b.changePercent).slice(0, 5)
 

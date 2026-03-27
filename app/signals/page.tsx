@@ -11,6 +11,7 @@ import { MARKETS } from '@/lib/markets'
 import { useEffect } from 'react'
 import { fetchMultipleQuotes } from '@/lib/api'
 import { StockData, Signal } from '@/lib/types'
+import { getDynamicMockSignal } from '@/lib/signals'
 
 export default function SignalsPage() {
   const { selectedMarket } = useStore()
@@ -28,7 +29,7 @@ export default function SignalsPage() {
         
         const mapped = quotes.map(q => ({
           ...q,
-          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+          signal: MOCK_SIGNALS[q.symbol] || getDynamicMockSignal(q)
         }))
         
         setData(mapped.sort((a,b) => b.signal.strength - a.signal.strength))
