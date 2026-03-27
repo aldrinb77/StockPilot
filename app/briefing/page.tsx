@@ -26,7 +26,7 @@ export default function DailyBriefing() {
       setLoading(true)
       try {
         const symbol = 'AAPL' // Could be dynamic from marketConfig.popularStocks[0]
-        const quote = await fetchStockQuote(symbol)
+        const quote = await fetchStockQuote(symbol, true)
         setTopStock({
           ...quote,
           signal: MOCK_SIGNALS[symbol] || MOCK_SIGNALS['META']

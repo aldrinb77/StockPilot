@@ -2,6 +2,30 @@ import { StockData, OHLCV } from './types';
 import { POPULAR_STOCKS } from './constants';
 import { MOCK_STOCKS, getMockHistoricalData } from './mockData';
 import { MarketRegion, MARKETS } from './markets';
+import { TWELVE_DATA_API_KEY } from './apiConfig';
+
+const CACHE_KEY_PREFIX = 'stoxpilot_quote_';
+const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
+
+function getCachedQuote(symbol: string): StockData | null {
+  if (typeof window === 'undefined') return null;
+  const cached = sessionStorage.getItem(`${CACHE_KEY_PREFIX}${symbol}`);
+  if (!cached) return null;
+  const { data, timestamp } = JSON.parse(cached);
+  if (Date.now() - timestamp > CACHE_TIME) {
+    sessionStorage.removeItem(`${CACHE_KEY_PREFIX}${symbol}`);
+    return null;
+  }
+  return data;
+}
+
+function setCachedQuote(symbol: string, data: StockData) {
+  if (typeof window === 'undefined') return;
+  sessionStorage.setItem(`${CACHE_KEY_PREFIX}${symbol}`, JSON.stringify({
+    data,
+    timestamp: Date.now()
+  }));
+}
 
 function getSymbolWithSuffix(symbol: string, market: MarketRegion): string {
   const config = MARKETS[market];
@@ -26,24 +50,21 @@ export async function fetchWithTimeout(url: string, options: RequestInit = {}, t
   }
 }
 
-export async function fetchStockQuote(symbol: string): Promise<StockData & { isMockData?: boolean }> {
-  const apiKey = process.env.NEXT_PUBLIC_TWELVE_DATA_API_KEY;
-  
-  if (!apiKey) {
-    console.warn('No API key found, using mock data');
-    const mock = getMockQuote(symbol);
-    return { ...mock, isMockData: true };
+export async function fetchStockQuote(symbol: string, skipCache = false): Promise<StockData & { isMockData?: boolean }> {
+  if (!skipCache) {
+    const cached = getCachedQuote(symbol);
+    if (cached) return cached;
+  }
+
+  if (!TWELVE_DATA_API_KEY || (TWELVE_DATA_API_KEY as string) === "PASTE_YOUR_KEY_HERE") {
+    console.warn('Twelve Data API Key not configured correctly in /lib/apiConfig.ts');
+    return { ...getMockQuote(symbol), isMockData: true };
   }
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
     const response = await fetch(
-      `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${apiKey}`,
-      { signal: controller.signal }
+      `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbol)}&apikey=${TWELVE_DATA_API_KEY}`
     );
-    clearTimeout(timeoutId);
 
     if (!response.ok) throw new Error('API response not ok');
     
@@ -53,7 +74,7 @@ export async function fetchStockQuote(symbol: string): Promise<StockData & { isM
       throw new Error(data.message || 'API error');
     }
 
-    return {
+    const result = {
       symbol: data.symbol || symbol,
       name: data.name || symbol,
       sector: '',
@@ -71,10 +92,12 @@ export async function fetchStockQuote(symbol: string): Promise<StockData & { isM
       week52High: parseFloat(data.fifty_two_week?.high) || 0,
       week52Low: parseFloat(data.fifty_two_week?.low) || 0,
     };
+
+    setCachedQuote(symbol, result);
+    return result;
   } catch (error) {
     console.warn(`Failed to fetch quote for ${symbol}:`, error);
-    const mock = getMockQuote(symbol);
-    return { ...mock, isMockData: true };
+    return { ...getMockQuote(symbol), isMockData: true };
   }
 }
 
@@ -83,9 +106,7 @@ export async function fetchHistoricalData(
   range: string = '3mo',
   interval: string = '1day'
 ): Promise<OHLCV[]> {
-  const apiKey = process.env.NEXT_PUBLIC_TWELVE_DATA_API_KEY;
-  
-  if (!apiKey) {
+  if (!TWELVE_DATA_API_KEY || (TWELVE_DATA_API_KEY as string) === "PASTE_YOUR_KEY_HERE") {
     return getMockHistorical(symbol);
   }
 
@@ -96,14 +117,9 @@ export async function fetchHistoricalData(
   const outputsize = sizeMap[range] || 200;
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
     const response = await fetch(
-      `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&apikey=${apiKey}`,
-      { signal: controller.signal }
+      `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symbol)}&interval=${interval}&outputsize=${outputsize}&apikey=${TWELVE_DATA_API_KEY}`
     );
-    clearTimeout(timeoutId);
 
     if (!response.ok) throw new Error('API failed');
     
@@ -132,14 +148,22 @@ export async function fetchMultipleQuotes(
 ): Promise<(StockData & { isMockData?: boolean })[]> {
   const results: (StockData & { isMockData?: boolean })[] = [];
   
+  // To avoid hitting Twelve Data free tier limits (8 req/min)
+  // we only fetch the first 5 stocks in common lists (screener/dashboard)
+  // The rest are mocked for performance
   for (let i = 0; i < symbols.length; i++) {
     try {
-      const quote = await fetchStockQuote(symbols[i]);
-      results.push(quote);
-      
-      // Rate limit: wait 1 second between requests
-      if (i < symbols.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      if (i < 5) {
+        const quote = await fetchStockQuote(symbols[i]);
+        results.push(quote);
+        
+        // Rate limit within individual requests: wait 1.2s between calls to stay under 8/min
+        if (i < 4 && i < symbols.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1200));
+        }
+      } else {
+        // Mock the rest of the list
+        results.push({ ...getMockQuote(symbols[i]), isMockData: true });
       }
     } catch (error) {
       const mock = getMockQuote(symbols[i]);

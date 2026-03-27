@@ -31,7 +31,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
     const loadData = async () => {
       setLoading(true)
       try {
-        const quote = await fetchStockQuote(symbol)
+        const quote = await fetchStockQuote(symbol, true)
         const hist = await fetchHistoricalData(symbol)
         
         setStock(quote)
