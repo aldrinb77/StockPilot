@@ -1,21 +1,20 @@
 "use client"
 
 import { useEffect, useState, useMemo } from 'react'
-import { MOCK_STOCKS, MOCK_SIGNALS } from '@/lib/mockData'
 import { StockData, Signal } from '@/lib/types'
 import { SignalCard } from '@/components/signals/SignalCard'
 import { FilterPanel } from '@/components/screener/FilterPanel'
 import { Skeleton } from '@/components/ui/skeleton'
-
 import { useStore } from '@/store/store'
 import { MARKETS } from '@/lib/markets'
-
 import { fetchMultipleQuotes } from '@/lib/api'
+import { generateSignal } from '@/lib/signals'
+import { Search, Sparkles, Filter, Terminal } from 'lucide-react'
 
 export default function ScreenerPage() {
   const { selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
-  const [data, setData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
+  const [data, setData] = useState<(StockData & { signal: Signal })[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({ signal: 'ALL', sector: 'ALL', price: 'ALL' })
 
@@ -28,13 +27,12 @@ export default function ScreenerPage() {
         
         const mapped = quotes.map(q => ({
           ...q,
-          signal: MOCK_SIGNALS[q.symbol] || MOCK_SIGNALS['META']
+          signal: generateSignal([] as any) 
         }))
         
         setData(mapped)
       } catch (err) {
         console.error('Screener fetch failed:', err)
-        // Fallback to mock locally if desired, but fetchMultipleQuotes already handles fallback
       } finally {
         setLoading(false)
       }
@@ -60,40 +58,61 @@ export default function ScreenerPage() {
   }, [data, filters])
 
   return (
-    <div className="space-y-6 animate-in fade-in pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-2">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">{marketConfig.name} Stock Screener</h1>
-          <p className="text-gray-400 mt-2 text-sm max-w-lg">Filter {marketConfig.exchangeName} exclusively using algorithmic, AI-free technical indicators to expose precise structural advantages.</p>
+    <div className="space-y-12 animate-in fade-in pb-20 max-w-7xl mx-auto px-6">
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-10">
+        <div className="space-y-2">
+           <div className="flex items-center space-x-2 text-tvGreen">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Quantum Filter</span>
+           </div>
+           <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-4">
+             <Terminal className="w-8 h-8 text-white/20" /> 
+             Market Screener
+           </h1>
+           <p className="text-gray-500 font-medium max-w-xl">
+             Filter the {marketConfig.name} universe exclusively using algorithmic indicators to expose precise structural advantages.
+           </p>
         </div>
       </div>
 
-      <FilterPanel onFilterChange={setFilters} />
-
-      <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-        <h2 className="text-lg font-bold text-white">Results</h2>
-        <p className="text-sm font-medium text-gray-400">
-          Showing <span className="text-tvGreen font-bold">{filteredData.length}</span> of {data.length} stocks
-        </p>
+      <div className="glass-card p-8 rounded-[2rem] border border-white/5">
+        <div className="flex items-center gap-3 mb-8">
+           <Filter className="w-5 h-5 text-tvGreen" />
+           <h3 className="text-sm font-black text-white uppercase tracking-widest">Configuration Panel</h3>
+        </div>
+        <FilterPanel onFilterChange={setFilters} />
       </div>
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-[350px] w-full rounded-xl" />)}
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+           <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-tvGreen" />
+              <h2 className="text-xl font-black text-white tracking-tight uppercase tracking-widest">System Results</h2>
+           </div>
+           <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+              Identified <span className="text-tvGreen">{filteredData.length}</span> / {data.length} Assets
+           </p>
         </div>
-      ) : filteredData.length === 0 ? (
-        <div className="text-center py-20 bg-[#1E222D] rounded-xl border border-gray-700/50">
-          <span className="text-4xl mb-4 block">🔍</span>
-          <h3 className="text-lg font-semibold text-white mb-2">No stocks match your exact filters</h3>
-          <p className="text-gray-400 text-sm">Try broadening your search criteria.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-          {filteredData.map(item => (
-            <SignalCard key={item.symbol} stock={item} signal={item.signal} />
-          ))}
-        </div>
-      )}
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-80 w-full rounded-3xl shimmer" />)}
+          </div>
+        ) : filteredData.length === 0 ? (
+          <div className="text-center py-32 glass-card rounded-[2.5rem] border-2 border-dashed border-white/5">
+            <div className="text-4xl mb-6 opacity-30 cursor-pointer hover:scale-110 transition-transform">🔍</div>
+            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Zero Alignment Filtered</h3>
+            <p className="text-sm text-gray-500 font-medium max-w-sm mx-auto">Try broadening your search criteria. Currently scanning with high-precision threshold.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-8">
+            {filteredData.map(item => (
+              <SignalCard key={item.symbol} stock={item} signal={item.signal} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -10,16 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        tvGreen: "var(--accent-color)", // Dynamically controlled accent
-        tvRed: "#FF4757", // Vibrant Premium Red
-        tvAmber: "#FFB347",
-        tvBlue: "#4E8CFF",
-        tvPurple: "#A855F7",
-        accent: "var(--accent-color)",
-        card: "var(--card-bg)",
-        cardElevated: "var(--card-elevated)",
+        bgDeepest: "var(--bg-deepest)",
+        bgDeep: "var(--bg-deep)",
+        bgCard: "var(--bg-card)",
+        bgElevated: "var(--bg-elevated)",
+        bgHover: "var(--bg-hover)",
+        tvGreen: "var(--green)",
+        tvGreenDim: "var(--green-dim)",
+        tvRed: "var(--red)",
+        tvRedDim: "var(--red-dim)",
+        tvAmber: "var(--amber)",
+        tvBlue: "var(--blue)",
+        tvPurple: "var(--purple)",
+        tvCyan: "var(--cyan)",
+        textPrimary: "var(--text-primary)",
+        textSecondary: "var(--text-secondary)",
+        textMuted: "var(--text-muted)",
+        borderMain: "var(--border)",
+        borderHover: "var(--border-hover)",
       },
       fontFamily: {
         heading: ["var(--font-heading)", "sans-serif"],
@@ -30,6 +38,7 @@ const config: Config = {
         "shimmer": "shimmer 2s linear infinite",
         "pulse-glow": "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "float": "float 6s ease-in-out infinite",
+        "mesh-gradient": "meshGradient 30s ease infinite",
       },
       keyframes: {
         shimmer: {
@@ -43,7 +52,19 @@ const config: Config = {
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
+        },
+        meshGradient: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
         }
+      },
+      backgroundImage: {
+        'gradient-card': 'var(--gradient-card)',
+        'gradient-green': 'var(--gradient-green)',
+        'gradient-red': 'var(--gradient-red)',
+        'gradient-blue': 'var(--gradient-blue)',
+        'gradient-purple': 'var(--gradient-purple)',
       }
     },
   },

@@ -1,18 +1,14 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { Search, Moon, Sun, Menu, Bell } from "lucide-react"
-import { useStore } from "@/store/store"
+import { Search, Moon, Sun, Menu, Zap, User } from "lucide-react"
 import { useMenuStore } from "@/store/useMenuStore"
 import { useState, useEffect } from "react"
 import { useTheme } from "../ThemeProvider"
 import { useRouter } from "next/navigation"
 import { NotificationCenter } from "@/components/notifications/NotificationCenter"
-import { useAppMode } from "@/hooks/useAppMode"
-import { enableGodMode, disableGodMode } from '@/lib/simpleAuth'
-import { Zap } from "lucide-react"
-
 import { MarketSelector } from "@/components/market/MarketSelector"
+import { useUserProfile } from "@/hooks/useUserProfile"
 
 export default function TopBar() {
   const pathname = usePathname()
@@ -21,12 +17,8 @@ export default function TopBar() {
   const { theme, setTheme } = useTheme()
   const [search, setSearch] = useState('')
   const router = useRouter()
-  const { isGodMode: godMode, refreshMode } = useAppMode()
+  const { userName } = useUserProfile()
   
-  const [showCodeInput, setShowCodeInput] = useState(false)
-  const [codeValue, setCodeValue] = useState('')
-  const [codeError, setCodeError] = useState(false)
-
   useEffect(() => setMounted(true), [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -35,110 +27,64 @@ export default function TopBar() {
     router.push(`/stock/${search.trim().toUpperCase()}`)
     setSearch('')
   }
-  
-  const handleCodeSubmit = () => {
-    const success = enableGodMode(codeValue);
-    if (success) {
-      refreshMode();
-      setShowCodeInput(false);
-      setCodeValue('');
-      setCodeError(false);
-    } else {
-      setCodeError(true);
-    }
-  };
 
-  const handleDisableGodMode = () => {
-    disableGodMode();
-    refreshMode();
-  };
-
-  // Exact matching against home
   if (pathname === "/") return null
 
   return (
-    <header className="sticky top-0 z-40 bg-[#131722]/80 backdrop-blur-md border-b border-gray-800 h-16 w-full flex items-center justify-between px-4 lg:px-8">
+    <header className="sticky top-0 z-40 bg-[#0a0e17]/80 backdrop-blur-xl border-b border-white/5 h-20 w-full flex items-center justify-between px-6 lg:px-10">
       
       <div className="flex flex-1 items-center">
-        <button onClick={toggleMenu} className="lg:hidden mr-4 text-gray-400 hover:text-white transition-colors">
+        <button onClick={toggleMenu} className="lg:hidden mr-6 text-gray-400 hover:text-white transition-all transform active:scale-90">
           <Menu className="w-6 h-6" />
         </button>
         {/* Search Bar */}
-        <div className="max-w-md hidden md:flex items-center w-full">
+        <div className="max-w-md hidden md:flex items-center w-full group">
           <form onSubmit={handleSearch} className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-tvGreen transition-colors" />
             <input 
               type="text" 
-              placeholder="Search stock symbol..." 
+              placeholder="Search ticker (e.g. AAPL, RELIANCE.NS)..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#1E222D] border border-gray-700 focus:border-tvGreen focus:ring-1 focus:ring-tvGreen rounded-lg pl-10 pr-4 py-2 text-sm text-foreground transition-all duration-200 outline-none"
+              className="w-full bg-white/5 border border-white/10 focus:border-tvGreen focus:ring-4 focus:ring-tvGreen/10 rounded-2xl pl-12 pr-4 py-3 text-sm text-foreground transition-all duration-300 outline-none font-bold placeholder:text-gray-600"
             />
           </form>
         </div>
       </div>
 
-      <div className="flex items-center space-x-2 md:space-x-4">
-        <NotificationCenter />
-        
-        {mounted && <MarketSelector />}
+      <div className="flex items-center space-x-6 md:space-x-8">
+        <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-2 space-x-3 group cursor-pointer hover:bg-white/10 transition-all">
+           <div className="w-8 h-8 rounded-xl bg-tvGreen/20 flex items-center justify-center border border-tvGreen/30">
+              <User className="w-4 h-4 text-tvGreen" />
+           </div>
+           <div className="hidden lg:block">
+              <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest leading-none mb-1">Hey,</p>
+              <p className="text-xs text-white font-black tracking-tight leading-none">{userName}</p>
+           </div>
+        </div>
 
-        <button 
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="text-gray-400 hover:text-white p-2"
-          aria-label="Toggle theme"
-          title="Toggle Theme"
-        >
-          {mounted && (
-            theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
-          )}
-        </button>
+        <div className="flex items-center space-x-4">
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-[10px] bg-tvAmber/10 text-tvAmber px-3 py-1.5 rounded-xl font-black shadow-lg shadow-tvAmber/10 border border-tvAmber/30 flex items-center tracking-[0.2em]">
+              <Zap className="w-3 h-3 mr-2" /> GOD MODE
+            </span>
+          </div>
+          
+          <div className="h-6 w-px bg-white/10 mx-2" />
 
-        <div className="flex items-center justify-center pl-2">
-            {godMode ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full font-medium shadow-lg shadow-yellow-500/10 border border-yellow-500/30 flex items-center tracking-widest">
-                  <Zap className="w-3 h-3 mr-1" /> GOD MODE
-                </span>
-                <button
-                  onClick={handleDisableGodMode}
-                  className="text-[10px] uppercase font-bold text-gray-400 hover:text-tvRed transition tracking-widest"
-                >
-                  Disable
-                </button>
-              </div>
-            ) : (
-              <div className="relative">
-                <button
-                  onClick={() => setShowCodeInput(!showCodeInput)}
-                  className="text-gray-400 hover:text-white transition p-2 cursor-pointer"
-                  title="Admin Access"
-                >
-                  🔒
-                </button>
-                {showCodeInput && (
-                  <div className="absolute right-0 top-12 bg-[#1E222D] border border-gray-700 rounded-xl p-4 shadow-2xl z-50 w-64">
-                    <p className="text-sm text-gray-300 mb-2 font-bold tracking-tight">Enter access code:</p>
-                    <input
-                      type="password"
-                      value={codeValue}
-                      onChange={(e) => { setCodeValue(e.target.value); setCodeError(false); }}
-                      onKeyDown={(e) => e.key === 'Enter' && handleCodeSubmit()}
-                      className="w-full bg-[#131722] border border-gray-600 rounded-lg px-3 py-2 text-white text-sm mb-2 focus:border-tvGreen focus:outline-none"
-                      placeholder="Access code..."
-                      autoFocus
-                    />
-                    {codeError && <p className="text-tvRed text-xs mb-2 font-bold">Invalid code</p>}
-                    <button
-                      onClick={handleCodeSubmit}
-                      className="w-full bg-tvGreen hover:bg-emerald-500 text-white font-bold text-sm py-2 rounded-lg transition"
-                    >
-                      Submit
-                    </button>
-                  </div>
-                )}
-              </div>
+          <NotificationCenter />
+          
+          {mounted && <MarketSelector />}
+
+          <button 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="text-gray-500 hover:text-white p-2 transition-all hover:rotate-12 active:scale-90"
+            title="Toggle Theme"
+          >
+            {mounted && (
+              theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
             )}
+          </button>
         </div>
       </div>
     </header>
