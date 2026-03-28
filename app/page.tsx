@@ -17,7 +17,8 @@ import {
   Brain,
   Search,
   Timer,
-  ChevronDown
+  ChevronDown,
+  History
 } from "lucide-react"
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useUserProfile } from "@/hooks/useUserProfile"

@@ -64,13 +64,23 @@ export function useAlertSystem() {
 
                 if (!alert.muteSound) playAlertSound()
                 
-                // Browser notification
-                if (Notification.permission === "granted") {
-                   new Notification(`StoxPilot: ${symbol} Alert`, {
-                     body: triggerMsg,
-                     icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔔</text></svg>"
-                   })
-                }
+                 // Browser notification - HARDENED
+                 if (typeof window !== 'undefined' && 'Notification' in window) {
+                    try {
+                      const NotificationClass = (window as any).Notification
+                      if (typeof NotificationClass === 'function') {
+                        // Check permission state safely
+                        if (NotificationClass.permission === 'granted') {
+                          new NotificationClass(`StoxPilot: ${symbol} Alert`, {
+                            body: triggerMsg,
+                            icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔔</text></svg>"
+                          })
+                        }
+                      }
+                    } catch (e) {
+                      console.warn("Native notification construction failed:", e)
+                    }
+                 }
              }
           })
         } catch (err) {
@@ -80,25 +90,46 @@ export function useAlertSystem() {
     }
 
     const interval = setInterval(checkAlerts, 60000)
-    checkAlerts() // Initial check
     
-    return () => clearInterval(interval)
+    // Initial check after a short delay to ensure hydration
+    const timeout = setTimeout(checkAlerts, 2000)
+    
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
   }, [alerts, updateAlert])
 
   // Request browser permissions on mount
   useEffect(() => {
-    if (Notification.permission === "default") {
-      Notification.requestPermission()
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      try {
+        const NotificationClass = (window as any).Notification
+        if (typeof NotificationClass === 'function' && NotificationClass.permission === "default") {
+          NotificationClass.requestPermission()
+        }
+      } catch (e) {
+        console.warn("Permission request failed:", e)
+      }
     }
   }, [])
 }
 
 function playAlertSound() {
   try {
-    const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext
-    if (!AudioContextClass) return
+    const AudioContextClass = typeof window !== 'undefined' ? ((window as any).AudioContext || (window as any).webkitAudioContext) : null
+    if (!AudioContextClass || typeof AudioContextClass !== 'function') return
     
-    const ctx = new AudioContextClass()
+    // In some mobile browsers, calling the constructor throws if not in a user gesture context
+    // or if the implementation is gated behind a flag but not a class
+    let ctx;
+    try {
+      ctx = new AudioContextClass()
+    } catch (e) {
+      console.warn("AudioContext constructor failed:", e)
+      return
+    }
+    
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     

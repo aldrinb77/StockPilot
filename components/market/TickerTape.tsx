@@ -58,19 +58,6 @@ export function TickerTape() {
         })}
       </div>
 
-      <style jsx>{`
-        @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-ticker {
-          display: flex;
-          animation: ticker 60s linear infinite;
-        }
-        .animate-ticker:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
     </div>
   )
 }

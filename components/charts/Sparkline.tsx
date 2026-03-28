@@ -26,7 +26,7 @@ export function Sparkline({
     }).join(" ")
   }, [data, width, height])
 
-  const gradientId = useMemo(() => `spark-grad-${Math.random().toString(36).substr(2, 9)}`, [])
+  const gradientId = useMemo(() => `spark-grad-${Math.random().toString(36).slice(2, 11)}`, [])
 
   return (
     <svg width={width} height={height} className="overflow-visible">

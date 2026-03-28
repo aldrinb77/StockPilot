@@ -68,7 +68,7 @@ export function generateDailyReport(
       target: s.signal.targets[0],
       stopLoss: s.signal.stopLoss,
       reason: s.signal.reasons[0] || "Confirming technical alignment",
-      riskReward: s.signal.riskReward.toString()
+      riskReward: (s.signal.riskReward || 0).toString()
     }));
 
   // Sector Analysis

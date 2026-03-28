@@ -132,7 +132,7 @@ export const useStore = create<AppState>()(
 
       journalEntries: [],
       addJournalEntry: (entry) => set((state) => ({
-        journalEntries: [{ ...entry, id: Math.random().toString(36).substr(2, 9) }, ...state.journalEntries]
+        journalEntries: [{ ...entry, id: Math.random().toString(36).slice(2, 11) }, ...state.journalEntries]
       })),
       removeJournalEntry: (id) => set((state) => ({
         journalEntries: state.journalEntries.filter(e => e.id !== id)
@@ -140,7 +140,7 @@ export const useStore = create<AppState>()(
 
       tradeHistory: [],
       addToHistoryExecuted: (item) => set((state) => ({
-        tradeHistory: [{ ...item, id: Math.random().toString(36).substr(2, 9) }, ...state.tradeHistory]
+        tradeHistory: [{ ...item, id: Math.random().toString(36).slice(2, 11) }, ...state.tradeHistory]
       })),
       removeFromHistory: (id) => set((state) => ({
         tradeHistory: state.tradeHistory.filter(h => h.id !== id)
@@ -156,7 +156,7 @@ export const useStore = create<AppState>()(
       addAlert: (alert) => set((state) => ({
         alerts: [{ 
           ...alert, 
-          id: Math.random().toString(36).substr(2, 9), 
+          id: Math.random().toString(36).slice(2, 11), 
           triggered: false, 
           createdAt: Date.now() 
         }, ...state.alerts].slice(0, 10)

@@ -16,12 +16,18 @@ export async function requestNotificationPermission() {
 }
 
 export function sendLocalNotification(title: string, body: string, icon: string = '📈') {
-  if (Notification.permission === 'granted') {
-    new Notification(title, {
-      body,
-      icon: '/favicon.ico', // Would map to manifest icon 
-      badge: '/favicon.ico',
-      silent: false
-    });
+  if (typeof window === 'undefined') return;
+  const NotificationClass = (window as any).Notification;
+  if (NotificationClass && typeof NotificationClass === 'function' && NotificationClass.permission === 'granted') {
+    try {
+      new NotificationClass(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        silent: false
+      });
+    } catch (e) {
+      console.warn("Notification constructor restricted:", e);
+    }
   }
 }
