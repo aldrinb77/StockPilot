@@ -1,4 +1,5 @@
-import { StockData, Signal, MarketRegion } from "./types";
+import { StockData, Signal } from "./types";
+import { MarketRegion } from "./markets";
 import { formatCurrency, formatPercent } from "./utils";
 
 export interface AIReport {
@@ -61,13 +62,13 @@ export function generateDailyReport(
     .slice(0, 3)
     .map(s => ({
       symbol: s.symbol,
-      type: s.signal.type,
+      type: s.signal.type as string,
       confidence: s.signal.strength,
       price: s.price,
       target: s.signal.targets[0],
       stopLoss: s.signal.stopLoss,
       reason: s.signal.reasons[0] || "Confirming technical alignment",
-      riskReward: s.signal.riskReward
+      riskReward: s.signal.riskReward.toString()
     }));
 
   // Sector Analysis
@@ -77,10 +78,10 @@ export function generateDailyReport(
     const sBullish = sectorStocks.filter(s => s.signal.type.includes('BUY')).length;
     const sPercent = (sBullish / sectorStocks.length) * 100;
     return {
-      name: sector,
+      name: (sector || "Diversified") as string,
+      status: (sPercent > 60 ? 'STRONG' : sPercent > 40 ? 'MIXED' : 'WEAK') as 'STRONG' | 'MIXED' | 'WEAK',
       bullishCount: sBullish,
       totalCount: sectorStocks.length,
-      status: (sPercent > 60 ? 'STRONG' : sPercent > 40 ? 'MIXED' : 'WEAK') as any
     };
   }).sort((a, b) => b.bullishCount / b.totalCount - a.bullishCount / a.totalCount).slice(0, 4);
 
@@ -109,7 +110,8 @@ export function generateDailyReport(
       : "Extreme bearish pressure. Significant divergence between price and volume across major indices.",
     suggestion: avgConfidence > 65
       ? "Deploy normal position sizes. Focus on trailing stop losses for maximum profit capture."
-      : "Reduce individual position exposure by 40%. Only execute STRONG BUY signals with 85%+ score."
+      : avgConfidence > 45
+      ? "Reduce individual position exposure by 40%. Only execute STRONG BUY signals with 85%+ score."
       : "Stay defensive. Increase cash allocation. Only scalp high-frequency targets or stay sideline."
   };
 
