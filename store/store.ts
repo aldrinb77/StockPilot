@@ -29,6 +29,16 @@ export interface WatchlistGroup {
   symbols: string[]
 }
 
+export interface JournalEntry {
+  id: string
+  date: string
+  symbol: string
+  type: 'Bought' | 'Sold' | 'Watching' | 'Learning'
+  notes: string
+  mood: 'HAPPY' | 'NEUTRAL' | 'SAD'
+  lesson?: string
+}
+
 export interface AppState {
   // Watchlist & Portfolio
   watchlist: WatchlistItem[]
@@ -40,6 +50,11 @@ export interface AppState {
   portfolio: PortfolioItem[]
   addToPortfolio: (item: PortfolioItem) => void
   removeFromPortfolio: (id: string) => void
+  
+  // Journal
+  journalEntries: JournalEntry[]
+  addJournalEntry: (entry: Omit<JournalEntry, 'id'>) => void
+  removeJournalEntry: (id: string) => void
 
   // User State
   hasCompletedOnboarding: boolean
@@ -104,6 +119,14 @@ export const useStore = create<AppState>()(
       portfolio: [],
       addToPortfolio: (item) => set((state) => ({ portfolio: [...state.portfolio, item] })),
       removeFromPortfolio: (id) => set((state) => ({ portfolio: state.portfolio.filter((p) => p.id !== id) })),
+
+      journalEntries: [],
+      addJournalEntry: (entry) => set((state) => ({
+        journalEntries: [{ ...entry, id: Math.random().toString(36).substr(2, 9) }, ...state.journalEntries]
+      })),
+      removeJournalEntry: (id) => set((state) => ({
+        journalEntries: state.journalEntries.filter(e => e.id !== id)
+      })),
 
       hasCompletedOnboarding: false,
       setHasCompletedOnboarding: (val) => set({ hasCompletedOnboarding: val }),
