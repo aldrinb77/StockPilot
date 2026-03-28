@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/ThemeProvider"
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow"
 import { CommandPalette } from "@/components/ui/CommandPalette"
 import { Footer } from "@/components/layout/Footer"
+import { AnimatedGrid } from "@/components/ui/AnimatedGrid"
+import { BugFixClient } from "@/components/BugFixClient"
 
 const jakarta = Plus_Jakarta_Sans({ 
   subsets: ['latin'], 
@@ -36,6 +38,7 @@ export const viewport: Viewport = {
 
 import { ToastProvider } from "@/components/ui/Toast"
 import { BottomStatusBar } from "@/components/layout/BottomStatusBar"
+import { TickerTape } from "@/components/market/TickerTape"
 
 export const metadata: Metadata = {
   title: "StoxPilot - Your Personal Trading Assistant",
@@ -56,11 +59,14 @@ export default function RootLayout({
       <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans antialiased`}>
         <ToastProvider>
           <ThemeProvider>
+            <BugFixClient />
             <CommandPalette />
+            <AnimatedGrid />
             <OnboardingFlow />
             <div className="flex h-screen overflow-hidden relative">
               <Sidebar />
               <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+                <TickerTape />
                 <TopBar />
                 <main className="flex-1 overflow-y-auto w-full relative flex flex-col custom-scrollbar pb-7 md:pb-12">
                   <div className="flex-1">

@@ -20,6 +20,8 @@ import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 import { WhatIfCalculator } from '@/components/tools/WhatIfCalculator'
 import { AlertSetup } from '@/components/alerts/AlertSetup'
 import { DailyTip } from '@/components/learning/DailyTip'
+import { Heatmap } from '@/components/market/Heatmap'
+import { EarningsCalendar } from '@/components/market/EarningsCalendar'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { 
   Settings2, 
@@ -33,13 +35,15 @@ import {
   Calendar,
   Sparkles,
   Shield,
-  Activity
+  Activity,
+  Grid3X3,
+  Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import { fetchMultipleQuotes } from '@/lib/api'
 
 export default function DashboardPage() {
-  const { selectedMarket, dashboardLayout, watchlist } = useStore()
+  const { selectedMarket, dashboardLayout, watchlist, streak, achievements } = useStore()
   const { userName } = useUserProfile()
   const marketConfig = MARKETS[selectedMarket]
   const [data, setData] = useState<(StockData & { signal: Signal })[]>([])
@@ -103,7 +107,14 @@ export default function DashboardPage() {
                {greeting}, <br className="md:hidden" />
                <span className="text-gradient bg-gradient-to-r from-[#00e676] to-[#00e5ff]">{userName}</span>
              </h1>
-             <p className="text-[#8899a6] font-bold text-lg">System monitoring {marketConfig.name} liquidity in real-time.</p>
+             <div className="flex items-center gap-4">
+                <p className="text-[#8899a6] font-bold text-lg">System monitoring {marketConfig.name} liquidity in real-time.</p>
+                {streak > 0 && (
+                   <div className="px-4 py-1.5 bg-[#ff1744]/10 border border-[#ff174430] text-[#ff1744] rounded-full text-[10px] font-black tracking-widest flex items-center gap-2">
+                      <Zap className="w-3.5 h-3.5 fill-current" /> {streak} DAY STREAK
+                   </div>
+                )}
+             </div>
           </div>
           <div className="flex items-center space-x-4">
              <button 
@@ -132,10 +143,10 @@ export default function DashboardPage() {
            </StaggerItem>
            <StaggerItem>
              <StatCard 
-                title="Probability Engine" 
-                value={80} 
-                suffix="%"
-                subtitle="Confidence Alignment" 
+                title="System Status" 
+                value="Optimal" 
+                isText
+                subtitle="Engine V2 Online" 
                 icon={<Shield className="w-6 h-6" />}
                 gradient="from-[#00e676]"
                 glow="rgba(0, 230, 118, 0.1)"
@@ -143,11 +154,10 @@ export default function DashboardPage() {
            </StaggerItem>
            <StaggerItem>
              <StatCard 
-                title="System Status" 
-                value="Optimal" 
-                isText
-                subtitle="Engine V2 Online" 
-                icon={<Zap className="w-6 h-6" />}
+                title="Achievements" 
+                value={achievements.filter(a => a.unlocked).length} 
+                subtitle="Milestones Unlocked" 
+                icon={<TrendingUp className="w-6 h-6" />}
                 gradient="from-[#00e5ff]"
                 glow="rgba(0, 229, 255, 0.1)"
              />
@@ -180,14 +190,54 @@ export default function DashboardPage() {
                     <MarketOverview />
                   </section>
                 )
+              case 'SECTOR_HEATMAP':
+                return (
+                  <section key={section.id} className="space-y-10">
+                    <div className="flex items-center justify-between">
+                       <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-4">
+                          <div className="w-2 h-8 bg-gradient-to-b from-[#00e676] to-[#00c853] rounded-full" />
+                          📊 Market Heatmap
+                       </h2>
+                       <Link href="/heatmap" className="text-[10px] font-black text-[#00e676] uppercase tracking-widest hover:underline flex items-center gap-2">
+                          Expand Full Map <ArrowRight className="w-3 h-3" />
+                       </Link>
+                    </div>
+                    <div className="glass-card p-10 rounded-[3rem] border border-white/5">
+                       <Heatmap />
+                    </div>
+                  </section>
+                )
+              case 'MARKET_CALENDAR':
+                return (
+                  <section key={section.id} className="space-y-10">
+                    <div className="flex items-center justify-between">
+                       <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-4">
+                          <div className="w-2 h-8 bg-gradient-to-b from-[#ffab00] to-[#ff6f00] rounded-full" />
+                          📅 Event Calendar
+                       </h2>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                       <div className="lg:col-span-2">
+                          <EarningsCalendar />
+                       </div>
+                       <div className="space-y-6">
+                          <div className="glass-card p-8 rounded-3xl border border-white/5 space-y-4">
+                             <h4 className="text-[10px] font-black text-[#8899a6] uppercase tracking-widest flex items-center gap-2">
+                                <Clock className="w-4 h-4" /> Market Schedule
+                             </h4>
+                             <MarketStatusRow status={marketStatus} config={marketConfig} mini />
+                          </div>
+                          <DailyTip />
+                       </div>
+                    </div>
+                  </section>
+                )
               case 'WATCHLIST':
                 return <div key={section.id}><PersonalizedFeed /></div>
               case 'LEARNING_TIPS':
-                return <div key={section.id}><DailyTip /></div>
+                return null // Rendered inside calendar section above
               case 'TOP_MOVERS':
                 return <div key={section.id}><TopMovers gainers={gainers} losers={losers} /></div>
-              case 'MARKET_CALENDAR':
-                return <div key={section.id}><MarketStatusRow status={marketStatus} config={marketConfig} /></div>
               default:
                 return null
             }
@@ -226,7 +276,29 @@ function StatCard({ title, value, subtitle, icon, gradient, glow, suffix = "", i
   )
 }
 
-function MarketStatusRow({ status, config }: any) {
+function MarketStatusRow({ status, config, mini = false }: any) {
+  if (mini) {
+    return (
+      <div className="space-y-4">
+         <div className="flex items-center justify-between font-black">
+            <span className="text-xs text-white">{config.exchangeCode}</span>
+            {status === 'open' ? (
+               <span className="text-[#00e676] text-[9px] uppercase tracking-widest flex items-center gap-2">
+                  <PulseDot color="green" /> OPEN
+               </span>
+            ) : (
+               <span className="text-[#ff1744] text-[9px] uppercase tracking-widest flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#ff1744]" /> CLOSED
+               </span>
+            )}
+         </div>
+         <div className="text-2xl font-black text-white font-mono tracking-tighter">
+            {new Date().toLocaleTimeString(config.locale, { timeZone: config.marketHours.timezone, hour: '2-digit', minute: '2-digit', hour12: false })}
+         </div>
+      </div>
+    )
+  }
+
   return (
     <section className="flex flex-col md:flex-row items-center justify-between glass-card p-10 rounded-[2.5rem] border border-white/5 gap-10">
       <div className="flex items-center space-x-8">

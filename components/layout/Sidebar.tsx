@@ -18,7 +18,12 @@ import {
   TrendingUp,
   Activity,
   User,
-  LogOut
+  LogOut,
+  Grid3X3,
+  Calculator,
+  Calendar,
+  History,
+  Bell
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -31,8 +36,13 @@ const navItems = [
   { name: "Signals", href: "/signals", icon: Zap, section: 'main' },
   { name: "Screener", href: "/screener", icon: Search, section: 'main' },
   { name: "Watchlist", href: "/watchlist", icon: Star, section: 'personal' },
+  { name: "Alerts", href: "/alerts", icon: Bell, section: 'personal' },
   { name: "Portfolio", href: "/portfolio", icon: PieChart, section: 'personal' },
   { name: "Journal", href: "/journal", icon: BookText, section: 'personal' },
+  { name: "Trade History", href: "/history", icon: History, section: 'personal' },
+  { name: "Heatmap", href: "/heatmap", icon: Grid3X3, section: 'tools' },
+  { name: "Calculator", href: "/calculator", icon: Calculator, section: 'tools' },
+  { name: "Calendar", href: "/calendar", icon: Calendar, section: 'tools' },
   { name: "Compare", href: "/compare", icon: GitCompareArrows, section: 'tools' },
   { name: "Learn", href: "/learn", icon: BookOpen, section: 'tools' },
   { name: "Settings", href: "/settings", icon: Settings, section: 'settings' },

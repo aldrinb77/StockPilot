@@ -10,11 +10,15 @@ import { NotificationCenter } from "@/components/notifications/NotificationCente
 import { MarketSelector } from "@/components/market/MarketSelector"
 import { useUserProfile } from "@/hooks/useUserProfile"
 
+import { useStore } from "@/store/store"
+
 export default function TopBar() {
   const pathname = usePathname()
   const toggleMenu = useMenuStore((state: any) => state.toggleSidebar)
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { alerts } = useStore()
+  const activeAlertCount = alerts.filter(a => !a.triggered).length
   const [search, setSearch] = useState('')
   const router = useRouter()
   const { userName } = useUserProfile()
@@ -73,9 +77,16 @@ export default function TopBar() {
              </div>
           </div>
           
-          <button className="relative p-2 text-gray-500 hover:text-white transition-colors group">
+          <button 
+             onClick={() => router.push('/settings')}
+             className="relative p-2 text-gray-500 hover:text-white transition-colors group"
+          >
              <Bell className="w-5 h-5 group-hover:animate-bounce" />
-             <span className="absolute top-1 right-1 w-2 h-2 bg-[#ff1744] rounded-full border-2 border-[#060a13]" />
+             {activeAlertCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-[14px] h-[14px] bg-[#ff1744] text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 border border-[#060a13]">
+                   {activeAlertCount}
+                </span>
+             )}
           </button>
 
           <button 

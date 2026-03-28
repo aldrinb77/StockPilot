@@ -8,12 +8,14 @@ import { IndicatorBreakdown } from '@/components/signals/IndicatorBreakdown'
 import { calcSupportResistance } from '@/lib/indicators'
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Share, Star } from 'lucide-react'
+import { Share, Star, Calculator, ArrowRight } from 'lucide-react'
 import { useStore } from '@/store/store'
 import { MARKETS, MarketRegion } from '@/lib/markets'
 import { fetchStockQuote, fetchHistoricalData } from '@/lib/api'
 import TradingViewWidget from '@/components/charts/TradingViewWidget'
 import { toTradingViewSymbol } from '@/lib/utils'
+import Link from 'next/link'
+import { MultiTimeframe } from '@/components/analysis/MultiTimeframe'
 
 export default function StockDetailPage({ params }: { params: { symbol: string } }) {
   const symbol = params.symbol.toUpperCase()
@@ -31,7 +33,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
     const loadData = async () => {
       setLoading(true)
       try {
-        const quote = await fetchStockQuote(symbol, true)
+        const quote = await fetchStockQuote(symbol)
         const hist = await fetchHistoricalData(symbol)
         
         setStock(quote)
@@ -40,7 +42,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
         const mockSignal = MOCK_SIGNALS[symbol] || MOCK_SIGNALS['META']
         setSignal(mockSignal)
         
-        if (quote.price === 0 && !quote.isMockData) {
+        if (quote.price === 0) {
            setErrorNotFound(true)
         }
       } catch (err) {
@@ -137,6 +139,8 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
             <TradingViewWidget symbol={toTradingViewSymbol(symbol, selectedMarket)} height={500} />
           </div>
 
+          <MultiTimeframe symbol={symbol} />
+
           <div className="bg-[#1E222D] p-6 rounded-xl border border-gray-700/50">
             <h3 className="text-lg font-bold text-white border-b border-gray-800 pb-3 mb-4">Key Statistics</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -174,6 +178,23 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
         {/* Sidebar Column */}
         <div className="w-full xl:w-[400px] flex-shrink-0 space-y-6">
           <SignalCard stock={stock} signal={signal} />
+          
+          <div className="glass-card p-6 rounded-xl border border-[#00e676]/20 bg-[#00e67610] space-y-4">
+             <div className="flex items-center gap-3 text-[#00e676]">
+                <Calculator className="w-5 h-5" />
+                <h3 className="text-xs font-black uppercase tracking-widest">Risk Management Protocol</h3>
+             </div>
+             <p className="text-[10px] text-[#8899a6] font-bold uppercase leading-relaxed">
+                Execute with precision. Calculate exact position sizing based on {stock.symbol} live liquidity and your capital constraints.
+             </p>
+             <Link 
+               href={`/calculator?symbol=${symbol}&price=${stock.price}`}
+               className="flex items-center justify-center w-full py-3 bg-[#00e676] text-black rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-[#00c853] transition-all gap-2"
+             >
+                Initialize Planner <ArrowRight className="w-3 h-3" />
+             </Link>
+          </div>
+
           <IndicatorBreakdown indicators={signal.indicators} />
           
           <div className="bg-[#1E222D] p-6 rounded-xl border border-gray-700/50">

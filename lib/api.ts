@@ -47,12 +47,11 @@ async function fetchWithFallback(url: string, isAbsolute: boolean = false): Prom
 }
 
 export async function fetchStockQuote(symbol: string): Promise<StockData> {
-  // Try Twelve Data for high-precision real-time quotes (Reliable browser CORS)
-  // Converting symbols for TwelveData (e.g. SYMBOL.NS -> SYMBOL:NSE)
+  // Use Twelve Data for precise quotes if possible (reliable browser CORS)
   let tdSymbol = symbol;
   if (symbol.endsWith('.NS')) tdSymbol = symbol.replace('.NS', ':NSE');
   else if (symbol.endsWith('.BO')) tdSymbol = symbol.replace('.BO', ':BSE');
-  else if (symbol.startsWith('^')) tdSymbol = symbol.substring(1); // Stripping ^ for indices? TData uses different index formats.
+  else if (symbol.startsWith('^')) tdSymbol = symbol.substring(1);
 
   try {
     const tdUrl = `https://api.twelvedata.com/quote?symbol=${tdSymbol}&apikey=${TWELVE_DATA_KEY}`;
@@ -60,12 +59,11 @@ export async function fetchStockQuote(symbol: string): Promise<StockData> {
     
     if (response.ok) {
         const data = await response.json();
-        // Twelve Data returns { code: 429 } for rate limiting
         if (data.symbol && !data.code) {
             return {
-                symbol: symbol, // Keep original symbol for store mapping
+                symbol: symbol, 
                 name: data.name || symbol,
-                sector: '',
+                sector: data.sector || '',
                 price: parseFloat(data.close || data.price || '0'),
                 change: parseFloat(data.change || '0'),
                 changePercent: parseFloat(data.percent_change || '0'),
@@ -88,8 +86,7 @@ export async function fetchStockQuote(symbol: string): Promise<StockData> {
 
   // Fallback to Yahoo via Server Side API (Edge Runtime)
   try {
-    // Note: We use relative path here. fetchWithFallback handles it.
-    const internalPath = `/api/stock/${encodeURIComponent(symbol)}?range=1d&interval=1m`;
+    const internalPath = `/api/stock?symbol=${encodeURIComponent(symbol)}&range=1d&interval=1m`;
     const data = await fetchWithFallback(internalPath, false);
     
     if (data.chart?.result?.[0]) {
@@ -130,7 +127,7 @@ export async function fetchHistoricalData(
   interval: string = '1d'
 ): Promise<OHLCV[]> {
   try {
-    const internalPath = `/api/stock/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}`;
+    const internalPath = `/api/stock?symbol=${encodeURIComponent(symbol)}&range=${range}&interval=${interval}`;
     const data = await fetchWithFallback(internalPath, false);
     
     if (data.chart?.result?.[0]) {

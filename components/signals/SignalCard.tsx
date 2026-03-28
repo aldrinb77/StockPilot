@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Target, TrendingUp, Star, CheckCircle2, AlertTriangle, ArrowRight, Zap, Shield, Wallet, Eye } from "lucide-react"
+import { Share2, Target, TrendingUp, Star, CheckCircle2, AlertTriangle, ArrowRight, Zap, Shield, Wallet, Eye, X } from "lucide-react"
 import { useStore } from "@/store/store"
 import { formatCurrency } from "@/lib/utils"
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
@@ -10,6 +10,7 @@ import { PulseDot } from "@/components/ui/PulseDot"
 import { MARKETS } from "@/lib/markets"
 import Link from "next/link"
 import { useUserProfile } from "@/hooks/useUserProfile"
+import { TradeCard } from "../social/TradeCard"
 
 interface SignalCardProps {
   symbol?: string
@@ -29,6 +30,7 @@ export function SignalCard(props: SignalCardProps) {
   const changePercent = props.stock?.changePercent || 1.2
   
   const [expanded, setExpanded] = useState(false)
+  const [showShare, setShowShare] = useState(false)
   const { addToWatchlist, watchlist, removeFromWatchlist, selectedMarket } = useStore()
   const marketConfig = MARKETS[selectedMarket]
 
@@ -39,11 +41,11 @@ export function SignalCard(props: SignalCardProps) {
     else addToWatchlist({ symbol, name, addedAt: Date.now() })
   }
 
-  const isStrongBuy = signal.type === 'STRONG_BUY'
-  const isBuy = signal.type.includes('BUY')
-  const isStrongSell = signal.type === 'STRONG_SELL'
-  const isSell = signal.type.includes('SELL')
-  const isHold = signal.type === 'HOLD'
+  const isStrongBuy = signal.type === 'STRONG_BULLISH'
+  const isBuy = signal.type.includes('BULLISH')
+  const isStrongSell = signal.type === 'STRONG_BEARISH'
+  const isSell = signal.type.includes('BEARISH')
+  const isHold = signal.type === 'NEUTRAL'
 
   const cardTypeClass = isStrongBuy ? 'glass-card-green' : isStrongSell ? 'glass-card-red' : isHold ? 'glass-card-amber' : isBuy ? 'glass-card-green' : 'glass-card-red'
   
@@ -94,13 +96,24 @@ export function SignalCard(props: SignalCardProps) {
           </div>
           <p className="text-[11px] text-[#8899a6] font-bold uppercase tracking-wider truncate max-w-[180px]">{name}</p>
         </div>
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end gap-3">
            <div className="text-xl font-black text-white font-mono tracking-tighter">
               <AnimatedNumber value={price} prefix={marketConfig.currencySymbol} />
            </div>
-           <button onClick={toggleWatch} className={`p-1.5 transition-colors ${isWatched ? 'text-[#ffab00]' : 'text-[#5c6b7a] hover:text-white'}`}>
-              <Star className={`w-4 h-4 ${isWatched ? 'fill-[#ffab00]' : ''}`} />
-           </button>
+           <div className="flex items-center gap-2">
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowShare(true) }}
+                className="p-1.5 bg-white/5 border border-white/10 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+              <button 
+                onClick={toggleWatch} 
+                className={`p-1.5 bg-white/5 border border-white/10 rounded-lg transition-all ${isWatched ? 'text-[#ffab00] border-[#ffab0040] bg-[#ffab0005]' : 'text-white/40 hover:text-white hover:bg-white/10'}`}
+              >
+                 <Star className={`w-3.5 h-3.5 ${isWatched ? 'fill-[#ffab00]' : ''}`} />
+              </button>
+           </div>
         </div>
       </div>
 
@@ -199,6 +212,33 @@ export function SignalCard(props: SignalCardProps) {
              </div>
           </motion.div>
         )}
+      </AnimatePresence>
+      <AnimatePresence>
+         {showShare && (
+            <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md"
+               onClick={(e) => { e.stopPropagation(); setShowShare(false) }}
+            >
+               <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className="w-full max-w-sm relative"
+                  onClick={(e) => e.stopPropagation()}
+               >
+                  <button 
+                    onClick={() => setShowShare(false)}
+                    className="absolute -top-12 right-0 p-3 bg-white/5 text-white hover:bg-white/10 rounded-full transition-all border border-white/10"
+                  >
+                     <X className="w-5 h-5" />
+                  </button>
+                  <TradeCard stock={{ symbol, name, price, change, changePercent } as any} signal={signal} />
+               </motion.div>
+            </motion.div>
+         )}
       </AnimatePresence>
     </motion.div>
   )
