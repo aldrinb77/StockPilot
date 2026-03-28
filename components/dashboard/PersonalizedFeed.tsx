@@ -18,8 +18,13 @@ import { fetchMultipleQuotes } from "@/lib/api"
 import { StockData, Signal } from "@/lib/types"
 
 export function PersonalizedFeed() {
-  const { selectedMarket, watchlist, viewHistory, browsedSectors } = useStore()
-  const marketConfig = MARKETS[selectedMarket]
+  const { 
+    selectedMarket, 
+    watchlist = [], 
+    viewHistory = [], 
+    browsedSectors = {} 
+  } = useStore() as any
+  const marketConfig = MARKETS[selectedMarket as keyof typeof MARKETS] || MARKETS['US']
   const [watchlistData, setWatchlistData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
   const [historyData, setHistoryData] = useState<(StockData & { signal: Signal; isMockData?: boolean })[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,8 +36,8 @@ export function PersonalizedFeed() {
     const loadPersonalized = async () => {
       setLoading(true)
       try {
-        const watchSymbols = watchlist.slice(0, 4).map(w => w.symbol)
-        const histSymbols = viewHistory.slice(0, 5).map(h => h.symbol)
+        const watchSymbols = (watchlist as any[]).slice(0, 4).map((w: any) => w.symbol)
+        const histSymbols = (viewHistory as any[]).slice(0, 5).map((h: any) => h.symbol)
         
         const [watchQuotes, histQuotes] = await Promise.all([
           watchSymbols.length > 0 ? fetchMultipleQuotes(watchSymbols) : Promise.resolve([]),
@@ -189,7 +194,7 @@ export function PersonalizedFeed() {
             <Volume2 className="w-5 h-5 mr-3 text-tvAmber" /> Trending in {marketConfig.name}
           </h2>
           <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
-             {marketConfig.popularStocks.slice(0, 5).map((s, i) => (
+             {marketConfig.popularStocks.slice(0, 5).map((s: any, i: number) => (
                 <div key={s.symbol} className="flex items-center justify-between p-5 hover:bg-white/[0.03] transition-all group border-b border-white/5 last:border-0">
                    <div className="flex items-center space-x-6">
                       <span className="text-xs font-black text-gray-700 font-mono tracking-tighter">0{i+1}</span>

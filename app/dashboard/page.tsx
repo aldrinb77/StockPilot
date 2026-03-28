@@ -43,7 +43,13 @@ import Link from 'next/link'
 import { fetchMultipleQuotes } from '@/lib/api'
 
 export default function DashboardPage() {
-  const { selectedMarket, dashboardLayout, watchlist, streak, achievements } = useStore()
+  const { 
+    selectedMarket = 'IN', 
+    dashboardLayout = [], 
+    watchlist = [], 
+    streak = 0, 
+    achievements = [] 
+  } = useStore()
   const { userName } = useUserProfile()
   const marketConfig = MARKETS[selectedMarket]
   const [data, setData] = useState<(StockData & { signal: Signal })[]>([])

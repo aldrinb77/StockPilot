@@ -94,7 +94,7 @@ export interface AppState {
   // Behavioral Tracking
   browsedSectors: Record<string, number>
   trackSector: (sector: string) => void
-  viewedStocks: Record<string, number>
+  viewHistory: { symbol: string, name: string, timestamp: number }[]
   addToHistory: (symbol: string, name: string) => void
   resetLayout: () => void
 }
@@ -212,13 +212,13 @@ export const useStore = create<AppState>()(
           [sector]: (state.browsedSectors[sector] || 0) + 1
         }
       })),
-      viewedStocks: {},
-      addToHistory: (symbol, name) => set((state) => ({
-        viewedStocks: {
-          ...state.viewedStocks,
-          [symbol]: (state.viewedStocks[symbol] || 0) + 1
+      viewHistory: [],
+      addToHistory: (symbol, name) => set((state) => {
+        const filtered = state.viewHistory.filter(h => h.symbol !== symbol)
+        return {
+          viewHistory: [{ symbol, name, timestamp: Date.now() }, ...filtered].slice(0, 20)
         }
-      })),
+      }),
       resetLayout: () => set({
         dashboardLayout: [
           { id: 'MARKET_OVERVIEW', label: 'Indices', visible: true },
