@@ -29,7 +29,7 @@ export function TopMovers({ gainers, losers }: TopMoversProps) {
       <div className="glass-card rounded-2xl overflow-hidden animate-stagger">
         <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
           <h3 className="font-black text-lg text-white flex items-center tracking-tight">
-            <span className="text-tvGreen mr-3 text-xl">📈</span> Top Gainers
+             Top Gainers
           </h3>
           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest bg-tvGreen/10 text-tvGreen px-2 py-0.5 rounded border border-tvGreen/20">24h Alpha</span>
         </div>
@@ -81,7 +81,7 @@ export function TopMovers({ gainers, losers }: TopMoversProps) {
       <div className="glass-card rounded-2xl overflow-hidden animate-stagger" style={{ animationDelay: '100ms' }}>
         <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
           <h3 className="font-black text-lg text-white flex items-center tracking-tight">
-            <span className="text-tvRed mr-3 text-xl">📉</span> Top Losers
+             Top Losers
           </h3>
           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest bg-tvRed/10 text-tvRed px-2 py-0.5 rounded border border-tvRed/20">Bearish Pressure</span>
         </div>

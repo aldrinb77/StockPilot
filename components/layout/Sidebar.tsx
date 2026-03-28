@@ -44,7 +44,7 @@ const navItems = [
   { name: "Calculator", href: "/calculator", icon: Calculator, section: 'tools' },
   { name: "Calendar", href: "/calendar", icon: Calendar, section: 'tools' },
   { name: "Compare", href: "/compare", icon: GitCompareArrows, section: 'tools' },
-  { name: "Learn", href: "/learn", icon: BookOpen, section: 'tools' },
+  { name: "Encyclopedia", href: "/learn", icon: BookOpen, section: 'tools' },
   { name: "Settings", href: "/settings", icon: Settings, section: 'settings' },
 ]
 
@@ -82,7 +82,7 @@ export default function Sidebar() {
               <User className="w-4 h-4 text-white/50" />
             </div>
             <div>
-              <p className="text-xs text-[#8899a6] font-medium leading-none">Hey, {userName} 👋</p>
+              <p className="text-[10px] text-[#8899a6] font-black uppercase tracking-widest leading-none">OPERATOR: {userName}</p>
               <div className="mt-1 flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#ffab00]/10 border border-[#ffab00]/20 w-fit">
                 <Zap className="w-2.5 h-2.5 text-[#ffab00] fill-[#ffab00]" />
                 <span className="text-[9px] font-black text-[#ffab00] uppercase tracking-widest">GOD MODE</span>

@@ -19,7 +19,7 @@ export function AlertSetup() {
     addAlert({
       symbol: selectedSymbol,
       type,
-      value: value ? parseFloat(value) : undefined
+      targetValue: value ? parseFloat(value) : 0
     })
     setShowForm(false)
     setSymbol("")
@@ -33,7 +33,7 @@ export function AlertSetup() {
           <h2 className="text-xl font-bold text-white flex items-center">
             <Bell className="w-5 h-5 mr-4 text-tvAmber" /> Price & Signal Alerts
           </h2>
-          <p className="text-sm text-gray-400 mt-1">Get notified when stocks match your criteria.</p>
+          <p className="text-[10px] text-[#5c6b7a] font-black uppercase tracking-widest mt-2 ml-9">Automated monitoring for structural price breaches.</p>
         </div>
         <button 
           onClick={() => setShowForm(true)}
@@ -135,8 +135,8 @@ export function AlertSetup() {
 
              <div className="bg-black/20 p-3 rounded-xl border border-white/5">
                 <p className="text-sm font-medium text-gray-300">
-                  {alert.type === 'PRICE_ABOVE' ? `Price above ${formatCurrency(alert.value!, selectedMarket)}` : 
-                   alert.type === 'PRICE_BELOW' ? `Price below ${formatCurrency(alert.value!, selectedMarket)}` :
+                  {alert.type === 'PRICE_ABOVE' ? `Price above ${formatCurrency(alert.targetValue!, selectedMarket)}` : 
+                   alert.type === 'PRICE_BELOW' ? `Price below ${formatCurrency(alert.targetValue!, selectedMarket)}` :
                    alert.type.replace('_', ' ')}
                 </p>
              </div>

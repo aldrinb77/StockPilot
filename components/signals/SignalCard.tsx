@@ -9,7 +9,6 @@ import { AnimatedNumber } from "@/components/ui/AnimatedNumber"
 import { PulseDot } from "@/components/ui/PulseDot"
 import { MARKETS } from "@/lib/markets"
 import Link from "next/link"
-import { useUserProfile } from "@/hooks/useUserProfile"
 import { TradeCard } from "../social/TradeCard"
 
 interface SignalCardProps {
@@ -52,27 +51,27 @@ export function SignalCard(props: SignalCardProps) {
   const getActionPill = () => {
     if (isStrongBuy) return (
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00e67615] border border-[#00e67630] text-[#00e676] text-[10px] font-black tracking-widest uppercase">
-         <PulseDot color="green" /> 🚀 STRONG BUY
+         <PulseDot color="green" /> STRONG BULLISH
       </div>
     )
     if (isBuy) return (
        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00e67615] border border-[#00e67620] text-[#00e676] text-[10px] font-black tracking-widest uppercase">
-          📈 BUY
+          BULLISH
        </div>
     )
     if (isStrongSell) return (
        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#ff174415] border border-[#ff174430] text-[#ff1744] text-[10px] font-black tracking-widest uppercase font-bold">
-          <PulseDot color="red" /> 🚨 STRONG SELL — EXIT NOW
+          <PulseDot color="red" /> STRONG BEARISH — EXECUTE EXIT
        </div>
     )
     if (isSell) return (
        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#ff174415] border border-[#ff174420] text-[#ff1744] text-[10px] font-black tracking-widest uppercase">
-          📉 SELL
+          BEARISH
        </div>
     )
     return (
        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#ffab0015] border border-[#ffab0020] text-[#ffab00] text-[10px] font-black tracking-widest uppercase">
-          ⏸️ HOLD — Wait for better entry
+          NEUTRAL — REGIME INDETERMINATE
        </div>
     )
   }
@@ -91,7 +90,7 @@ export function SignalCard(props: SignalCardProps) {
           <div className="flex items-center gap-3">
              <h3 className="text-2xl font-black text-white tracking-tighter uppercase">{symbol}</h3>
              <div className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest ${change >= 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                {change >= 0 ? '+' : ''}{change.toFixed(2)} ({changePercent}%) {change >= 0 ? '📈' : '📉'}
+                {change >= 0 ? '+' : ''}{change.toFixed(2)} ({changePercent}%)
              </div>
           </div>
           <p className="text-[11px] text-[#8899a6] font-bold uppercase tracking-wider truncate max-w-[180px]">{name}</p>

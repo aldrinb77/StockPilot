@@ -6,7 +6,7 @@ import { MarketRegion } from '@/lib/markets'
 export interface Alert {
   id: string
   symbol: string
-  type: 'PRICE_ABOVE' | 'PRICE_BELOW' | 'PERCENT_UP' | 'PERCENT_DOWN'
+  type: 'PRICE_ABOVE' | 'PRICE_BELOW' | 'PERCENT_UP' | 'PERCENT_DOWN' | 'SIGNAL_BULLISH' | 'SIGNAL_BEARISH' | 'RSI_OVERSOLD' | 'RSI_OVERBOUGHT' | 'VOLUME_SPIKE'
   targetValue: number
   triggered: boolean
   createdAt: number
@@ -55,12 +55,15 @@ export interface AppState {
   journalEntries: JournalEntry[]
   addJournalEntry: (entry: Omit<JournalEntry, 'id'>) => void
   removeJournalEntry: (id: string) => void
+  
+  // Trade History
+  tradeHistory: PortfolioItem[]
+  addToHistoryExecuted: (item: PortfolioItem) => void
+  removeFromHistory: (id: string) => void
 
   // User State
   hasCompletedOnboarding: boolean
   setHasCompletedOnboarding: (val: boolean) => void
-  experienceLevel: 'beginner' | 'intermediate' | 'experienced'
-  setExperienceLevel: (level: 'beginner' | 'intermediate' | 'experienced') => void
   
   selectedMarket: MarketRegion
   setSelectedMarket: (market: MarketRegion) => void
@@ -135,10 +138,16 @@ export const useStore = create<AppState>()(
         journalEntries: state.journalEntries.filter(e => e.id !== id)
       })),
 
+      tradeHistory: [],
+      addToHistoryExecuted: (item) => set((state) => ({
+        tradeHistory: [{ ...item, id: Math.random().toString(36).substr(2, 9) }, ...state.tradeHistory]
+      })),
+      removeFromHistory: (id) => set((state) => ({
+        tradeHistory: state.tradeHistory.filter(h => h.id !== id)
+      })),
+
       hasCompletedOnboarding: false,
       setHasCompletedOnboarding: (val) => set({ hasCompletedOnboarding: val }),
-      experienceLevel: 'beginner',
-      setExperienceLevel: (level) => set({ experienceLevel: level }),
       
       selectedMarket: 'IN',
       setSelectedMarket: (market) => set({ selectedMarket: market }),

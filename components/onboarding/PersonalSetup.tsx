@@ -57,8 +57,8 @@ export function PersonalSetup({ onComplete }: { onComplete: () => void }) {
           <div className="w-16 h-16 bg-tvGreen/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tvGreen/20">
             <TrendingUp className="w-8 h-8 text-tvGreen" />
           </div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Welcome to StoxPilot 📈</h2>
-          <p className="text-gray-400 mt-2 font-medium">Your Personal Trading Assistant</p>
+          <h2 className="text-3xl font-black text-white tracking-tight">System Core Initialization</h2>
+          <p className="text-gray-400 mt-2 font-black uppercase text-[10px] tracking-[0.3em] opacity-40">High-Performance Quant Terminal v2.5</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -72,7 +72,7 @@ export function PersonalSetup({ onComplete }: { onComplete: () => void }) {
             >
               <div>
                 <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center">
-                  <User className="w-3 h-3 mr-2" /> What should I call you?
+                  <User className="w-3 h-3 mr-2" /> Operator Signature (Name)
                 </label>
                 <input 
                   type="text" 
@@ -165,10 +165,10 @@ export function PersonalSetup({ onComplete }: { onComplete: () => void }) {
                    ))}
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                    <button onClick={() => setStep(2)} className="w-1/3 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl">Back</button>
-                    <button onClick={finish} className="flex-1 w-2/3 px-10 py-4 bg-tvGreen text-white font-black rounded-xl shadow-2xl shadow-tvGreen/20 active:scale-95 transition-all">Let&apos;s Go! 🚀</button>
-                </div>
+                 <div className="flex gap-4 pt-4">
+                     <button onClick={() => setStep(2)} className="w-1/3 py-4 bg-white/5 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all">Back</button>
+                     <button onClick={finish} className="flex-1 w-2/3 px-10 py-4 bg-tvGreen text-white font-black rounded-xl shadow-2xl shadow-tvGreen/20 active:scale-95 transition-all text-[10px] tracking-widest uppercase">Activate Terminal</button>
+                 </div>
             </motion.div>
           )}
         </AnimatePresence>

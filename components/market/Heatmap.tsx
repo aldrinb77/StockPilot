@@ -7,7 +7,7 @@ import { fetchMultipleQuotes } from "@/lib/api"
 import { StockData } from "@/lib/types"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Activity, Tooltip } from "lucide-react"
+import { Activity } from "lucide-react"
 
 export function Heatmap() {
   const { selectedMarket } = useStore()
@@ -43,10 +43,10 @@ export function Heatmap() {
 
   const getColor = (change: number) => {
     if (change >= 3) return "bg-[#00e676]"      // Deep Green
-    if (change >= 1) return "bg-[#66bb6a]"      // Light Green
+    if (change >= 1) return "bg-[#00e67680]"   // Light Green
     if (change <= -3) return "bg-[#ff1744]"     // Deep Red
-    if (change <= -1) return "bg-[#ef5350]"     // Light Red
-    return "bg-[#424242]"                      // Gray
+    if (change <= -1) return "bg-[#ff174480]"    // Light Red
+    return "bg-[#1a2332]"                      // Elevated Gray
   }
 
   const getOpacity = (change: number) => {

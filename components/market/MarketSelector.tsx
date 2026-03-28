@@ -48,7 +48,7 @@ export const MarketSelector = () => {
             className="absolute right-0 top-full z-50 w-64 mt-2 overflow-hidden bg-[#1E222D]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/40"
           >
             <div className="p-3 border-b border-white/5">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">🌍 Select Market</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Select Market</h3>
             </div>
             
             <div className="py-1 max-h-[350px] overflow-y-auto custom-scrollbar">

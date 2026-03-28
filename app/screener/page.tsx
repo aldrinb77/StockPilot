@@ -12,6 +12,7 @@ import { generateSignal } from '@/lib/signals'
 import { Search, Sparkles, Filter, Terminal, Activity, Database } from 'lucide-react'
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/ui/FadeIn'
 import { PulseDot } from '@/components/ui/PulseDot'
+import { StrategyBuilder } from '@/components/screener/StrategyBuilder'
 
 export default function ScreenerPage() {
   const { selectedMarket } = useStore()
@@ -88,6 +89,10 @@ export default function ScreenerPage() {
               </div>
            </div>
            <FilterPanel onFilterChange={setFilters} />
+        </div>
+
+        <div className="space-y-10">
+           <StrategyBuilder onApply={() => {}} />
         </div>
 
         <div className="space-y-10">

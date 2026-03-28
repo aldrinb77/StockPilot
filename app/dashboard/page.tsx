@@ -16,10 +16,11 @@ import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
 import { PulseDot } from '@/components/ui/PulseDot'
 
 import { PersonalizedFeed } from '@/components/dashboard/PersonalizedFeed'
+import { AIReport } from '@/components/analysis/AIReport'
+
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 import { WhatIfCalculator } from '@/components/tools/WhatIfCalculator'
 import { AlertSetup } from '@/components/alerts/AlertSetup'
-import { DailyTip } from '@/components/learning/DailyTip'
 import { Heatmap } from '@/components/market/Heatmap'
 import { EarningsCalendar } from '@/components/market/EarningsCalendar'
 import { useUserProfile } from '@/hooks/useUserProfile'
@@ -100,14 +101,18 @@ export default function DashboardPage() {
 
   return (
     <FadeIn>
-      <div className="space-y-12 pb-20 max-w-7xl mx-auto px-6">
+      <div className="space-y-12 pb-20">
+        
+
+
+        <div className="pt-16 max-w-7xl mx-auto px-6 space-y-12">
         
         {/* Personalized Header */}
         <div className="md:flex justify-between items-end gap-6 space-y-4 md:space-y-0">
           <div className="space-y-3">
              <div className="flex items-center space-x-2.5 text-[#00e676]">
                 <PulseDot color="green" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Terminal Protocol Active</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em]">⚡ GOD MODE PROTOCOL ACTIVE</span>
              </div>
              <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-[1.1]">
                {greeting}, <br className="md:hidden" />
@@ -116,13 +121,17 @@ export default function DashboardPage() {
              <div className="flex items-center gap-4">
                 <p className="text-[#8899a6] font-bold text-lg">System monitoring {marketConfig.name} liquidity in real-time.</p>
                 {streak > 0 && (
-                   <div className="px-4 py-1.5 bg-[#ff1744]/10 border border-[#ff174430] text-[#ff1744] rounded-full text-[10px] font-black tracking-widest flex items-center gap-2">
+                   <div className="px-4 py-1.5 bg-[#ff1744]/10 border border-[#ff174430] text-[#ff1744] rounded-full text-[10px] font-black tracking-widest flex items-center gap-2 shadow-2xl shadow-[#ff174410]">
                       <Zap className="w-3.5 h-3.5 fill-current" /> {streak} DAY STREAK
                    </div>
                 )}
              </div>
           </div>
           <div className="flex items-center space-x-4">
+             <div className="hidden lg:flex flex-col items-end mr-6 border-r border-white/5 pr-6">
+                <span className="text-[10px] font-black text-[#5c6b7a] uppercase tracking-widest">Network Speed</span>
+                <span className="text-xs font-black text-[#00e676]">LOCAL_DECRYPT_MODE</span>
+             </div>
              <button 
                onClick={() => setShowCustomizer(true)}
                className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-[#f0f4f8] hover:bg-white/10 transition-all flex items-center gap-3 group"
@@ -132,6 +141,9 @@ export default function DashboardPage() {
              </button>
           </div>
         </div>
+
+        {/* AI Intelligence Report (Always visible) */}
+        <AIReport stocks={data} />
 
         {showCustomizer && <DashboardCustomizer onClose={() => setShowCustomizer(false)} />}
 
@@ -233,7 +245,7 @@ export default function DashboardPage() {
                              </h4>
                              <MarketStatusRow status={marketStatus} config={marketConfig} mini />
                           </div>
-                          <DailyTip />
+
                        </div>
                     </div>
                   </section>
@@ -250,6 +262,7 @@ export default function DashboardPage() {
           })}
         </div>
 
+        </div>
       </div>
     </FadeIn>
   )

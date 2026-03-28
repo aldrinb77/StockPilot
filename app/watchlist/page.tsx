@@ -146,7 +146,7 @@ export default function WatchlistPage() {
                    onClick={() => setActiveGroup('all')}
                    className={cn("px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", activeGroup === 'all' ? "bg-white text-black" : "text-[#8899a6] hover:bg-white/5 hover:text-white")}
                  >
-                    All Assets
+                    COMPLETE ASSET ARRAY
                  </button>
                  {watchlistGroups.map(g => (
                    <button 
@@ -246,7 +246,7 @@ function EmptyWatchlist() {
       <div className="w-32 h-32 bg-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 border border-white/10 group hover:scale-110 transition-transform cursor-pointer">
          <Star className="w-16 h-16 text-[#ffab00] opacity-30 group-hover:opacity-100 transition-opacity" />
       </div>
-      <h2 className="text-4xl font-black text-white mb-4 tracking-tighter uppercase">Your Watchlist is Empty</h2>
+      <h2 className="text-4xl font-black text-white mb-4 tracking-tighter uppercase">Operational Watchlist: Empty</h2>
       <p className="text-[#8899a6] mb-12 max-w-md font-bold leading-relaxed text-lg text-center">Pin your favorite assets to track exact mathematically generated entries and targets in real-time.</p>
       <Link href="/screener" className="px-10 py-5 bg-gradient-to-r from-[#00e676] to-[#00c853] text-white rounded-2xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#00e67620] flex items-center gap-3">
         <Search className="w-5 h-5" /> Browse Market Array →

@@ -12,7 +12,7 @@ import { fetchStockQuote } from "@/lib/api"
 import { StockData, Signal } from "@/lib/types"
 
 export default function DailyBriefing() {
-  const { watchlist, experienceLevel, selectedMarket } = useStore()
+  const { watchlist, selectedMarket } = useStore()
   const [topStock, setTopStock] = useState<(StockData & { signal: Signal; isMockData?: boolean }) | null>(null)
   const [loading, setLoading] = useState(true)
   
@@ -26,7 +26,7 @@ export default function DailyBriefing() {
       setLoading(true)
       try {
         const symbol = 'AAPL' // Could be dynamic from marketConfig.popularStocks[0]
-        const quote = await fetchStockQuote(symbol, true)
+        const quote = await fetchStockQuote(symbol)
         setTopStock({
           ...quote,
           signal: MOCK_SIGNALS[symbol] || MOCK_SIGNALS['META']
@@ -44,10 +44,10 @@ export default function DailyBriefing() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 max-w-5xl mx-auto">
       <div className="bg-gradient-to-r from-tvPurple/20 via-[#1E222D] to-tvBlue/10 p-8 rounded-3xl border border-white/10 relative overflow-hidden">
         <Sun className="absolute -right-8 -top-8 w-48 h-48 text-yellow-500/10 blur-2xl pointer-events-none" />
-        <h1 className="text-4xl font-extrabold text-white font-heading tracking-tight mb-2">
-          {greeting}, Trader! 👋
+        <h1 className="text-4xl font-black text-white uppercase tracking-tighter mb-2">
+          System Briefing: <span className="text-tvPurple">Nominal</span>
         </h1>
-        <p className="text-gray-400 font-medium tracking-wide">It&apos;s {dateString}. Here forms your transparent algorithmic breakdown.</p>
+        <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.3em] opacity-60">Temporal Reference: {dateString}. Liquidity Vector Analysis Active.</p>
         
         <div className="mt-6 inline-flex bg-[#111827]/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-700/50 shadow-lg text-sm font-bold text-tvGreen items-center">
           <Clock className="w-4 h-4 mr-2" /> Market is OPEN
@@ -125,17 +125,21 @@ export default function DailyBriefing() {
         {/* Sidebar Status Columns */}
         <div className="space-y-6">
           <div className="glass-panel p-6 rounded-2xl">
-            <h3 className="font-bold text-white mb-4">Daily Educational Protocol</h3>
-            <div className="bg-[#111827] p-4 rounded-xl border border-gray-800">
-              <span className="text-2xl mb-2 block">💡</span>
-              <p className="text-sm font-bold text-white mb-1">Never guess tops and bottoms.</p>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                Trying to locate exact structural tops relies purely on speculation. Wait patiently for the Moving Averages to converge establishing a clean signal securely.
-              </p>
+            <h3 className="font-bold text-white mb-4 uppercase text-[11px] tracking-widest">System Readiness</h3>
+            <div className="bg-[#111827] p-4 rounded-xl border border-gray-800 space-y-4">
+              <div className="flex items-center gap-3">
+                 <div className="w-2 h-2 rounded-full bg-tvGreen" />
+                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Network Low-Latency: ACTIVE</span>
+              </div>
+              <div className="flex items-center gap-3">
+                 <div className="w-2 h-2 rounded-full bg-tvGreen" />
+                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Compute Shards: NOMINAL</span>
+              </div>
+              <div className="flex items-center gap-3">
+                 <div className="w-2 h-2 rounded-full bg-tvGreen" />
+                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Vault Sync: COMPLETED</span>
+              </div>
             </div>
-            <Link href="/learn" className="block w-full py-2 text-center mt-4 bg-gray-800 hover:bg-gray-700 text-sm font-bold rounded-lg transition-colors text-white border border-gray-700">
-              Read More Guides
-            </Link>
           </div>
 
           <div className="glass-panel p-6 rounded-2xl">

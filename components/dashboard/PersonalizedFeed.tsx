@@ -82,7 +82,7 @@ export function PersonalizedFeed() {
       <motion.div variants={FADE_IN} className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-2">
-            {greeting}, <span className="text-tvBlue">Trader</span> 👋
+            TERMINAL STATUS: <span className="text-tvBlue">NOMINAL</span>
           </h1>
           <p className="text-sm text-gray-500 font-medium tracking-wide">Analysis protocol initialized for {marketConfig.name} liquidity zones.</p>
         </div>
@@ -95,7 +95,7 @@ export function PersonalizedFeed() {
           <div>
             <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Market Sentinel</p>
             <p className="text-sm text-white leading-relaxed font-bold">
-              📊 {marketConfig.name} identifying <span className="text-tvGreen">Bullish Confluence</span>.
+              {marketConfig.name} identifying <span className="text-tvGreen">Bullish Confluence</span>.
               Sentiment extraction: <span className="text-tvGreen">{sentiment}</span>.
             </p>
           </div>

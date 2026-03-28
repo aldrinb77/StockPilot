@@ -3,7 +3,7 @@ import { GuideCard } from "@/components/learn/GuideCard"
 import { BookOpen, Terminal, Sparkles, Shield, Zap } from "lucide-react"
 import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/FadeIn"
 
-export default function LearnPage() {
+export default function EncyclopediaPage() {
   return (
     <FadeIn>
       <div className="space-y-12 pb-20 max-w-7xl mx-auto px-6">
@@ -14,9 +14,9 @@ export default function LearnPage() {
               <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-[#2979ff] text-[10px] font-black tracking-[0.4em] mb-8 uppercase">
                  <Shield className="w-4 h-4" /> Operational Training Protocols
               </div>
-              <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-6 leading-tight">
-                 Master the Market <br/>
-                 <span className="text-gradient bg-gradient-to-r from-[#2979ff] to-[#00e5ff]">Intelligence Engine.</span>
+              <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-6 leading-tight uppercase">
+                 Market <br/>
+                 <span className="text-gradient bg-gradient-to-r from-[#2979ff] to-[#00e5ff]">Encyclopedia.</span>
               </h1>
               <p className="text-lg text-[#8899a6] font-bold leading-relaxed mb-10">
                  From absolute zero to institutional-level execution. Learn how the StoxPilot engine synthesizes data for high-confidence entries.
