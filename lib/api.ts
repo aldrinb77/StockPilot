@@ -1,76 +1,119 @@
 import { StockData, OHLCV } from './types';
 import { MOCK_STOCKS, getMockHistoricalData } from './mockData';
 
-const YAHOO_BASE = 'https://query1.finance.yahoo.com';
+// API Configuration
+const TWELVE_DATA_KEY = "248473bdca0e4613aa83b1bda1cc1c98"; // Hardcoded from wrangler.toml as envs are tricky in client-side edge builds
 
-// Use a CORS proxy for client-side fetching
+// CORS Proxies (Backup only)
 const CORS_PROXIES = [
   'https://api.allorigins.win/raw?url=',
-  'https://corsproxy.io/?',
   'https://api.codetabs.com/v1/proxy?quest=',
+  'https://corsproxy.io/?',
 ];
 
 let currentProxyIndex = 0;
 
-function getProxyUrl(url: string): string {
-  const proxy = CORS_PROXIES[currentProxyIndex % CORS_PROXIES.length];
-  return proxy + encodeURIComponent(url);
-}
+async function fetchWithFallback(url: string, useProxy: boolean = false): Promise<any> {
+  // 1. Try internal API route first (Server-side bypass)
+  if (!url.startsWith('http') || url.includes('/api/stock')) {
+      try {
+          const response = await fetch(url);
+          if (response.ok) return await response.json();
+      } catch (err) {
+          console.warn('Internal API failed, trying proxies...', err);
+      }
+  }
 
-async function fetchWithProxy(url: string): Promise<any> {
+  // 2. Try proxies
   for (let i = 0; i < CORS_PROXIES.length; i++) {
     try {
-      const proxyUrl = getProxyUrl(url);
+      const proxy = CORS_PROXIES[currentProxyIndex % CORS_PROXIES.length];
+      const proxyUrl = proxy + encodeURIComponent(url);
+      currentProxyIndex++;
+      
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
+      const timeout = setTimeout(() => controller.abort(), 8000);
       
       const response = await fetch(proxyUrl, { signal: controller.signal });
       clearTimeout(timeout);
       
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      }
+      if (response.ok) return await response.json();
     } catch (error) {
-      currentProxyIndex++;
       console.warn(`Proxy ${i} failed, trying next...`);
     }
   }
-  throw new Error('All proxies failed');
+  throw new Error('All fetch methods failed');
 }
 
 export async function fetchStockQuote(symbol: string): Promise<StockData> {
+  // Use Twelve Data for precise quotes if possible (reliable browser CORS)
+  // Note: 8 requests/min limit. Dashboard may exhaust this.
   try {
-    const url = `${YAHOO_BASE}/v8/finance/chart/${symbol}?interval=1d&range=5d`;
-    const data = await fetchWithProxy(url);
+    const tdUrl = `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${TWELVE_DATA_KEY}`;
+    const response = await fetch(tdUrl);
     
-    const result = data.chart.result[0];
-    const meta = result.meta;
-    const quotes = result.indicators.quote[0];
-    const lastIndex = quotes.close.length - 1;
-    
-    return {
-      symbol: meta.symbol,
-      name: meta.shortName || meta.longName || symbol,
-      sector: '',
-      price: meta.regularMarketPrice || quotes.close[lastIndex],
-      change: (meta.regularMarketPrice - meta.chartPreviousClose) || 0,
-      changePercent: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100) || 0,
-      volume: quotes.volume[lastIndex] || 0,
-      high: quotes.high[lastIndex] || 0,
-      low: quotes.low[lastIndex] || 0,
-      open: quotes.open[lastIndex] || 0,
-      prevClose: meta.chartPreviousClose || 0,
-      marketCap: 0,
-      pe: 0,
-      eps: 0,
-      week52High: meta.fiftyTwoWeekHigh || 0,
-      week52Low: meta.fiftyTwoWeekLow || 0,
-    };
-  } catch (error) {
-    console.error(`Failed to fetch ${symbol}:`, error);
-    return getMockQuote(symbol);
+    if (response.ok) {
+        const data = await response.json();
+        if (data.symbol) {
+            return {
+                symbol: data.symbol,
+                name: data.name || symbol,
+                sector: '',
+                price: parseFloat(data.close || data.price || '0'),
+                change: parseFloat(data.change || '0'),
+                changePercent: parseFloat(data.percent_change || '0'),
+                volume: parseInt(data.volume || '0'),
+                high: parseFloat(data.high || '0'),
+                low: parseFloat(data.low || '0'),
+                open: parseFloat(data.open || '0'),
+                prevClose: parseFloat(data.previous_close || '0'),
+                marketCap: 0,
+                pe: 0,
+                eps: 0,
+                week52High: parseFloat(data.fifty_two_week?.high || '0'),
+                week52Low: parseFloat(data.fifty_two_week?.low || '0'),
+            };
+        }
+    }
+  } catch (err) {
+    console.warn(`TwelveData failed for ${symbol}, falling back to Yahoo API`, err);
   }
+
+  // Fallback to Yahoo via Server Side API (Edge Runtime)
+  try {
+    const internalUrl = `/api/stock/${symbol}?range=1d&interval=1m`;
+    const data = await fetchWithFallback(internalUrl);
+    
+    if (data.chart?.result?.[0]) {
+        const result = data.chart.result[0];
+        const meta = result.meta;
+        const quotes = result.indicators.quote[0];
+        const lastIndex = (quotes.close?.length || 1) - 1;
+        
+        return {
+          symbol: meta.symbol,
+          name: meta.shortName || meta.longName || symbol,
+          sector: '',
+          price: meta.regularMarketPrice || quotes.close?.[lastIndex] || 0,
+          change: (meta.regularMarketPrice - meta.chartPreviousClose) || 0,
+          changePercent: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose * 100) || 0,
+          volume: quotes.volume?.[lastIndex] || 0,
+          high: quotes.high?.[lastIndex] || 0,
+          low: quotes.low?.[lastIndex] || 0,
+          open: quotes.open?.[lastIndex] || 0,
+          prevClose: meta.chartPreviousClose || 0,
+          marketCap: 0,
+          pe: 0,
+          eps: 0,
+          week52High: meta.fiftyTwoWeekHigh || 0,
+          week52Low: meta.fiftyTwoWeekLow || 0,
+        };
+    }
+  } catch (error) {
+    console.error(`Failed all fetch methods for ${symbol}:`, error);
+  }
+  
+  return getMockQuote(symbol);
 }
 
 export async function fetchHistoricalData(
@@ -79,29 +122,43 @@ export async function fetchHistoricalData(
   interval: string = '1d'
 ): Promise<OHLCV[]> {
   try {
-    const url = `${YAHOO_BASE}/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
-    const data = await fetchWithProxy(url);
+    const internalUrl = `/api/stock/${symbol}?range=${range}&interval=${interval}`;
+    const data = await fetchWithFallback(internalUrl);
     
-    const result = data.chart.result[0];
-    const timestamps = result.timestamp;
-    const quotes = result.indicators.quote[0];
-    
-    return timestamps.map((time: number, i: number) => ({
-      time: time,
-      open: quotes.open[i] || 0,
-      high: quotes.high[i] || 0,
-      low: quotes.low[i] || 0,
-      close: quotes.close[i] || 0,
-      volume: quotes.volume[i] || 0,
-    })).filter((bar: any) => bar.close > 0);
+    if (data.chart?.result?.[0]) {
+        const result = data.chart.result[0];
+        const timestamps = result.timestamp || [];
+        const quotes = result.indicators.quote[0];
+        
+        return timestamps.map((time: number, i: number) => ({
+          time: time,
+          open: quotes.open[i] || 0,
+          high: quotes.high[i] || 0,
+          low: quotes.low[i] || 0,
+          close: quotes.close[i] || 0,
+          volume: quotes.volume[i] || 0,
+        })).filter((bar: any) => bar.close > 0);
+    }
+    throw new Error('Malformed historical data');
   } catch (error) {
-    console.error(`Failed to fetch history for ${symbol}:`, error);
-    return getMockHistorical(symbol);
+    console.warn(`Failed history for ${symbol}, trying direct Yahoo with proxy...`, error);
+    try {
+        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
+        const data = await fetchWithFallback(yahooUrl, true);
+        const result = data.chart.result[0];
+        const timestamps = result.timestamp || [];
+        const quotes = result.indicators.quote[0];
+        return timestamps.map((time: number, i: number) => ({
+            time: time, open: quotes.open[i] || 0, high: quotes.high[i] || 0, low: quotes.low[i] || 0, close: quotes.close[i] || 0, volume: quotes.volume[i] || 0
+        })).filter((bar: any) => bar.close > 0);
+    } catch (err2) {
+        return getMockHistorical(symbol);
+    }
   }
 }
 
 export async function fetchMultipleQuotes(symbols: string[]): Promise<StockData[]> {
-  // Fetch all in parallel (no rate limit for Yahoo)
+  // Use parallel fetch via our internal API which is reliable
   const promises = symbols.map(s => fetchStockQuote(s));
   const results = await Promise.allSettled(promises);
   
@@ -114,12 +171,16 @@ export async function fetchMultipleQuotes(symbols: string[]): Promise<StockData[
 export async function searchStocks(query: string): Promise<{symbol: string, name: string}[]> {
     if (!query) return [];
     try {
+        // Use a generic proxy search
         const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}`;
-        const data = await fetchWithProxy(url);
-        return data.quotes.map((q: any) => ({
-            symbol: q.symbol,
-            name: q.shortname || q.longname || q.symbol
-        })).slice(0, 5);
+        const data = await fetchWithFallback(url, true);
+        if (data.quotes) {
+            return data.quotes.map((q: any) => ({
+                symbol: q.symbol,
+                name: q.shortname || q.longname || q.symbol
+            })).slice(0, 5);
+        }
+        return [];
     } catch (err) {
         return [];
     }
