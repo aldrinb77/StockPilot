@@ -90,6 +90,13 @@ export interface AppState {
     accentColor: string
     cardStyle: 'glass' | 'solid'
   }
+  
+  // Behavioral Tracking
+  browsedSectors: Record<string, number>
+  trackSector: (sector: string) => void
+  viewedStocks: Record<string, number>
+  addToHistory: (symbol: string, name: string) => void
+  resetLayout: () => void
 }
 
 const DEFAULT_ACHIEVEMENTS: Achievement[] = [
@@ -196,7 +203,31 @@ export const useStore = create<AppState>()(
       appearance: {
         accentColor: '#00e676',
         cardStyle: 'glass'
-      }
+      },
+
+      browsedSectors: {},
+      trackSector: (sector) => set((state) => ({
+        browsedSectors: {
+          ...state.browsedSectors,
+          [sector]: (state.browsedSectors[sector] || 0) + 1
+        }
+      })),
+      viewedStocks: {},
+      addToHistory: (symbol, name) => set((state) => ({
+        viewedStocks: {
+          ...state.viewedStocks,
+          [symbol]: (state.viewedStocks[symbol] || 0) + 1
+        }
+      })),
+      resetLayout: () => set({
+        dashboardLayout: [
+          { id: 'MARKET_OVERVIEW', label: 'Indices', visible: true },
+          { id: 'WATCHLIST', label: 'Watchlist Feed', visible: true },
+          { id: 'TOP_MOVERS', label: 'Top Movers', visible: true },
+          { id: 'SECTOR_HEATMAP', label: 'Market Heatmap', visible: true },
+          { id: 'MARKET_CALENDAR', label: 'Temporal Events', visible: true },
+        ]
+      })
     }),
     {
       name: 'stoxpilot-advanced-store-v3',
