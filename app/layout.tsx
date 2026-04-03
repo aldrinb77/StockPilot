@@ -39,6 +39,7 @@ export const viewport: Viewport = {
 import { ToastProvider } from "@/components/ui/Toast"
 import { BottomStatusBar } from "@/components/layout/BottomStatusBar"
 import { TickerTape } from "@/components/market/TickerTape"
+import { PageTransition } from "@/components/ui/FadeIn"
 
 export const metadata: Metadata = {
   title: "StoxPilot - Your Personal Trading Assistant",
@@ -56,7 +57,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans antialiased`}>
+      <body className={`${jakarta.variable} ${inter.variable} ${mono.variable} font-sans antialiased overflow-hidden bg-[#060a13]`}>
+        {/* ATMOSPHERIC ENVIRONMENT */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-tvBlue/10 blur-[120px] rounded-full animate-blob" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tvGreen/5 blur-[120px] rounded-full animate-blob animation-delay-2000" />
+          <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] bg-tvPurple/5 blur-[120px] rounded-full animate-blob animation-delay-4000" />
+          <div className="scanline" />
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+        </div>
+
         <ToastProvider>
           <ThemeProvider>
             <BugFixClient />
@@ -68,12 +78,14 @@ export default function RootLayout({
               <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
                 <TickerTape />
                 <TopBar />
-                <main className="flex-1 overflow-y-auto w-full relative flex flex-col custom-scrollbar pb-7 md:pb-12">
-                  <div className="flex-1">
-                    {children}
-                  </div>
-                  <Footer />
-                </main>
+                  <main className="flex-1 overflow-y-auto w-full relative flex flex-col custom-scrollbar pb-7 md:pb-12">
+                    <div className="flex-1">
+                      <PageTransition>
+                        {children}
+                      </PageTransition>
+                    </div>
+                    <Footer />
+                  </main>
                 <MobileNav />
                 <BottomStatusBar />
               </div>

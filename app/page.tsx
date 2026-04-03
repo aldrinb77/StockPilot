@@ -26,6 +26,8 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/FadeIn"
 import { PulseDot } from "@/components/ui/PulseDot"
 import { useEffect, useState, useRef } from "react"
 
+import { TerminalAnimation } from "@/components/ui/TerminalAnimation"
+
 export default function Home() {
   const { userName, isSetupComplete } = useUserProfile()
   const [mounted, setMounted] = useState(false)
@@ -112,30 +114,38 @@ export default function Home() {
             transition={{ duration: 1.5, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="mt-20 w-full max-w-4xl perspective-[1200px]"
           >
-            <div 
-              className="glass-card rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl shadow-black aspect-video relative animate-float-slow"
-              style={{ transform: 'perspective(1200px) rotateY(-5deg) rotateX(10deg)' }}
-            >
-               <div className="absolute inset-0 bg-gradient-to-br from-[#00e67605] to-transparent" />
-               <div className="absolute top-0 left-0 right-0 h-10 bg-white/5 border-b border-white/5 flex items-center px-6 gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/30" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
-               </div>
-               <div className="p-12 space-y-8">
-                  <div className="flex justify-between">
-                     <div className="space-y-4">
-                        <div className="h-6 w-32 bg-white/5 rounded-lg" />
-                        <div className="h-12 w-64 bg-white/10 rounded-xl" />
-                     </div>
-                     <div className="h-16 w-16 bg-[#00e67610] border border-[#00e67620] rounded-2xl" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-6">
-                     {[1,2,3].map(i => <div key={i} className="h-32 bg-white/5 rounded-2xl" />)}
-                  </div>
-                  <div className="h-48 bg-white/5 rounded-3xl" />
-               </div>
-            </div>
+             <div 
+               className="glass-card rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl shadow-black aspect-video relative animate-float-slow"
+               style={{ transform: 'perspective(1200px) rotateY(-5deg) rotateX(10deg)' }}
+             >
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00e67605] to-transparent z-10 pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-10 bg-[#060a13] border-b border-white/5 flex items-center px-6 gap-2 z-20">
+                   <div className="w-2.5 h-2.5 rounded-full bg-red-500/30" />
+                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
+                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
+                   <span className="ml-4 text-[9px] font-black text-gray-600 uppercase tracking-widest font-mono">STOX_PILOT_OS // LOGGING ACTIVE</span>
+                </div>
+                
+                <TerminalAnimation />
+
+                <div className="p-12 relative z-20 h-full flex flex-col justify-center items-center text-center">
+                   <div className="space-y-6">
+                      <div className="flex items-center justify-center gap-4 text-[#00e676] animate-pulse">
+                         <div className="p-4 bg-[#00e67610] rounded-2xl border border-[#00e67640]">
+                            <Zap className="w-8 h-8" />
+                         </div>
+                         <div className="text-left py-2 border-l-2 border-[#00e67630] pl-4">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] block">Data Packets Received</span>
+                            <span className="text-2xl font-black font-mono">RELIANCE +1.2%</span>
+                         </div>
+                      </div>
+                      <div className="flex gap-4">
+                         <div className="px-6 py-3 bg-[#2979ff10] border border-[#2979ff30] rounded-2xl text-[10px] font-black text-[#2979ff] uppercase tracking-widest font-mono animate-float-slow">BUY_ORDER_EXECUTED</div>
+                         <div className="px-6 py-3 bg-[#7c4dff10] border border-[#7c4dff30] rounded-2xl text-[10px] font-black text-[#7c4dff] uppercase tracking-widest font-mono animation-delay-2000 animate-float-slow">TREND_CORRELATION: 0.94</div>
+                      </div>
+                   </div>
+                </div>
+             </div>
           </motion.div>
         </motion.div>
 

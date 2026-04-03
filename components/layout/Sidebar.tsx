@@ -30,6 +30,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useMenuStore } from "@/store/useMenuStore"
 import { useUserProfile } from "@/hooks/useUserProfile"
+import { playInterfaceSound } from "@/lib/audio"
 
 const navItems = [
   { name: "Briefing", href: "/briefing", icon: Newspaper, section: 'main' },
@@ -133,6 +134,8 @@ function renderSection(section: string, items: any[], pathname: string, collapse
         key={item.href}
         href={item.href}
         title={collapsed ? item.name : undefined}
+        onMouseEnter={() => playInterfaceSound('HOVER')}
+        onClick={() => playInterfaceSound('SELECT')}
         className={cn(
           "flex items-center transition-all duration-200 rounded-xl h-10 group relative overflow-hidden mb-1",
           isActive 

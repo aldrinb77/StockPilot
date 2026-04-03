@@ -10,6 +10,7 @@ import { PulseDot } from "@/components/ui/PulseDot"
 import { MARKETS } from "@/lib/markets"
 import Link from "next/link"
 import { TradeCard } from "../social/TradeCard"
+import { playInterfaceSound } from "@/lib/audio"
 
 interface SignalCardProps {
   symbol?: string
@@ -81,9 +82,14 @@ export function SignalCard(props: SignalCardProps) {
   return (
     <motion.div 
       layout
-      className={`glass-card p-6 ${cardTypeClass} hover:translate-y-[-4px] cursor-pointer`}
-      onClick={() => setExpanded(!expanded)}
+      onMouseEnter={() => playInterfaceSound('HOVER')}
+      onClick={() => {
+        setExpanded(!expanded)
+        playInterfaceSound(expanded ? 'CLICK' : 'SELECT')
+      }}
+      className={`perspective-card cursor-pointer group/card`}
     >
+      <div className={`glass-card p-6 perspective-card-inner ${cardTypeClass} group-hover/card:translate-y-[-8px]`}>
       {/* TOP ROW: Symbol & Header */}
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-1">
@@ -239,6 +245,7 @@ export function SignalCard(props: SignalCardProps) {
             </motion.div>
          )}
       </AnimatePresence>
+      </div>
     </motion.div>
   )
 }
