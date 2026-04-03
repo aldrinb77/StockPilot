@@ -17,6 +17,8 @@ import { toTradingViewSymbol } from '@/lib/utils'
 import Link from 'next/link'
 import { MultiTimeframe } from '@/components/analysis/MultiTimeframe'
 
+import { PaperTradeCard } from '@/components/portfolio/PaperTradeCard'
+
 export default function StockDetailPage({ params }: { params: { symbol: string } }) {
   const symbol = params.symbol.toUpperCase()
   const { selectedMarket, watchlist, addToWatchlist, removeFromWatchlist } = useStore()
@@ -177,6 +179,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
 
         {/* Sidebar Column */}
         <div className="w-full xl:w-[400px] flex-shrink-0 space-y-6">
+          <PaperTradeCard stock={stock} />
           <SignalCard stock={stock} signal={signal} />
           
           <div className="glass-card p-6 rounded-xl border border-[#00e676]/20 bg-[#00e67610] space-y-4">

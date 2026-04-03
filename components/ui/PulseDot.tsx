@@ -1,8 +1,9 @@
-export function PulseDot({ color = 'green' }: { color?: 'green' | 'red' | 'amber' }) {
+export function PulseDot({ color = 'green' }: { color?: 'green' | 'red' | 'amber' | 'blue' }) {
   const colors = {
-    green: 'bg-green-400',
-    red: 'bg-red-400',
-    amber: 'bg-amber-400',
+    green: 'bg-[#00e676]',
+    red: 'bg-[#ff1744]',
+    amber: 'bg-[#ffab00]',
+    blue: 'bg-[#2979ff]',
   };
   return (
     <span className="relative flex h-2.5 w-2.5 shrink-0">

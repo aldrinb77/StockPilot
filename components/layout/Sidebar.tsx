@@ -23,7 +23,8 @@ import {
   Calculator,
   Calendar,
   History,
-  Bell
+  Bell,
+  Trophy
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, section: 'main' },
   { name: "Signals", href: "/signals", icon: Zap, section: 'main' },
   { name: "Screener", href: "/screener", icon: Search, section: 'main' },
+  { name: "Leaderboard", href: "/leaderboard", icon: Trophy, section: 'main' },
   { name: "Watchlist", href: "/watchlist", icon: Star, section: 'personal' },
   { name: "Alerts", href: "/alerts", icon: Bell, section: 'personal' },
   { name: "Portfolio", href: "/portfolio", icon: PieChart, section: 'personal' },

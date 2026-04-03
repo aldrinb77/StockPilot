@@ -51,6 +51,12 @@ export interface AppState {
   addToPortfolio: (item: PortfolioItem) => void
   removeFromPortfolio: (id: string) => void
   
+  // Paper Trading
+  paperBalance: number
+  buyStock: (symbol: string, name: string, price: number, quantity: number) => void
+  sellStock: (id: string, price: number) => void
+  resetPaperAccount: () => void
+  
   // Journal
   journalEntries: JournalEntry[]
   addJournalEntry: (entry: Omit<JournalEntry, 'id'>) => void
@@ -129,6 +135,43 @@ export const useStore = create<AppState>()(
       portfolio: [],
       addToPortfolio: (item) => set((state) => ({ portfolio: [...state.portfolio, item] })),
       removeFromPortfolio: (id) => set((state) => ({ portfolio: state.portfolio.filter((p) => p.id !== id) })),
+
+      paperBalance: 100000,
+      buyStock: (symbol, name, price, quantity) => set((state) => {
+        const cost = price * quantity
+        if (state.paperBalance < cost) return state // Not enough funds
+        
+        const newItem: PortfolioItem = {
+          id: Math.random().toString(36).slice(2, 11),
+          symbol,
+          name,
+          quantity,
+          buyPrice: price,
+          buyDate: Date.now()
+        }
+        
+        return {
+          paperBalance: state.paperBalance - cost,
+          portfolio: [...state.portfolio, newItem]
+        }
+      }),
+      sellStock: (id, price) => set((state) => {
+        const item = state.portfolio.find(p => p.id === id)
+        if (!item) return state
+        
+        const proceeds = item.quantity * price
+        const filtered = state.portfolio.filter(p => p.id !== id)
+        
+        // Add to history
+        const historyItem = { ...item, sellPrice: price, sellDate: Date.now() } as any
+        
+        return {
+          paperBalance: state.paperBalance + proceeds,
+          portfolio: filtered,
+          tradeHistory: [historyItem, ...state.tradeHistory]
+        }
+      }),
+      resetPaperAccount: () => set({ paperBalance: 100000, portfolio: [], tradeHistory: [] }),
 
       journalEntries: [],
       addJournalEntry: (entry) => set((state) => ({
